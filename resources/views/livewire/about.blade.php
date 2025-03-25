@@ -27,7 +27,7 @@
     <div class="max-w-2xl space-y-6" data-aos-duration="3000"  data-aos="fade-up">
         <h2 class="text-4xl font-bold text-red-700">Hey, I'm Dan Fred P Cablas</h2>
         <p class="text-gray-300 leading-relaxed">
-            I'm a Laravel developer currently studying at <strong>STI WEST NEGROS UNIVERSITY</strong>. I live in <strong>Benares St, Capitol Heights, Brgy. Villamonte, Bacolod City</strong>, and I’ve been a <strong>working student at Jollibee Lopues East for almost 5 years and 6 months</strong>.
+            I'm a Laravel developer currently studying at <strong>STI WEST NEGROS UNIVERSITY</strong>
         </p>
         <p class="text-gray-300 leading-relaxed">
             I started learning Laravel by watching tutorials and with the guidance of my teacher, who helped me understand how to become a better Laravel developer. Through hands-on practice, I improved my problem-solving skills, especially in handling logical operations and database management. 
