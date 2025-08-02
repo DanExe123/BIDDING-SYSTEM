@@ -3,10 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" type="image/png" href="{{ asset('icon/avatar-people-user-profile-man-boy-cap-young-512.webp') }}">
+       
 
-
-        <title>Dan-Portfolio</title>
+        <title>KALINAW</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -21,11 +20,7 @@
       
          </head>
         <body class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-red-800 via-gray-900 to-black text-white text-center px-6">
-        <!-- Main Content -->
-            @include('livewire.includes.Content')
-            {{--  @include('livewire.includes.floating-button')--}}
-            @include('livewire.includes.navbar')
-        
+       
         </div>   
         </div>
         </body>

@@ -17,11 +17,7 @@ Route::view('dashboard', 'dashboard')
 
 
 
-                // web pages
-                Route::get('/projects', Projects::class)->name('projects');
-                Route::get('/technologies', Technologies::class)->name('technologies');
-                Route::get('/contact', Contact::class)->name('contact');
-                Route::get('/about', About::class)->name('about');
+
 
 
 
