@@ -2,10 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Livewire\Projects;
-use App\Livewire\About;
-use App\Livewire\Technologies;
-use App\Livewire\Contact;
+/// super admin //
+use App\Livewire\SuperadminDashboard;
+use App\Livewire\SuperadminUserManagement;
+use App\Livewire\SuperadminCreateAccount;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,17 +16,19 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-
-
-
-
-
+  /* TEMPORARY LANG NI SINCE WAY PA USER ROLES . KAKSA LANG ANG MIDDLEWARE AUTH KG HAPLOK SA SUPER ADMIN ROLE */
+    Route::get('/superadmin', SuperadminDashboard::class)->middleware(['auth'])->name('superadmin-dashboard');
+    Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)  ->middleware(['auth']) ->name('superadmin-user-management'); 
+    Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)  ->middleware(['auth']) ->name('superadmin-create-account'); 
+    
 
 
 
 
 
 Route::middleware(['auth'])->group(function () {
+    
+
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');

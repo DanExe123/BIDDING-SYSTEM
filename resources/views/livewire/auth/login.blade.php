@@ -72,55 +72,64 @@ new #[Layout('components.layouts.auth')] class extends Component {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
     }
 }; ?>
+<!-- Outer wrapper to center content both vertically and horizontally -->
+<div class="flex items-center justify-center bg-gray-100">
+    <!-- Card -->
+    <div class="bg-white shadow-sm p-4 w-[700px] rounded-md border border-gray-400">
+        <div class="flex flex-col gap-6">
+            <!-- Session Status -->
+            <x-auth-session-status class="text-center" :status="session('status')" />
 
-<div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+            <!-- Title -->
+            <div class="flex justify-center bg-[#062B4A] py-2 rounded-md w-[600px]">
+                <h1 class="font-bold text-xl text-white text-center">
+                    Login as "spattie role here"
+                </h1>
+            </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
+            <!-- Form -->
+            <form wire:submit="login" class="flex flex-col gap-6 items-center">
+                <!-- Email -->
+                <flux:input
+                    wire:model="email"
+                    :label="__('Email')"
+                    type="email"
+                    required
+                    autofocus
+                    autocomplete="email"
+                    placeholder="email@example.com"
+                    class="!w-70"
+                />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
-        <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
+                <!-- Password -->
+                <flux:input
+                    wire:model="password"
+                    :label="__('Password')"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                    :placeholder="__('Password')"
+                    class="!w-70"
+                />
 
-        <!-- Password -->
-        <div class="relative">
-            <flux:input
-                wire:model="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                :placeholder="__('Password')"
-            />
+                <!-- Submit -->
+                <div class="flex justify-center w-full">
+                    <flux:button type="submit" class="w-40 !bg-[#FAEA55] text-black">
+                        {{ __('Log in') }}
+                    </flux:button>
+                </div>
+            </form>
 
+            <!-- Forgot Password -->
             @if (Route::has('password.request'))
-                <flux:link class="absolute right-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
+                <flux:link
+                    class="text-center text-sm text-[#062B4A] dark:text-zinc-400 underline"
+                    :href="route('password.request')"
+                    wire:navigate
+                >
                     {{ __('Forgot your password?') }}
                 </flux:link>
             @endif
         </div>
-
-        <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
-
-        <div class="flex items-center justify-end">
-            <flux:button variant="primary" type="submit" class="w-full">{{ __('Log in') }}</flux:button>
-        </div>
-    </form>
-
-    @if (Route::has('register'))
-        <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
-            {{ __('Don\'t have an account?') }}
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
-    @endif
+    </div>
 </div>

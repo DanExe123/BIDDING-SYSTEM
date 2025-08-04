@@ -6,7 +6,7 @@
         <link rel="icon" type="image/png" href="{{ asset('icon/avatar-people-user-profile-man-boy-cap-young-512.webp') }}">
 
 
-        <title>Dan-Portfolio</title>
+        <title>KALINAW</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,7 +24,7 @@
         @vite(['resources/js/app.js']) <!-- Ensure Alpine.js is loaded via Vite -->
 
     </head>
-    <body class="w-full h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800">
+    <body class="">
         {{ $slot }}
         @yield('content')
         
