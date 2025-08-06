@@ -40,7 +40,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+         $user = Auth::user();
+
+        if ($user->hasRole('Admin') || $user->hasRole('Super Admin')) {
+            $this->redirect(route('admin.dashboard'));
+        } elseif ($user->hasRole('BAC Sec')) {
+            $this->redirect(route('bacsec.dashboard'));
+        } elseif ($user->hasRole('Supplier')) {
+            $this->redirect(route('supplier.dashboard'));
+        } elseif ($user->hasRole('Purchaser')) {
+            $this->redirect(route('purchaser.dashboard'));
+        }
     }
 
     /**
