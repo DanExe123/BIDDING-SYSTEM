@@ -6,23 +6,23 @@ use Livewire\Volt\Volt;
 use App\Livewire\SuperadminDashboard;
 use App\Livewire\SuperadminUserManagement;
 use App\Livewire\SuperadminCreateAccount;
+use App\Livewire\SuperadminAudittrails;
+// bac dashboard //
+use App\Livewire\BacDashboard;
 
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::middleware(['auth', 'role:Admin|Super_Admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return 'Admin Dashboard';
-    })->name('admin.dashboard');
+Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
+    Route::get('/superadmin', SuperadminDashboard::class)->name('superadmin-dashboard'); 
+    Route::get('/superadmin-audittrails', SuperadminAudittrails::class)->name('superadmin-audittrails'); 
+    Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)->name('superadmin-user-management'); 
+    Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
+   
 });
-
-  /* TEMPORARY LANG NI SINCE WAY PA USER ROLES . KAKSA LANG ANG MIDDLEWARE AUTH KG HAPLOK SA SUPER ADMIN ROLE */
-    Route::get('/superadmin', SuperadminDashboard::class)->middleware(['auth'])->name('superadmin-dashboard');
-    Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)  ->middleware(['auth']) ->name('superadmin-user-management'); 
-    Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)  ->middleware(['auth']) ->name('superadmin-create-account'); 
-    
+  
 Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::get('/supplier/dashboard', function () {
         return 'Supplier Dashboard';
@@ -36,9 +36,8 @@ Route::middleware(['auth', 'role:Purchaser'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:BAC_Sec'])->group(function () {
-    Route::get('/bacsec/dashboard', function () {
-        return 'BAC Sec Dashboard';
-    })->name('bacsec.dashboard');
+    Route::get('/bacsec/dashboard', BacDashboard::class)->name('bac-dashboard'); 
+   
 });
 
 

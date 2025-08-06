@@ -1,6 +1,6 @@
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    @include('partials.super-admin-sidebar')
+    @include('partials.user-sidebar')
   
     <!-- Main content area (topbar + page content) -->
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">

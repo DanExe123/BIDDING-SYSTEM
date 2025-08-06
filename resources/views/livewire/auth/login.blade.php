@@ -42,10 +42,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
          $user = Auth::user();
 
-        if ($user->hasRole('Admin') || $user->hasRole('Super Admin')) {
-            $this->redirect(route('admin.dashboard'));
-        } elseif ($user->hasRole('BAC Sec')) {
-            $this->redirect(route('bacsec.dashboard'));
+        if ($user->hasRole('Admin') || $user->hasRole('Super_Admin')) {
+            $this->redirect(route('superadmin-dashboard'));
+        } elseif ($user->hasRole('BAC_Sec')) {
+            $this->redirect(route('bac-dashboard'));
         } elseif ($user->hasRole('Supplier')) {
             $this->redirect(route('supplier.dashboard'));
         } elseif ($user->hasRole('Purchaser')) {
@@ -93,7 +93,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <!-- Title -->
             <div class="flex justify-center bg-[#062B4A] py-2 rounded-md w-[600px]">
                 <h1 class="font-bold text-xl text-white text-center">
-                    Login as "spattie role here"
+                    Login 
                 </h1>
             </div>
 

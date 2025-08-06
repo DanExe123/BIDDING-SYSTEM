@@ -40,18 +40,17 @@
                 Register
             </a></li>
         </ul>
-        <div x-data="{ open: false }" class="relative flex items-center">
+        <div  class="relative flex items-center">
             <!-- Trigger Button -->
-            <a href="#" 
-               @click.prevent="open = !open"
+            <a wire:navigate href="{{ route('login') }}" 
                class="group border border-white px-3 py-1 rounded-md relative z-20">
                 <span class="flex items-center gap-2 text-white group-hover:text-yellow-400">
                     Login
-                    <x-phosphor.icons::bold.caret-down class="w-5 h-5 mt-0.5 group-hover:text-yellow-400" />
+                  {{-- <x-phosphor.icons::bold.caret-down class="w-5 h-5 mt-0.5 group-hover:text-yellow-400" />  --}}  
                 </span>
             </a>
         
-            <!-- Dropdown Panel -->
+            <!-- Dropdown Panel
             <div
                 x-cloak
                 x-show="open"
@@ -77,6 +76,7 @@
                     </li>
                 </ul>
             </div>
+             -->
         </div>
         
     </div>
