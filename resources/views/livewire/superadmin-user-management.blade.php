@@ -1,6 +1,7 @@
 <div class="flex min-h-screen">
     <!-- Sidebar -->
     @include('partials.user-sidebar')
+    
   
     <!-- Main content area (topbar + page content) -->
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
@@ -13,11 +14,24 @@
           </button>
         </div>
       </header>
+
+       @if (session()->has('success'))
+          <div
+              x-data="{ show: true }"
+              x-init="setTimeout(() => show = false, 3000)"
+              x-show="show"
+              x-transition
+              class="bg-green-300 text-green-900 px-4 py-2 rounded mt-2 text-sm font-medium"
+          >
+              {{ session('success') }}
+          </div>
+        @endif
   
       <!-- Page content -->
       <main class="p-6 space-y-6 flex-1">
      <!-- Filter and Create Account Buttons -->
-<div class="flex justify-between items-center flex-wrap gap-4">
+      <div class="flex justify-between items-center flex-wrap gap-4">
+
     <div class="flex items-center gap-2">
       <label for="sort" class="text-sm font-medium">Sort by:</label>
       <select id="sort" name="sort" class="border border-gray-300 rounded px-2 py-1 text-sm">
@@ -43,33 +57,37 @@
 </div>
   
   <!-- Account Sections  temporary data for front use only pre -->
-  @foreach (['Admin' => ['ken paguddan'], 'Purchaser' => ['ken paguddan', 'kent alt'], 'Supplier' => ['ken alt', 'kent alt']] as $role => $users)
+  @foreach ($groupedUsers as $role => $users)
     <div class="mt-6">
-      <div class="bg-[#002b4a] text-white px-4 py-2 rounded-full font-semibold">{{ $role }} Account</div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        @foreach ($users as $user)
-          <div class="bg-cyan-100 border border-cyan-300 rounded-md p-4 shadow relative">
-            <div class="flex items-center justify-between mb-2">
-              <div>
-                <div class="text-black font-bold">{{ $user }}</div>
-                <div class="text-sm text-gray-600">Username: sample_user</div>
-              </div>
+        <div class="bg-[#002b4a] text-white px-4 py-2 rounded-full font-semibold">
+            {{ $role }} Account
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            @foreach ($users as $user)
+                <div class="bg-cyan-100 border border-cyan-300 rounded-md p-4 shadow relative">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <div class="text-black font-bold">{{ $user->first_name }} {{ $user->last_name }}</div>
+                            <div class="text-sm text-gray-600">Username: {{ $user->username }}</div>
+                        </div>
 
-              <span class="text-sm bg-blue-200 text-blue-800 px-2 py-1 rounded-full flex justify-start gap-1">
-                <div class="bg-green-700 w-3 h-3 rounded-full mt-1"></div>
-                Active</span>
-            </div>
-            <div class="flex gap-2 mt-2">
-              <button class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">Activate</button>
-              <button class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">Deactivate</button>
-              <button class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-sm">Archive</button>
-              <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm ml-auto">Edit</button>
-            </div>
-          </div>
-        @endforeach
-      </div>
+                        <span class="text-sm bg-blue-200 text-blue-800 px-2 py-1 rounded-full flex justify-start gap-1">
+                            <div class="bg-green-700 w-3 h-3 rounded-full mt-1"></div>
+                            Active
+                        </span>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <button class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">Activate</button>
+                        <button class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">Deactivate</button>
+                        <button class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-sm">Archive</button>
+                        <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm ml-auto">Edit</button>
+                    </div>
+                </div>
+            @endforeach
+        </div>
     </div>
-  @endforeach
+@endforeach
+
   
       </main>
     </div>

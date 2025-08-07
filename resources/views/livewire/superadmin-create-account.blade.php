@@ -19,55 +19,74 @@
       <!-- Announcement Box -->
       <div class="bg-[#C5D7E6] p-4 rounded-md shadow-md border border-gray-300 relative h-auto">
         <div class="grid grid-flow-col grid-rows-4 gap-4">
-          <x-input
-        label="First Name"
-        placeholder="First Name"
-        class="!border !border-gray-400 rounded-lg"
+        <x-input
+          label="First Name"
+          placeholder="First Name"
+          wire:model="first_name"
+          class="!border !border-gray-400 rounded-lg"
         />
 
-        <div x-data="{ selected: '', open: false, options: ['BAC Secretary', 'Bidder', 'Purchaser'] }" class="relative w-full">
+        <div 
+            x-data="{ 
+                selected: @entangle('account_type'), 
+                open: false, 
+                options: @js($roles) 
+            }" 
+            class="relative w-full">
             <!-- Label -->
             <label class="block mb-2 text-sm font-medium text-gray-700">Select Account Type</label>
-          
+            
             <!-- Dropdown Button -->
             <button
-              @click="open = !open"
-              class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+                @click="open = !open"
+                class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm focus:outline-none focus:ring focus:border-blue-300"
             >
-              <span class="text-gray-400 text-xs w-full" x-text="selected || 'Select Account Type'"></span>
+                <span 
+                    class="text-sm w-full"
+                    :class="selected ? 'text-black' : 'text-gray-400'"
+                    x-text="selected || 'Select Account Type'"
+                ></span>
             </button>
-          
+
             <!-- Options Dropdown -->
             <ul
-              x-show="open"
-              @click.away="open = false"
-              x-transition
-              class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg"
+                x-show="open"
+                @click.away="open = false"
+                x-transition
+                class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg"
             >
-              <template x-for="option in options" :key="option">
-                <li
-                  @click="selected = option; open = false"
-                  class="px-4 py-2 hover:bg-blue-100 cursor-pointer"
-                  x-text="option"
-                ></li>
-              </template>
+                <template x-for="option in options" :key="option">
+                    <li
+                        @click="selected = option; open = false"
+                        class="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                        x-text="option"
+                    ></li>
+                </template>
             </ul>
-          </div>
+            @error('account_type')
+              <span class="text-red-600 text-xs">{{ $message }}</span>
+            @enderror
+
+        </div>
           
         <x-input
-        label="User Name"
+        label="Username"
         placeholder="Juan"
+        wire:model="username"
         class="!border !border-gray-400 rounded-lg"
         />
         <x-input
         label="Password"
         placeholder="password"
+        wire:model="password"
+        type="password"
         class="!border !border-gray-400 rounded-lg"
         />
        
         <x-input
         label="Last Name"
         placeholder="Last Name"
+        wire:model="last_name"
         class="!border !border-gray-400 rounded-lg"
         />
          <!-- role drop down -->
@@ -103,22 +122,26 @@
         <x-input
         label="Email"
         placeholder="Auto Email Generate"
+        wire:model="email"
         class="!border !border-gray-400 rounded-lg"
         />
         <x-input
         label="Confirm Password"
         placeholder="Conform Password"
+        wire:model="confirm_password"
+        type="password"
         class="!border !border-gray-400 rounded-lg"
         />
         <x-input
         label="Middle Initial"
         placeholder="M"
+        wire:model="middle_initial"
         class="!border !border-gray-400 rounded-lg"
         />
           </div>
 
        <div class="flex justify-center mt-6">
-            <x-button wire:click="sleeping" spinner="sleeping" primary class="!bg-[#FAEA55] text-black !px-10">
+            <x-button wire:click="createAccount" spinner="createAccount" spinner="sleeping" primary class="!bg-[#FAEA55] text-black !px-10">
             Create Account
             </x-button>
         

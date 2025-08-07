@@ -35,7 +35,7 @@ Route::middleware(['auth', 'role:Purchaser'])->group(function () {
     })->name('purchaser.dashboard');
 });
 
-Route::middleware(['auth', 'role:BAC_Sec'])->group(function () {
+Route::middleware(['auth', 'role:BAC_Secretary'])->group(function () {
     Route::get('/bacsec/dashboard', BacDashboard::class)->name('bac-dashboard'); 
    
 });

@@ -42,9 +42,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
          $user = Auth::user();
 
-        if ($user->hasRole('Admin') || $user->hasRole('Super_Admin')) {
+        if ($user->hasRole('Super_Admin')) {
             $this->redirect(route('superadmin-dashboard'));
-        } elseif ($user->hasRole('BAC_Sec')) {
+        } elseif ($user->hasRole('BAC_Secretary')) {
             $this->redirect(route('bac-dashboard'));
         } elseif ($user->hasRole('Supplier')) {
             $this->redirect(route('supplier.dashboard'));
