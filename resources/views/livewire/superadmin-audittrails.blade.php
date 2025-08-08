@@ -20,6 +20,7 @@
         <div class="bg-white rounded-t-lg border-b border-gray-300 text-center py-4">
           <h2 class="text-lg font-semibold">Activity Log</h2>
         </div>
+        
         <div class="p-4">
           <table class="min-w-full table-auto text-sm text-left text-gray-700">
             <thead class="bg-gray-200 text-gray-700 font-semibold">
@@ -27,62 +28,28 @@
                 <th class="px-4 py-2">Date/Time</th>
                 <th class="px-4 py-2">Action</th>
                 <th class="px-4 py-2">Name</th>
-                <th class="px-4 py-2">Username</th>
+                <th class="px-4 py-2">Email</th>
                 <th class="px-4 py-2">Account Type</th>
                 <th class="px-4 py-2">Location</th>
               </tr>
             </thead>
             <tbody>
-              <!-- Sample Row -->
-              <tr class="border-b">
-                <td class="px-4 py-2">6/21/2025, 8:54:29 AM</td>
-                <td class="px-4 py-2 text-green-600 font-medium">Login</td>
-                <td class="px-4 py-2">jay wil</td>
-                <td class="px-4 py-2">jay</td>
-                <td class="px-4 py-2">supplier</td>
-                <td class="px-4 py-2">Mandaluyong, Metro Manila, Philippines</td>
-              </tr>
-              <tr class="border-b">
-                <td class="px-4 py-2">6/21/2025, 8:53:39 AM</td>
-                <td class="px-4 py-2 text-red-600 font-medium">Logout</td>
-                <td class="px-4 py-2">jas per</td>
-                <td class="px-4 py-2">jasper</td>
-                <td class="px-4 py-2">treasurer</td>
-                <td class="px-4 py-2">Mandaluyong, Metro Manila, Philippines</td>
-              </tr>
-              <tr class="border-b">
-                <td class="px-4 py-2">6/21/2025, 8:53:31 AM</td>
-                <td class="px-4 py-2 text-green-600 font-medium">Login</td>
-                <td class="px-4 py-2">jas per</td>
-                <td class="px-4 py-2">jasper</td>
-                <td class="px-4 py-2">treasurer</td>
-                <td class="px-4 py-2">Mandaluyong, Metro Manila, Philippines</td>
-              </tr>
-              <tr class="border-b">
-                <td class="px-4 py-2">6/18/2025, 6:40:41 PM</td>
-                <td class="px-4 py-2 text-green-600 font-medium">Login</td>
-                <td class="px-4 py-2">jan nole</td>
-                <td class="px-4 py-2">janelle</td>
-                <td class="px-4 py-2">captain</td>
-                <td class="px-4 py-2">Makati City, Metro Manila, Philippines</td>
-              </tr>
-              <tr class="border-b">
-                <td class="px-4 py-2">6/18/2025, 6:40:19 PM</td>
-                <td class="px-4 py-2 text-red-600 font-medium">Logout</td>
-                <td class="px-4 py-2">Super Admin</td>
-                <td class="px-4 py-2">admin</td>
-                <td class="px-4 py-2">admin</td>
-                <td class="px-4 py-2">Makati City, Metro Manila, Philippines</td>
-              </tr>
-              <tr class="border-b">
-                <td class="px-4 py-2">6/18/2025, 6:29:50 PM</td>
-                <td class="px-4 py-2 text-red-600 font-medium">Logout</td>
-                <td class="px-4 py-2">jan nelle</td>
-                <td class="px-4 py-2">janelle</td>
-                <td class="px-4 py-2">captain</td>
-                <td class="px-4 py-2">Unknown</td>
-              </tr>
+                @foreach($logs as $log)
+                <tr class="border-b">
+                    <td class="px-4 py-2">{{ $log->created_at->format('n/j/Y, g:i:s A') }}</td>
+                    <td class="px-4 py-2 {{ $log->action === 'Login' ? 'text-green-600' : 'text-red-600' }} font-medium">
+                        {{ $log->action }}
+                    </td>
+                    <td class="px-4 py-2">{{ $log->user->first_name}} {{ $log->user->last_name}}</td>
+                    <td class="px-4 py-2">{{ $log->user->email}}</td>
+                    <td class="px-4 py-2">
+                        {{ Str::of($log->user?->getRoleNames()->first() ?? 'N/A')->replace('_', ' ')->title() }}
+                    </td>
+                    <td class="px-4 py-2">{{ $log->location ?? 'Unknown' }}</td>
+                </tr>
+                @endforeach
             </tbody>
+
           </table>
         </div>
       </div>

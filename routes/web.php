@@ -6,6 +6,7 @@ use Livewire\Volt\Volt;
 use App\Livewire\SuperadminDashboard;
 use App\Livewire\SuperadminUserManagement;
 use App\Livewire\SuperadminCreateAccount;
+use App\Livewire\SuperadminEditAccount;
 use App\Livewire\SuperadminAudittrails;
 // bac dashboard //
 use App\Livewire\BacDashboard;
@@ -34,7 +35,7 @@ Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin-audittrails', SuperadminAudittrails::class)->name('superadmin-audittrails'); 
     Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)->name('superadmin-user-management'); 
     Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
-   
+    Route::get('/superadmin-EditAccount/{user}', SuperadminEditAccount::class)->name('superadmin-edit-account');
 });
   
 Route::middleware(['auth', 'role:Supplier'])->group(function () {

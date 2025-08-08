@@ -7,16 +7,50 @@ use Livewire\Component;
 
 class SuperadminUserManagement extends Component
 {
+    public string $roleFilter = 'All';
+
+    public $confirmingUserDeletion = false;
+    public $userToDelete = null;
+
+    public function confirmDelete($userId)
+    {
+        $this->userToDelete = $userId;
+        $this->confirmingUserDeletion = true;
+    }
+
+    public function deleteUser()
+    {
+        $user = User::findOrFail($this->userToDelete);
+
+        try {
+            $user->delete();
+            session()->flash('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to delete user.');
+        }
+
+        $this->confirmingUserDeletion = false;
+        $this->userToDelete = null;
+    }
+
+
     public function render()
     {
         // Fetch users with their roles, excluding 'Super_Admin'
-        $users = User::with('roles')
-            ->whereHas('roles', fn ($query) => $query->where('name', '!=', 'Super_Admin'))
-            ->get()
-            ->groupBy(fn ($user) => str_replace('_', ' ', $user->roles->first()->name ?? 'Unknown'));
+        $query = User::with('roles')
+            ->whereHas('roles', function ($q) {
+                $q->where('name', '!=', 'Super_Admin');
+
+                if ($this->roleFilter !== 'All') {
+                    $q->where('name', str_replace(' ', '_', $this->roleFilter));
+                }
+            });
+
+        $users = $query->get();
 
         return view('livewire.superadmin-user-management', [
-            'groupedUsers' => $users,
+            'users' => $users,
         ]);
     }
+
 }

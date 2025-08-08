@@ -6,7 +6,16 @@
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
       <!-- Topbar -->
       <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
-        <h1 class="text-xl font-semibold">User Management</h1>
+        <div class="flex items-center gap-2 px-4 py-2">
+            <a href="{{ route('superadmin-user-management') }}" class="text-xl font-semibold hover:underline">
+                User Management
+            </a>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            <h1 class="text-xl font-semibold">Create Account</h1>
+        </div>
         <div>
           <button class="text-gray-500 hover:text-black">
             <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />

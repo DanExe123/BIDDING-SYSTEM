@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
+ use App\Models\ActivityLog;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     #[Validate('required|string|email')]
@@ -40,7 +41,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-         $user = Auth::user();
+        $user = Auth::user();
 
         if ($user->hasRole('Super_Admin')) {
             $this->redirect(route('superadmin-dashboard'));
@@ -51,6 +52,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
         } elseif ($user->hasRole('Purchaser')) {
             $this->redirect(route('purchaser-dashboard'));
         }
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'Login',
+            'location' => request()->ip(), // or use location service
+        ]);
+
     }
 
     /**
