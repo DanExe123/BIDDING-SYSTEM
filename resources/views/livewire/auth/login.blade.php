@@ -47,9 +47,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
         } elseif ($user->hasRole('BAC_Secretary')) {
             $this->redirect(route('bac-dashboard'));
         } elseif ($user->hasRole('Supplier')) {
-            $this->redirect(route('supplier.dashboard'));
+            $this->redirect(route('supplier-dashboard'));
         } elseif ($user->hasRole('Purchaser')) {
-            $this->redirect(route('purchaser.dashboard'));
+            $this->redirect(route('purchaser-dashboard'));
         }
     }
 

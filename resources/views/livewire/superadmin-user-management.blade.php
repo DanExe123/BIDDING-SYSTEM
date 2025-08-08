@@ -56,37 +56,54 @@
     <button class="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-semibold">Show Archive Accounts</button>
 </div>
   
-  <!-- Account Sections  temporary data for front use only pre -->
-  @foreach ($groupedUsers as $role => $users)
-    <div class="mt-6">
-        <div class="bg-[#002b4a] text-white px-4 py-2 rounded-full font-semibold">
-            {{ $role }} Account
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            @foreach ($users as $user)
-                <div class="bg-cyan-100 border border-cyan-300 rounded-md p-4 shadow relative">
-                    <div class="flex items-center justify-between mb-2">
-                        <div>
-                            <div class="text-black font-bold">{{ $user->first_name }} {{ $user->last_name }}</div>
-                            <div class="text-sm text-gray-600">Username: {{ $user->username }}</div>
-                        </div>
-
-                        <span class="text-sm bg-blue-200 text-blue-800 px-2 py-1 rounded-full flex justify-start gap-1">
-                            <div class="bg-green-700 w-3 h-3 rounded-full mt-1"></div>
-                            Active
-                        </span>
-                    </div>
-                    <div class="flex gap-2 mt-2">
-                        <button class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">Activate</button>
-                        <button class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">Deactivate</button>
-                        <button class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-sm">Archive</button>
-                        <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm ml-auto">Edit</button>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+  <!-- Account Sections (temporary data for front use only) -->
+@foreach ($groupedUsers as $role => $users)
+<div class="mt-8">
+    <!-- Role Header -->
+    <div class="bg-[#002b4a] text-white px-4 py-2 rounded-full font-semibold">
+        {{ $role }} Account
     </div>
+
+    <!-- Table Layout -->
+    <div class="overflow-x-auto mt-4">
+        <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-[#002b4a] text-cyan-900">
+                <tr>
+                    <th class="text-left px-4 py-2 border text-white">Name</th>
+                    <th class="text-left px-4 py-2 border text-white">Username</th>
+                    <th class="text-left px-4 py-2 border text-white">Status</th>
+                    <th class="text-left px-4 py-2 border text-white">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($users as $user)
+                    <tr class="bg-gray-50 border-b">
+                        <td class="px-4 py-2 border font-medium">
+                            {{ $user->first_name }} {{ $user->last_name }}
+                        </td>
+                        <td class="px-4 py-2 border text-gray-700">
+                            {{ $user->username }}
+                        </td>
+                        <td class="px-4 py-2 border">
+                            <span class="inline-flex items-center gap-1 bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs">
+                                <div class="bg-green-700 w-2.5 h-2.5 rounded-full"></div>
+                                Active
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 border space-x-1">
+                            <button class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Activate</button>
+                            <button class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Deactivate</button>
+                            <button class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Archive</button>
+                            <button class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Edit</button>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
 @endforeach
+
 
   
       </main>

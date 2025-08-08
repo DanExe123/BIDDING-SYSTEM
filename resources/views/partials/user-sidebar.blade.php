@@ -22,7 +22,7 @@
             User Management
         </a>
     
-        <a
+        <a  wire:navigate 
             href="{{ route('superadmin-audittrails') }}"
             class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
         >
@@ -30,42 +30,110 @@
         </a>
         @endrole
 
-     @role('BAC_Sec')
+     @role('BAC_Secretary')
           <a
           wire:navigate
-          href="{{ route('superadmin-dashboard') }}"
-          class="{{ request()->routeIs('superadmin-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 block"
+          href="{{ route('bac-dashboard') }}"
+          class="{{ request()->routeIs('bac-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 block"
       >
           Dashboard
       </a>
   
       <a
           wire:navigate
-          href="{{ route('superadmin-user-management') }}"
-          class="{{ request()->routeIs('superadmin-user-management') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+          href="{{ route('bac-procurement-planning') }}"
+          class="{{ request()->routeIs('bac-procurement-planning') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
       >
           Procurement Planning
       </a>
   
-      <a
-          href="{{ route('superadmin-audittrails') }}"
-          class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+      <a  wire:navigate
+          href="{{ route('bac-bid-invitation') }}"
+          class="{{ request()->routeIs('bac-bid-invitation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
       >
-          Bid Initiation
+          Bid Invitation
       </a>
-      <a
-      href="{{ route('superadmin-audittrails') }}"
-      class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+      <a  wire:navigate
+      href="{{ route('bac-bid-evaluation') }}"
+      class="{{ request()->routeIs('bac-bid-evaluation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
   >
       Bid Evaluation
       </a>
-      <a
-      href="{{ route('superadmin-audittrails') }}"
-      class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+      <a  wire:navigate
+      href="{{ route('notice-of-award') }}"
+      class="{{ request()->routeIs('notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
     >
       Notice of Award
     </a>
      @endrole
+
+     @role('Supplier')
+            <a
+            wire:navigate
+            href="{{ route('supplier-dashboard') }}"
+            class="{{ request()->routeIs('supplier-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 block"
+        >
+            Dashboard
+        </a>
+
+        <a
+            wire:navigate
+            href="{{ route('supplier-bid-initiation') }}"
+            class="{{ request()->routeIs('supplier-bid-initiation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+        >
+            Bid Initiation
+        </a>
+
+        <a  wire:navigate
+            href="{{ route('supplier-bid-participation') }}"
+            class="{{ request()->routeIs('supplier-bid-participation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+        >
+            Bid Participation
+        </a>
+        <a  wire:navigate
+        href="{{ route('supplier-bid-evaluation') }}"
+        class="{{ request()->routeIs('supplier-bid-evaluation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+        >
+        Bid Evaluation
+        </a>
+        <a  wire:navigate
+        href="{{ route('notice-of-award') }}"
+        class="{{ request()->routeIs('notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+        >
+        Notice of Award
+        </a>
+        @endrole
+
+        @role('Purchaser')
+        <a
+        wire:navigate
+        href="{{ route('purchaser-dashboard') }}"
+        class="{{ request()->routeIs('purchaser-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 block"
+    >
+        Dashboard
+    </a>
+
+    <a
+        wire:navigate
+        href="{{ route('purchaser-procurement-planning') }}"
+        class="{{ request()->routeIs('purchaser-procurement-planning') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+    >
+        Procurement Planning
+    </a>
+
+    <a  wire:navigate
+        href="{{ route('purchaser-bid-monitoring') }}"
+        class="{{ request()->routeIs('purchaser-bid-monitoring') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+    >
+        Bid Monitoring
+    </a>
+    <a  wire:navigate
+    href="{{ route('inspection-report') }}"
+    class="{{ request()->routeIs('inspection-report') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 block"
+    >
+    Inspection Report
+    </a>
+    @endrole
     </nav>
    
     
