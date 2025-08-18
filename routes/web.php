@@ -15,6 +15,11 @@ use App\Livewire\BacBidInvitation;
 use App\Livewire\BacBidEvaluation;
 use App\Livewire\NoticeOfAward;
 use App\Livewire\GenerateReport;
+/// procurement module //
+use App\Livewire\BacCompetitiveBidding;
+use App\Livewire\BacModeOfProcurement;
+use App\Livewire\BacRequestForQuotation;
+
 // supplier side // 
 use App\Livewire\SupplierDashboard;
 use App\Livewire\SupplierBidEvaluation;
@@ -58,12 +63,17 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     });
 
     Route::middleware(['auth', 'role:BAC_Secretary'])->group(function () {
-        Route::get('/bacsec/dashboard', BacDashboard::class)->name('bac-dashboard'); 
-        Route::get('/bacsec/procurement-planning', BacProcurementPlanning::class)->name('bac-procurement-planning'); 
+        Route::get('/bacsec/dashboard', BacDashboard::class)->name('bac-dashboard');
+        // temporary for purchase request route // 
+        Route::get('/bacsec/purchase-request', BacProcurementPlanning::class)->name('bac-procurement-planning'); 
         Route::get('/bacsec/bid-invitation', BacBidInvitation::class)->name('bac-bid-invitation'); 
         Route::get('/bacsec/bid-evaluation', BacBidEvaluation::class)->name('bac-bid-evaluation'); 
     //  Route::get('/notice-of-award', NoticeOfAward::class)->name('notice-of-award'); 
         Route::get('/generate-report',GenerateReport::class)->name('generate-report');
+        //procurement planning module // 
+        Route::get('/bac-competitive-bidding',BacCompetitiveBidding::class)->name('bac-competitive-bidding');
+        Route::get('/bac-mode-of-procurement',BacModeOfProcurement::class)->name('bac-mode-of-procurement');
+        Route::get('/bac-request-for-quotation',BacRequestForQuotation::class)->name('bac-request-for-quotation');
     
     });
 
