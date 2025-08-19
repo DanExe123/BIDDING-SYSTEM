@@ -93,5 +93,21 @@
             </div>
 
         </main>
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white border-l-4 border-yellow-300 p-6 rounded-md text-center shadow">
+            <div class="text-3xl font-bold">{{ $adminCount }}</div>
+            <div class="text-sm mt-2">Admin Account</div>
+          </div>
+          <div class="bg-white border-l-4 border-blue-400 p-6 rounded-md text-center shadow">
+            <div class="text-3xl font-bold">{{ $purchaserCount }}</div>
+            <div class="text-sm mt-2">Purchaser Account</div>
+          </div>
+          <div class="bg-white border-l-4 border-yellow-300 p-6 rounded-md text-center shadow">
+            <div class="text-3xl font-bold">{{ $supplierCount }}</div>
+            <div class="text-sm mt-2">Supplier Account</div>
+          </div>
+        </div>
+      </main>
     </div>
 </div>

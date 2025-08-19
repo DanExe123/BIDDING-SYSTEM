@@ -28,27 +28,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="p-2 border">1</td>
-                                <td class="p-2 border">Education</td>
-                                <td class="p-2 border text-center text-green-400">Approved</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 border">2</td>
-                                <td class="p-2 border">Education</td>
-                                <td class="p-2 border text-center text-pink-400">Rejected</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 border">2</td>
-                                <td class="p-2 border">Education</td>
-                                <td class="p-2 border text-center text-gray-400">Returned</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 border">2</td>
-                                <td class="p-2 border">Education</td>
-                                <td class="p-2 border text-center text-blue-400">Pending</td>
-                            </tr>
-                           
+                            @forelse ($ppmps as $ppmp)
+                                <tr>
+                                    <td class="p-2 border">{{ $ppmp->id }}</td>
+                                    <td class="p-2 border">{{ $ppmp->project_type }}</td>
+                                    <td class="p-2 border text-center
+                                        {{ $ppmp->status === 'approved' ? 'text-green-400' : '' }}
+                                        {{ $ppmp->status === 'rejected' ? 'text-pink-400' : '' }}
+                                        {{ $ppmp->status === 'returned' ? 'text-gray-400' : '' }}
+                                        {{ $ppmp->status === 'pending' ? 'text-blue-400' : '' }}">
+                                        {{ ucfirst($ppmp->status) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="p-2 border text-center text-gray-400">
+                                        No PPMP entries found.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

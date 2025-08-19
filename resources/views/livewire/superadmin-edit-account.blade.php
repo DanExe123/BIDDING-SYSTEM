@@ -26,48 +26,68 @@
       </header>
   
       <!-- Page content -->
-      <main class="p-6 space-y-6 flex-1">
-    
-        <div class="bg-[#C5D7E6] p-4 rounded-md shadow-md border border-gray-300 relative h-auto">
-            <div class="grid grid-flow-col grid-rows-4 gap-4">
+      <main class="p-6 space-y-6 flex-1"> 
+        <div class="bg-[#C5D7E6] p-6 rounded-md shadow-md border border-gray-300 relative h-auto space-y-6">
+
+            <!-- Row 1: Names -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <x-input label="First Name" placeholder="First Name" wire:model="first_name" class="!border !border-gray-400 rounded-lg" />
-
-                <div x-data="{ selected: @entangle('account_type'), open: false, options: @js($roles) }" class="relative w-full">
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Select Account Type</label>
-                    <button @click="open = !open" class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm focus:outline-none focus:ring focus:border-blue-300">
-                        <span class="text-sm w-full" :class="selected ? 'text-black' : 'text-gray-400'" x-text="selected || 'Select Account Type'"></span>
-                    </button>
-                    <ul x-show="open" @click.away="open = false" x-transition class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                        <template x-for="option in options" :key="option">
-                            <li @click="selected = option; open = false" class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="option"></li>
-                        </template>
-                    </ul>
-                </div>
-
-                <x-input label="Username" wire:model="username" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Password" wire:model="password" type="password" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Last Name" wire:model="last_name" class="!border !border-gray-400 rounded-lg" />
-
-                <div x-data="{ selected: '', open: false, options: ['BAC Secretary', 'Bidder', 'Purchaser'] }" class="relative w-full">
-                    <label class="block mb-2 text-sm font-medium text-gray-700">Role/Position</label>
-                    <button @click="open = !open" class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm focus:outline-none focus:ring focus:border-blue-300">
-                        <span class="text-gray-400 text-xs w-full" x-text="selected || 'Select Role'"></span>
-                    </button>
-                    <ul x-show="open" @click.away="open = false" x-transition class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                        <template x-for="option in options" :key="option">
-                            <li @click="selected = option; open = false" class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="option"></li>
-                        </template>
-                    </ul>
-                </div>
-
-                <x-input label="Email" wire:model="email" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Confirm Password" wire:model="confirm_password" type="password" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Middle Initial" wire:model="middle_initial" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Last Name" placeholder="Last Name" wire:model="last_name" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Middle Initial" placeholder="M" wire:model="middle_initial" class="!border !border-gray-400 rounded-lg" />
             </div>
 
+            <!-- Row 2: Account Type & Supplier Category -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                <!-- Account Type -->
+                <div x-data="{ selected: @entangle('account_type'), open: false, options: @js($roles) }" class="relative w-full">
+                    <label class="block mb-2 text-sm font-medium text-gray-700">Account Type</label>
+                    <button @click="open = !open" class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm">
+                        <span :class="selected ? 'text-black' : 'text-gray-400'" x-text="selected || 'Select Account Type'"></span>
+                    </button>
+                    <ul x-show="open" @click.away="open = false" x-transition class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                        <template x-for="option in options" :key="option">
+                            <li @click="selected = option; open = false" class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="option"></li>
+                        </template>
+                    </ul>
+                    @error('account_type') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+                <!-- Supplier Category -->
+                <div 
+                    x-data="{ selected: @entangle('supplier_category_id'), open: false, options: @js($categories) }"
+                    class="relative w-full"
+                    x-show="$wire.account_type === 'Supplier'"
+                >
+                    <label class="block mb-2 text-sm font-medium text-gray-700">Supplier Category</label>
+                    <button @click="open = !open" class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm">
+                        <span :class="selected ? 'text-black' : 'text-gray-400'" x-text="options.find(c => c.id == selected)?.name || 'Select Category'"></span>
+                    </button>
+                    <ul x-show="open" @click.away="open = false" x-transition class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                        <template x-for="category in options" :key="category.id">
+                            <li @click="selected = category.id; open = false" class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="category.name"></li>
+                        </template>
+                    </ul>
+                    @error('supplier_category_id') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+            </div>
+
+            <!-- Row 3: Username, Email, Role -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-input label="Username" wire:model="username" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Email" wire:model="email" class="!border !border-gray-400 rounded-lg" />
+            </div>
+
+            <!-- Row 4: Passwords -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-input label="Password" type="password" wire:model="password" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Confirm Password" type="password" wire:model="confirm_password" class="!border !border-gray-400 rounded-lg" />
+            </div>
+
+            <!-- Actions -->
             <div class="flex justify-center mt-6 space-x-4">
-                <a href="{{ route('superadmin-user-management') }}" 
-                  class="bg-gray-500 text-white px-6 py-2 rounded-md text-sm hover:bg-gray-600 transition">
+                <a href="{{ route('superadmin-user-management') }}" class="bg-gray-500 text-white px-6 py-2 rounded-md text-sm hover:bg-gray-600 transition">
                     Cancel
                 </a>
                 <x-button wire:click="update" spinner="update" primary class="!bg-[#FAEA55] text-black !px-10">
@@ -77,7 +97,6 @@
 
         </div>
 
-      
       </main>
     </div>
   </div>

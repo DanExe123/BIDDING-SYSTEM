@@ -26,6 +26,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'supplier_category_id',
     ];
 
 
@@ -62,4 +63,21 @@ class User extends Authenticatable
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+
+    public function supplierCategory()
+    {
+        return $this->belongsTo(SupplierCategory::class, 'supplier_category_id');
+    }
+
+    public function bidInvitations()
+    {
+        return $this->belongsToMany(BidInvitation::class, 'bid_invitation_user', 'user_id', 'bid_invitation_id')
+                    ->withTimestamps();
+    }
+   
+    public function bidParticipations()
+    {
+        return $this->hasMany(\App\Models\BidParticipation::class);
+    }
+
 }

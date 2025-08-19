@@ -25,6 +25,8 @@ use App\Livewire\SupplierDashboard;
 use App\Livewire\SupplierBidEvaluation;
 use App\Livewire\SupplierBidInitiation;
 use App\Livewire\SupplierBidParticipation;
+use App\Livewire\SupplierBidding;
+use App\Livewire\SupplierQuotation;
 // purchaser side // 
 use App\Livewire\PurchaserDashboard;
 use App\Livewire\PurchaserProcurementPlanning;
@@ -45,6 +47,8 @@ Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
   
 Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::get('/supplier/dashboard', SupplierDashboard::class)->name('supplier-dashboard'); 
+    Route::get('/supplier/bidding', SupplierBidding::class)->name('supplier-bidding'); 
+    Route::get('/supplier/quotation', SupplierQuotation::class)->name('supplier-quotation'); 
     Route::get('/supplier/bid-initiation', SupplierBidInitiation::class)->name('supplier-bid-initiation'); 
     Route::get('/supplier/bid-evaluation', SupplierBidEvaluation::class)->name('supplier-bid-evaluation'); 
     Route::get('/supplier/bid-participation', SupplierBidParticipation::class)->name('supplier-bid-participation'); 

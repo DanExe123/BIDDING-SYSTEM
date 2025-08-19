@@ -6,7 +6,7 @@
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
         <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
-            <h1 class="text-xl font-semibold">Competitive Bidding</h1>
+            <h1 class="text-xl font-semibold">Bidding</h1>
             <div>
                 <button class="text-gray-500 hover:text-black">
                     <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
@@ -52,9 +52,9 @@
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">
                         <span x-show="tab === 'invitation'">Bid Invitation</span>
-                        <span x-show="tab === 'opening'">Bid Opening & Evaluation</span>
-                        <span x-show="tab === 'post'">Post-Qualification</span>
-                        <span x-show="tab === 'recommendation'">Recommendation for Award</span>
+                        <span x-show="tab === 'participation'">Bid Participation</span>
+                        <span x-show="tab === 'status'">Bid Evaluation Status</span>
+                        <span x-show="tab === 'award'">Notice of Award</span>
                     </h2>
                 </div>
 
@@ -66,37 +66,37 @@
                             class="px-4 py-2 rounded-t-md font-medium">
                             Bid Invitation
                         </button>
-                        <button @click="tab = 'opening'"
-                            :class="tab === 'opening' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
+                        <button @click="tab = 'participation'"
+                            :class="tab === 'participation' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Bid Opening & Evaluation
+                            Bid Participation
                         </button>
-                        <button @click="tab = 'post'"
-                            :class="tab === 'post' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
+                        <button @click="tab = 'status'"
+                            :class="tab === 'status' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Post-Qualification
+                            Bid Evaluation Satus
                         </button>
-                        <button @click="tab = 'recommendation'"
-                            :class="tab === 'recommendation' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
+                        <button @click="tab = 'award'"
+                            :class="tab === 'award' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Recommendation for Award
+                             Notice of Award
                         </button>
                     </div>
 
                     <!-- Tab Content -->
                     <div class="mt-4">
-                        <!-- Bid Invitation -->
+                        <!-- Bid invitation -->
                         <div x-show="tab === 'invitation'">
-                            <livewire:bac-bid-invitation />
+                            <livewire:supplier-bid-initiation />
+                        </div>
+                           
+                        <!-- Bid participation -->
+                        <div x-show="tab === 'participation'">
+                            <livewire:supplier-bid-participation />
                         </div>
 
-                        <!-- Bid Opening & Evaluation -->
-                        <div x-show="tab === 'opening'">
-                            <livewire:bac-bid-evaluation />
-                        </div>
-
-                        <!-- Post-Qualification -->
-                        <div x-show="tab === 'post'">
+                        <!-- status-Qualification -->
+                        <div x-show="tab === 'status'">
                             <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
                                 <div
                                     class="bg-blue-200 flex justify-between text-sm px-4 py-2 font-semibold border-b border-gray-300">
@@ -114,8 +114,8 @@
                             </div>
                         </div>
 
-                        <!-- Recommendation for Award -->
-                        <div x-show="tab === 'recommendation'">
+                        <!-- award for Award -->
+                        <div x-show="tab === 'award'">
                             <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
                                 <div
                                     class="bg-blue-200 flex justify-between text-sm px-4 py-2 font-semibold border-b border-gray-300">

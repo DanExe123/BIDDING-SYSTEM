@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\SupplierCategory;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -13,10 +14,30 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['first_name' => 'Super', 'last_name' => 'Admin', 'middle_initial' => null, 'username' => 'superadmin', 'email' => 'superadmin@example.com', 'role' => 'Super_Admin'],
-            ['first_name' => 'BAC', 'last_name' => 'Secretary', 'middle_initial' => null, 'username' => 'bacsec', 'email' => 'bacsec@example.com', 'role' => 'BAC_Secretary'],
-            ['first_name' => 'Supplier', 'last_name' => 'User', 'middle_initial' => null, 'username' => 'supplier', 'email' => 'supplier@example.com', 'role' => 'Supplier'],
-            ['first_name' => 'Purchaser', 'last_name' => 'User', 'middle_initial' => null, 'username' => 'purchaser', 'email' => 'purchaser@example.com', 'role' => 'Purchaser'],
+            [
+                'first_name' => 'Super',
+                'last_name' => 'Admin',
+                'middle_initial' => null,
+                'username' => 'superadmin',
+                'email' => 'superadmin@example.com',
+                'role' => 'Super_Admin'
+            ],
+            [
+                'first_name' => 'BAC',
+                'last_name' => 'Secretary',
+                'middle_initial' => null,
+                'username' => 'bacsec',
+                'email' => 'bacsec@example.com',
+                'role' => 'BAC_Secretary'
+            ],
+            [
+                'first_name' => 'Purchaser',
+                'last_name' => 'User',
+                'middle_initial' => null,
+                'username' => 'purchaser',
+                'email' => 'purchaser@example.com',
+                'role' => 'Purchaser'
+            ],
         ];
 
         foreach ($users as $data) {
@@ -32,6 +53,25 @@ class UserSeeder extends Seeder
             );
 
             $user->assignRole($data['role']); // Spatie role assignment
+        }
+
+        // 🔥 One Supplier per Supplier Category
+        $categories = SupplierCategory::all();
+
+        foreach ($categories as $index => $category) {
+            $supplier = User::firstOrCreate(
+                ['email' => strtolower(str_replace(' ', '_', $category->name)) . '@supplier.com'],
+                [
+                    'first_name'     => 'Supplier',
+                    'last_name'      => $category->name,
+                    'middle_initial' => null,
+                    'username'       => 'supplier' . ($index + 1),
+                    'password'       => bcrypt('password'),
+                    'supplier_category_id' => $category->id,
+                ]
+            );
+
+            $supplier->assignRole('Supplier');
         }
     }
 }

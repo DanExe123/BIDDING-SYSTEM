@@ -20,7 +20,7 @@ class Logout
         Session::invalidate();
         Session::regenerateToken();
         
-         if ($user) {
+        if ($user) {
             ActivityLog::create([
                 'user_id' => $user->id, // ✅ Use saved user object
                 'action' => 'Logout',
