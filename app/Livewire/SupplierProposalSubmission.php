@@ -31,6 +31,7 @@ class SupplierProposalSubmission extends Component
 
     public function mount()
     {
+        // On mount, only load invitations where the current supplier was explicitly invited.
         $this->loadInvitations();
     }
 
@@ -38,34 +39,35 @@ class SupplierProposalSubmission extends Component
     public function loadInvitations()
     {
         $this->invitations = Invitation::where('status','published')
+            // check pivot "invitation_supplier"
             ->whereHas('suppliers', function($q) {
                 $q->where('supplier_id', Auth::id());
             })
-            ->with('ppmp')
+            ->with('ppmp') // eager load PPMP details
             ->orderBy('submission_deadline','asc')
             ->get();
     }
 
-    // open the submission modal for a specific invitation
     public function openSubmission($invitationId)
     {
         $invitation = Invitation::with('ppmp.items')->findOrFail($invitationId);
 
-        // security: ensure supplier is invited
+        // ✅ Security check: block if current supplier isn’t in the invitation
         if (! $invitation->suppliers->contains(Auth::id())) {
-            $this->dispatchBrowserEvent('notify', ['type'=>'error','message'=>'You are not invited to this event.']);
+            session()->flash('error', 'You are not invited to this event.');
             return;
         }
 
-        // ensure not past deadline
+        // ✅ Deadline check: prevent late submissions
         if (Carbon::now()->gt(Carbon::parse($invitation->submission_deadline))) {
-            $this->dispatchBrowserEvent('notify', ['type'=>'error','message'=>'Submission deadline passed.']);
+            session()->flash('error', 'Submission deadline passed.');
             return;
         }
 
+        // ✅ Set invitation for modal
         $this->selectedInvitation = $invitation;
 
-        // get or create submission record (draft)
+        // ✅ Create or load draft submission for this supplier
         $submission = Submission::firstOrCreate(
             ['invitation_id' => $invitation->id, 'supplier_id' => Auth::id()],
             ['status' => 'draft']
@@ -74,8 +76,8 @@ class SupplierProposalSubmission extends Component
         $this->submission = $submission;
         $this->remarks = $submission->remarks;
 
+        // ✅ Handle Quotation Mode
         if ($invitation->ppmp->mode_of_procurement === 'quotation') {
-            // ensure submission_items exist for each procurement item
             foreach ($invitation->ppmp->items as $item) {
                 SubmissionItem::firstOrCreate(
                     ['submission_id' => $submission->id, 'procurement_item_id' => $item->id],
@@ -83,21 +85,22 @@ class SupplierProposalSubmission extends Component
                 );
             }
             $this->submissionItems = $submission->items()->with('procurementItem')->get();
-            // populate unitPrices map
+
             foreach ($this->submissionItems as $si) {
                 $this->unitPrices[$si->id] = $si->unit_price;
             }
         } else {
-            // bidding: load current values
+            // ✅ Handle Bidding Mode
             $this->bid_amount = $submission->bid_amount;
-            // files remain null (user can upload to replace)
             $this->technicalProposal = null;
             $this->financialProposal = null;
             $this->companyProfile = null;
         }
 
+        // ✅ Finally open modal
         $this->showModal = true;
     }
+
 
     // Save draft for quotation (supplier can save progress)
     public function saveQuotationDraft()
@@ -115,7 +118,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->remarks = $this->remarks;
         $this->submission->save();
 
-        $this->dispatchBrowserEvent('notify', ['type'=>'success','message'=>'Draft saved']);
+        session()->flash('message', 'Draft saved');
         $this->loadInvitations();
     }
 
@@ -154,7 +157,8 @@ class SupplierProposalSubmission extends Component
         $this->submission->remarks = $this->remarks;
         $this->submission->save();
 
-        $this->dispatchBrowserEvent('notify', ['type'=>'success','message'=>'Quotation submitted']);
+      session()->flash('message', 'Quotation submitted');
+
         $this->showModal = false;
         $this->loadInvitations();
     }
@@ -185,7 +189,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->remarks = $this->remarks;
         $this->submission->save();
 
-        $this->dispatchBrowserEvent('notify', ['type'=>'success','message'=>'Draft saved']);
+       session()->flash('message', 'Draft saved');
     }
 
     // bidding: final submission (require bid_amount and optionally files)
@@ -213,7 +217,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->submitted_at = now();
         $this->submission->save();
 
-        $this->dispatchBrowserEvent('notify', ['type'=>'success','message'=>'Bid submitted']);
+        session()->flash('message', 'Bid submitted');
         $this->showModal = false;
         $this->loadInvitations();
     }
