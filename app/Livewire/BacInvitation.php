@@ -4,18 +4,19 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Ppmp;
-use App\Models\BidInvitation;
+use App\Models\Invitation;
 use App\Models\User;
 use App\Models\SupplierCategory;
 use Illuminate\Support\Facades\Auth;
 
-class BacBidInvitation extends Component
+class BacInvitation extends Component
 {
     public $ppmps = [];
     public $selectedPpmp = null;
+
     // form fields
-    public $bidTitle, $bidReference, $approvedBudget, $sourceOfFunds;
-    public $preBidDate, $submissionDeadline, $bidDocuments;
+    public $title, $referenceNo, $approvedBudget, $sourceOfFunds;
+    public $preDate, $submissionDeadline, $documents;
 
     // supplier invite scope
     public $inviteScope = 'all'; // all | category | specific
@@ -27,37 +28,38 @@ class BacBidInvitation extends Component
 
     public function mount()
     {
-        // Fetch PPMPs that are approved and don't have any bid invitations
-        // with status 'published', 'awarded', or 'closed'
-        $this->ppmps = Ppmp::where('status', 'approved') // only approved PPMPs
-            ->where('mode_of_procurement', 'bidding')
-            ->whereDoesntHave('bidInvitations', function ($query) {
-                // Exclude PPMPs that already have invitations that are published, awarded, or closed
-                $query->whereIn('status', ['published', 'awarded', 'closed']);
-            })
-            ->with('items') // eager load items
+        $this->ppmps = Ppmp::where('status', 'approved')
+            ->whereNotNull('mode_of_procurement') // exclude null values
+            ->where('mode_of_procurement', '!=', '') // exclude empty string
+            ->with(['items', 'invitations']) 
             ->orderBy('created_at', 'desc')
             ->get();
 
         $this->categories = SupplierCategory::all();
-
-        // FIXED: no supplierProfile, just supplierCategory
         $this->suppliers = User::role('supplier')->with('supplierCategory')->get();
     }
+
 
     public function showPpmp($ppmpId)
     {
         $this->selectedPpmp = Ppmp::find($ppmpId);
 
-        $this->bidTitle = $this->selectedPpmp->project_title;
+        $this->title = $this->selectedPpmp->project_title;
         $this->approvedBudget = $this->selectedPpmp->abc;
         $this->sourceOfFunds = $this->selectedPpmp->implementing_unit;
 
-        // pad PPMP id to 4 digits (e.g. 3 -> 0003)
-        $paddedId = str_pad($ppmpId, 4, '0', STR_PAD_LEFT);
+        // check mode_of_procurement
+        $mode = $this->selectedPpmp->mode_of_procurement;
+        $prefix = '';
 
-        // Format: BID-2025-PPMP3-0003
-        $this->bidReference = 'BID-' . date('Y') . '-PPMP' . $ppmpId . '-' . $paddedId;
+        if ($mode === 'bidding') {
+            $prefix = 'BID';
+        } elseif ($mode === 'quotation') {
+            $prefix = 'RFQ';
+        }
+
+        $paddedId = str_pad($ppmpId, 4, '0', STR_PAD_LEFT);
+        $this->referenceNo = $prefix . '-' . date('Y') . '-PPMP' . $ppmpId . '-' . $paddedId;
     }
 
     public function closeModal()
@@ -65,16 +67,15 @@ class BacBidInvitation extends Component
         $this->reset(['selectedPpmp']);
     } 
 
-    // Separate rules method
     protected function rules()
     {
         return [
             'selectedPpmp'        => 'required',
-            'bidTitle'            => 'required|string|max:255',
-            'bidReference'        => 'required|string|max:255|unique:bid_invitations,bid_reference',
+            'title'               => 'required|string|max:255',
+            'referenceNo'         => 'required|string|max:255|unique:invitations,reference_no',
             'approvedBudget'      => 'required|numeric|min:0',
             'sourceOfFunds'       => 'required|string|max:255',
-            'preBidDate'          => 'required|date',
+            'preDate'             => 'required|date',
             'submissionDeadline'  => 'required|date|after_or_equal:preBidDate',
             'inviteScope'         => 'required|in:all,category,specific',
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
@@ -85,56 +86,48 @@ class BacBidInvitation extends Component
 
     public function saveInvitation()
     {
-        // Validate form inputs
         $this->validate();
 
-        // Create the bid invitation
-        $bid = BidInvitation::create([
+        $invitation = Invitation::create([
             'ppmp_id'             => $this->selectedPpmp->id,
-            'bid_title'           => $this->bidTitle,
-            'bid_reference'       => $this->bidReference,
+            'title'               => $this->title,
+            'reference_no'        => $this->referenceNo,
             'approved_budget'     => $this->approvedBudget,
             'source_of_funds'     => $this->sourceOfFunds,
-            'pre_bid_date'        => $this->preBidDate,
+            'pre_date'            => $this->preDate,
             'submission_deadline' => $this->submissionDeadline,
-            'bid_documents'       => $this->bidDocuments,
+             'documents'          => $this->documents ? json_encode($this->documents) : null,
             'invite_scope'        => $this->inviteScope,
             'supplier_category_id'=> $this->supplierCategoryId,
             'created_by'          => Auth::id(),
             'status'              => 'published',
         ]);
 
-        // Attach suppliers based on invite scope using pivot table
         switch ($this->inviteScope) {
             case 'all':
                 $suppliers = User::role('supplier')->pluck('id');
                 break;
-
             case 'category':
                 $suppliers = User::role('supplier')
                     ->where('supplier_category_id', $this->supplierCategoryId)
                     ->pluck('id');
                 break;
-
             case 'specific':
                 $suppliers = $this->selectedSuppliers ?? [];
                 break;
-
             default:
                 $suppliers = [];
         }
 
-        // Sync suppliers to pivot table
-        $bid->suppliers()->sync($suppliers);
+        $invitation->suppliers()->sync($suppliers);
 
-        // Flash success message and close modal
-        session()->flash('message', 'Bid Invitation Published.');
+        session()->flash('message', 'Invitation Published.');
         $this->closeModal();
         $this->dispatch('close-modal');
     }
 
     public function render()
     {
-        return view('livewire.bac-bid-invitation');
+        return view('livewire.bac-invitation');
     }
 }

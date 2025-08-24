@@ -55,23 +55,32 @@ class UserSeeder extends Seeder
             $user->assignRole($data['role']); // Spatie role assignment
         }
 
-        // 🔥 One Supplier per Supplier Category
+        // 🔥 Three Suppliers per Supplier Category
         $categories = SupplierCategory::all();
 
-        foreach ($categories as $index => $category) {
-            $supplier = User::firstOrCreate(
-                ['email' => strtolower(str_replace(' ', '_', $category->name)) . '@supplier.com'],
-                [
-                    'first_name'     => 'Supplier',
-                    'last_name'      => $category->name,
-                    'middle_initial' => null,
-                    'username'       => 'supplier' . ($index + 1),
-                    'password'       => bcrypt('password'),
-                    'supplier_category_id' => $category->id,
-                ]
-            );
+        foreach ($categories as $category) {
+            for ($i = 1; $i <= 3; $i++) {
+                $supplierName = "{$category->name} Supplies {$i}";
 
-            $supplier->assignRole('Supplier');
+                $supplier = User::firstOrCreate(
+                    [
+                        'email' => strtolower(str_replace(' ', '_', $category->name)) . "_{$i}@supplier.com",
+                    ],
+                    [
+                        // 👇 Put the whole thing in first_name, leave last_name null
+                        'first_name'            => $supplierName,
+                        'last_name'             => null,
+                        'middle_initial'        => null,
+                        'username'              => strtolower(str_replace(' ', '_', $category->name)) . "_supplier{$i}",
+                        'password'              => bcrypt('password'),
+                        'supplier_category_id'  => $category->id,
+                    ]
+                );
+
+                $supplier->assignRole('Supplier');
+            }
         }
+
+
     }
 }

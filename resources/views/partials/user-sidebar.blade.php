@@ -38,7 +38,7 @@
                     Pruchase Request
                 </a>
 
-                <div x-data="{ open: {{ request()->routeIs('bac-mode-of-procurement') || request()->routeIs('bac-request-for-quotation') || request()->routeIs('bac-competitive-bidding') ? 'true' : 'false' }} }" class="space-y-2">
+                <div x-data="{ open: {{ request()->routeIs('bac-mode-of-procurement') || request()->routeIs('bac-procurement-workflow') || request()->routeIs('bac-competitive-bidding') ? 'true' : 'false' }} }" class="space-y-2">
                     <!-- Main Button -->
                     <button @click="open = !open" class=" rounded-full px-4 py-2 flex items-center gap-2 w-full">
                         <x-phosphor.icons::regular.clipboard-text class="w-5 h-5" />
@@ -61,16 +61,10 @@
                             <span class="text-sm whitespace-nowrap">Mode of Procurement</span>
                         </a>
 
-                        <a href="{{ route('bac-request-for-quotation') }}"
-                            class="{{ request()->routeIs('bac-request-for-quotation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                        <a href="{{ route('bac-procurement-workflow') }}"
+                            class="{{ request()->routeIs('bac-procurement-workflow') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                             <x-phosphor.icons::regular.file-text class="w-5 h-5" />
-                            <span class="text-sm whitespace-nowrap">Request for Quotation</span>
-                        </a>
-
-                        <a href="{{ route('bac-competitive-bidding') }}"
-                            class="{{ request()->routeIs('bac-competitive-bidding') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
-                            <x-phosphor.icons::regular.scales class="w-5 h-5" />
-                            <span class="text-sm whitespace-nowrap">Competitive Bidding</span>
+                            <span class="text-sm whitespace-nowrap">Precurement Workflow</span>
                         </a>
                     </div>
 
@@ -90,16 +84,22 @@
                     Dashboard
                 </a>
 
-                <a wire:navigate href="{{ route('supplier-bidding') }}"
-                    class="{{ request()->routeIs('supplier-bidding') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                <a wire:navigate href="{{ route('supplier-invitations') }}"
+                    class="{{ request()->routeIs('supplier-invitations') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.file-plus class="w-5 h-5" />
-                    Bidding
+                    Inviations
                 </a>
 
-                <a wire:navigate href="{{ route('supplier-quotation') }}"
-                    class="{{ request()->routeIs('supplier-quotation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                <a wire:navigate href="{{ route('supplier-participation') }}"
+                    class="{{ request()->routeIs('supplier-participation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.handshake class="w-5 h-5" />
-                    Quotation
+                    Participation
+                </a>
+
+                <a wire:navigate href="{{ route('supplier-proposal-submission') }}"
+                    class="{{ request()->routeIs('supplier-proposal-submission') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.handshake class="w-5 h-5" />
+                    Proposal Submission
                 </a>
 
                 <a wire:navigate href="{{ route('notice-of-award') }}"

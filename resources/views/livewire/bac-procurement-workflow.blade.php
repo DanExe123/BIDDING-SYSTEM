@@ -6,7 +6,7 @@
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
         <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
-            <h1 class="text-xl font-semibold">Competitive Bidding</h1>
+            <h1 class="text-xl font-semibold">Procurement Workflow</h1>
             <div>
                 <button class="text-gray-500 hover:text-black">
                     <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
@@ -51,9 +51,9 @@
                 <!-- Dynamic Title -->
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">
-                        <span x-show="tab === 'invitation'">Bid Invitation</span>
-                        <span x-show="tab === 'opening'">Bid Opening & Evaluation</span>
-                        <span x-show="tab === 'post'">Post-Qualification</span>
+                        <span x-show="tab === 'invitation'">Invitations</span>
+                        <span x-show="tab === 'opening'">Submissions</span>
+                        <span x-show="tab === 'post'">Evaluation</span>
                         <span x-show="tab === 'recommendation'">Recommendation for Award</span>
                     </h2>
                 </div>
@@ -64,17 +64,17 @@
                         <button @click="tab = 'invitation'"
                             :class="tab === 'invitation' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Bid Invitation
+                            Invitations
                         </button>
                         <button @click="tab = 'opening'"
                             :class="tab === 'opening' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Bid Opening & Evaluation
+                            Submissions
                         </button>
                         <button @click="tab = 'post'"
                             :class="tab === 'post' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
-                            Post-Qualification
+                            Evaluation
                         </button>
                         <button @click="tab = 'recommendation'"
                             :class="tab === 'recommendation' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
@@ -92,7 +92,7 @@
 
                         <!-- Bid Opening & Evaluation -->
                         <div x-show="tab === 'opening'">
-                            <livewire:bac-bid-evaluation />
+                            
                         </div>
 
                         <!-- Post-Qualification -->

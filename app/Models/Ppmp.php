@@ -29,9 +29,14 @@ class Ppmp extends Model
     }
 
     // app/Models/Ppmp.php
-    public function bidInvitations()
+  //  public function bidInvitations()
+   // {
+  //      return $this->hasMany(BidInvitation::class, 'ppmp_id', 'id');
+  //  }
+
+    public function invitations()
     {
-        return $this->hasMany(BidInvitation::class, 'ppmp_id', 'id');
+        return $this->hasMany(Invitation::class, 'ppmp_id', 'id');
     }
 
 
