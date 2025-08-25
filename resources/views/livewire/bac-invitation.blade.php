@@ -18,7 +18,8 @@
                 @foreach($ppmps as $ppmp)
                     <tr class="border-b border-gray-200">
                         <td class="px-4 py-2">
-                            {{ $ppmp->requester->first_name }}
+                            {{ $ppmp->invitations->last()?->reference_no ?? 'No Invitation' }}
+
                         </td>
                         <td class="px-4 py-2 text-center max-w-xs truncate">
                             {{ $ppmp->project_title }}
@@ -80,10 +81,13 @@
     </div>
 
     <!-- Modal -->
+        <!-- Modal -->
     <div x-show="showModal" x-transition 
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        wire:ignore.self>
         <div class="bg-white ml-30 w-[90%] md:w-[800px] rounded-md shadow-lg max-h-[90vh] overflow-y-auto"
             @click.away="showModal = false">
+
 
             <!-- Loading -->
             <div wire:loading.flex wire:target="showPpmp" class="p-10 flex justify-center items-center">

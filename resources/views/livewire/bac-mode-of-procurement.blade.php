@@ -58,26 +58,34 @@
                         <table wire:poll class="min-w-full text-sm">
                             <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                                 <tr>
-                                    <th class="w-1/3 text-left px-4 py-2">Request by:</th>
-                                    <th class="w-1/3 text-center px-4 py-2">Purpose:</th>
-                                    <th class="w-1/3 text-right px-4 py-2">Status:</th>
+                                    <th class="w-1/4 text-left px-4 py-2">Request by</th>
+                                    <th class="w-1/4 text-center px-4 py-2">Purpose</th>
+                                    <th class="w-1/4 text-center px-4 py-2">Mode of Procurement</th>
+                                    <th class="w-1/8 text-center px-4 py-2">Status</th>
+                                    <th class="w-1/8 text-center px-4 py-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($ppmps as $ppmp)
                                     <tr class="border-b border-gray-200">
-                                        <td class="w-1/3 px-4 py-2">
+                                        <td class="px-4 py-2">
                                             {{ $ppmp->requester->first_name }} {{ $ppmp->requester->last_name }}
                                         </td>
-                                        <td class="w-1/3 px-4 py-2 text-center">
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $ppmp->project_title }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $ppmp->mode_of_procurement ?? 'Not selected' }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ ucfirst($ppmp->status) }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
                                             <button wire:click="showPpmp({{ $ppmp->id }})" 
                                                     x-on:click="showModal = true"
-                                                    class="text-blue-600 hover:underline">
-                                                {{ $ppmp->project_title }}
+                                                    class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+                                                {{ $ppmp->mode_of_procurement ? 'View' : 'Select Mode' }}
                                             </button>
-                                        </td>
-                                        <td class="w-1/3 px-4 py-2 text-right">
-                                            {{ ucfirst($ppmp->status) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -156,13 +164,29 @@
                                 <!-- Footer -->
                                 <div class="px-6 py-4 flex justify-between items-center border-t border-gray-300">
                                     <button class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">More details</button>
-                                    <div class="space-x-2">
-                                        @if($selectedPpmp)
-                                            <button wire:click="movetoQoutation({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">Move for Qoutation</button>
-                                            <button wire:click="movetoBidding({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-blue-300 text-blue-800 rounded hover:bg-blue-400">Move for Bidding</button>
+
+                                    @if($selectedPpmp)
+                                        @if($selectedPpmp->mode_of_procurement)
+                                            <!-- Show mode of procurement instead of buttons -->
+                                            <span class="px-4 py-2 text-sm bg-blue-100 text-blue-800 rounded">
+                                                {{ ucfirst($selectedPpmp->mode_of_procurement) }}
+                                            </span>
+                                        @else
+                                            <!-- Show buttons only if mode not yet selected -->
+                                            <div class="space-x-2">
+                                                <button wire:click="movetoQoutation({{ $selectedPpmp->id }})" 
+                                                        class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">
+                                                    Move for Quotation
+                                                </button>
+                                                <button wire:click="movetoBidding({{ $selectedPpmp->id }})" 
+                                                        class="px-4 py-2 text-sm bg-blue-300 text-blue-800 rounded hover:bg-blue-400">
+                                                    Move for Bidding
+                                                </button>
+                                            </div>
                                         @endif
-                                    </div>
+                                    @endif
                                 </div>
+
                             </div>
                         </div>
                     </div>
