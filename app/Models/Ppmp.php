@@ -20,7 +20,7 @@ class Ppmp extends Model
 
     public function items()
     {
-        return $this->hasMany(ProcurementItem::class);
+        return $this->hasMany(ProcurementItem::class, 'ppmp_id');
     }
 
     public function requester()

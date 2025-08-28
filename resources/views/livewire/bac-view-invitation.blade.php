@@ -44,20 +44,38 @@
                             <thead>
                                 <tr class="bg-gray-200">
                                     <th class="px-2 py-1 text-left">Supplier</th>
-                                    <th class="px-2 py-1 text-left">Category</th>
                                     <th class="px-2 py-1 text-left">Response</th>
                                     <th class="px-2 py-1 text-left">Responded At</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($suppliers as $supplier)
+                                    @php
+                                        $submission = $invitation->submissions->firstWhere('supplier_id', $supplier->id);
+                                    @endphp
+
                                     <tr class="border-t">
                                         <td class="px-2 py-1">{{ $supplier->first_name }} {{ $supplier->last_name }}</td>
-                                        <td class="px-2 py-1">{{ $supplier->supplierCategory->name ?? 'N/A' }}</td>
-                                        <td class="px-2 py-1">{{ $supplier->pivot->response ?? 'Pending' }}</td>
-                                        <td class="px-2 py-1">{{ $supplier->pivot->responded_at ?? '—' }}</td>
+
+                                        {{-- Response / Submission Status --}}
+                                        <td class="px-2 py-1">
+                                            @if($submission && $submission->status !== 'draft')
+                                                {{ ucfirst($submission->status) }}
+                                            @else
+                                                {{ $supplier->pivot->response ?? 'Pending' }}
+                                            @endif
+                                        </td>
+
+                                        <td class="px-2 py-1">
+                                            @if($submission && $submission->status !== 'draft')
+                                                {{ $submission->submitted_at }}
+                                            @else
+                                                {{ $supplier->pivot->responded_at ?? '—' }}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
+
                             </tbody>
                         </table>
                     @else

@@ -41,5 +41,11 @@ class Invitation extends Model
                     ->withPivot(['response', 'responded_at'])
                     ->withTimestamps();
     }
+    
+    public function submissions()
+    {
+        return $this->hasMany(Submission::class);
+    }
+
 }
 

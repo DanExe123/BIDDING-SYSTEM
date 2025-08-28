@@ -14,9 +14,7 @@ use App\Livewire\BacProcurementPlanning;
 use App\Livewire\NoticeOfAward;
 use App\Livewire\GenerateReport;
 /// procurement module //
-use App\Livewire\BacCompetitiveBidding;
 use App\Livewire\BacModeOfProcurement;
-use App\Livewire\BacRequestForQuotation;
 use App\Livewire\BacProcurementWorkflow;
 
 // supplier side // 
@@ -79,9 +77,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     //  Route::get('/notice-of-award', NoticeOfAward::class)->name('notice-of-award'); 
         Route::get('/generate-report',GenerateReport::class)->name('generate-report');
         //procurement planning module // 
-        Route::get('/bac-competitive-bidding',BacCompetitiveBidding::class)->name('bac-competitive-bidding');
         Route::get('/bac-mode-of-procurement',BacModeOfProcurement::class)->name('bac-mode-of-procurement');
-        Route::get('/bac-request-for-quotation',BacRequestForQuotation::class)->name('bac-request-for-quotation');
         Route::get('/bac-procurement-workflow',BacProcurementWorkflow::class)->name('bac-procurement-workflow');
     
     });

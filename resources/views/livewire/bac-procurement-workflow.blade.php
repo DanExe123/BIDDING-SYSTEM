@@ -52,8 +52,7 @@
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">
                         <span x-show="tab === 'invitation'">Invitations</span>
-                        <span x-show="tab === 'opening'">Submissions</span>
-                        <span x-show="tab === 'post'">Evaluation</span>
+                        <span x-show="tab === 'opening'">Evaluation</span>
                         <span x-show="tab === 'recommendation'">Recommendation for Award</span>
                     </h2>
                 </div>
@@ -68,11 +67,6 @@
                         </button>
                         <button @click="tab = 'opening'"
                             :class="tab === 'opening' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
-                            class="px-4 py-2 rounded-t-md font-medium">
-                            Submissions
-                        </button>
-                        <button @click="tab = 'post'"
-                            :class="tab === 'post' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
                             class="px-4 py-2 rounded-t-md font-medium">
                             Evaluation
                         </button>
@@ -92,26 +86,7 @@
 
                         <!-- Bid Opening & Evaluation -->
                         <div x-show="tab === 'opening'">
-                            
-                        </div>
-
-                        <!-- Post-Qualification -->
-                        <div x-show="tab === 'post'">
-                            <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-                                <div
-                                    class="bg-blue-200 flex justify-between text-sm px-4 py-2 font-semibold border-b border-gray-300">
-                                    <span class="w-1/2">Supplier:</span>
-                                    <span class="w-1/2 text-right">Qualification Status:</span>
-                                </div>
-                                <div class="flex justify-between px-4 py-2 text-sm border-b border-gray-200">
-                                    <span class="w-1/2">XYZ Builders</span>
-                                    <span class="w-1/2 text-right">Compliant</span>
-                                </div>
-                                <div class="flex justify-between px-4 py-2 text-sm">
-                                    <span class="w-1/2">ABC Constructions</span>
-                                    <span class="w-1/2 text-right">Non-Compliant</span>
-                                </div>
-                            </div>
+                            <livewire:bac-submission />
                         </div>
 
                         <!-- Recommendation for Award -->
