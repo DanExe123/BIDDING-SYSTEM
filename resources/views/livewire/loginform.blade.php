@@ -2,8 +2,8 @@
 <div x-data="{
     current: 0,
     images: [
-        '/build/assets/bg1.jpg',
-        '/build/assets/toponmylist-tan-juan.jpg'
+        '/icon/bago123.jpg',
+        '/icon/Public_Plaza_in_Bago_City.jpg'
     ]
 }" x-init="setInterval(() => { current = (current + 1) % images.length }, 3000)"
     class="relative flex items-center justify-center h-screen w-screen overflow-hidden">
