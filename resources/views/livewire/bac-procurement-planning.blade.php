@@ -60,6 +60,7 @@
                             <th class="w-1/3 text-left px-4 py-2">Request by:</th>
                             <th class="w-1/3 text-center px-4 py-2">Purpose:</th>
                             <th class="w-1/3 text-right px-4 py-2">Status:</th>
+                            <th class="w-1/3 text-right px-4 py-2">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,19 +70,36 @@
                                     {{ $ppmp->requester->first_name }} {{ $ppmp->requester->last_name }}
                                 </td>
                                 <td class="w-1/3 px-4 py-2 text-center">
-                                    <button wire:click="showPpmp({{ $ppmp->id }})" 
-                                            x-on:click="showModal = true"
-                                            class="text-blue-600 hover:underline">
-                                        {{ $ppmp->project_title }}
-                                    </button>
+                                    {{ $ppmp->project_title }}
                                 </td>
                                 <td class="w-1/3 px-4 py-2 text-right">
-                                    {{ ucfirst($ppmp->status) }}
+                                    <span class="
+                                        px-2 py-1 rounded-full text-sm
+                                        @if($ppmp->status === 'pending') bg-yellow-100 text-yellow-800 
+                                        @elseif($ppmp->status === 'approved') bg-green-100 text-green-800 
+                                        @elseif($ppmp->status === 'rejected') bg-red-100 text-red-800 
+                                        @endif
+                                    ">
+                                        {{ ucfirst($ppmp->status) }}
+                                    </span>
+                                </td>
+                                <td class="w-1/3 px-4 py-2 text-right">
+                                    <button wire:click="showPpmp({{ $ppmp->id }})" 
+                                        x-on:click="showModal = true"
+                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                        open
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
+
+                <!-- ✅ Pagination Links -->
+                <div class="px-4 py-2">
+                    {{ $ppmps->links() }}
+                </div>
+
             </div>
 
             <!-- Modal -->
@@ -158,13 +176,64 @@
                             <div class="space-x-2">
                                 @if($selectedPpmp)
                                     <button wire:click="approvePpmp({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">Approve</button>
-                                    <button wire:click="rejectPpmp({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-red-300 text-red-800 rounded hover:bg-red-400">Reject</button>
+                                    <button 
+                                        x-on:click="
+                                            $dispatch('open-reject-modal', { id: {{ $selectedPpmp->id }} });
+                                            showModal = false
+                                        "
+                                        class="px-4 py-2 text-sm bg-red-300 text-red-800 rounded hover:bg-red-400">
+                                        Reject
+                                    </button>
+
                                 @endif
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
+
+            <!-- Reject Confirmation Modal -->
+            <div x-data="{ showRejectModal: false, ppmpId: null }"
+                x-on:open-reject-modal.window="showRejectModal = true; ppmpId = $event.detail.id"
+                x-on:close-reject-modal.window="showRejectModal = false"
+                x-show="showRejectModal"
+                x-transition
+                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+
+                <div class="bg-white w-[90%] md:w-[500px] rounded-md shadow-lg overflow-hidden" @click.away="showRejectModal = false">
+
+                    <!-- Header -->
+                    <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-red-600">Reject Request</h2>
+                        <button @click="showRejectModal = false" class="text-gray-500 text-xl font-bold">&times;</button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            Remarks (required for rejection):
+                        </label>
+                        <textarea wire:model="remarks" rows="3"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"></textarea>
+                        @error('remarks') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 flex justify-end space-x-2 border-t">
+                        <button @click="showRejectModal = false"
+                                class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                            Back
+                        </button>
+                        <button wire:click="rejectPpmp(ppmpId)"
+                                class="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600">
+                            Confirm Reject
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
           </div>       
         </div>  
 

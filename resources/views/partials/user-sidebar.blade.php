@@ -35,7 +35,7 @@
                 <a wire:navigate href="{{ route('bac-procurement-planning') }}"
                     class="{{ request()->routeIs('bac-procurement-planning') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.clipboard-text class="w-5 h-5" />
-                    Pruchase Request
+                    <span class="text-sm whitespace-nowrap">Pruchase Request</span>
                 </a>
 
                 <div x-data="{ open: {{ request()->routeIs('bac-mode-of-procurement') || request()->routeIs('bac-procurement-workflow') || request()->routeIs('bac-competitive-bidding') ? 'true' : 'false' }} }" class="space-y-2">

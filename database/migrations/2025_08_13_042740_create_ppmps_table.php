@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('implementing_unit');
             $table->text('description');
             $table->string('attachment')->nullable();
+            $table->text('remarks')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('mode_of_procurement', ['quotation', 'bidding'])->nullable()->default(null);
             $table->timestamps();

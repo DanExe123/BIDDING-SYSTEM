@@ -4,7 +4,7 @@
 
     <!-- Request Table -->
     <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-        <table wire:poll.500ms class="min-w-full text-sm">
+       <table wire:poll.1000ms class="min-w-full text-sm">
             <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                 <tr>
                     <th class="w-1/5 text-left px-4 py-2">Reference No</th>
@@ -19,12 +19,10 @@
                     <tr class="border-b border-gray-200">
                         <td class="px-4 py-2">
                             {{ $ppmp->invitations->last()?->reference_no ?? 'No Invitation' }}
-
                         </td>
                         <td class="px-4 py-2 text-center max-w-xs truncate">
                             {{ $ppmp->project_title }}
                         </td>
-
                         <td class="px-4 py-2 text-center">
                             {{ ucfirst($ppmp->mode_of_procurement) }}
                         </td>
@@ -53,13 +51,12 @@
                                 </span>
                             @endif
                         </td>
+
                         {{-- Actions column --}}
                         <td class="px-4 py-2 text-center">
                             <div class="flex flex-wrap justify-center items-center gap-2">
                                 {{-- View Invitations --}}
                                 <livewire:bac-view-invitation :ppmp="$ppmp" :key="$ppmp->id" />
-
-                                
 
                                 {{-- Create Invitation (only show if no invitation exists) --}}
                                 @if($ppmp->invitations->isEmpty())
@@ -70,13 +67,17 @@
                                     </button>
                                 @endif
                             </div>
-
                         </td>
-
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        <!-- ✅ Pagination Links -->
+        <div class="px-4 py-2">
+            {{ $ppmps->links() }}
+        </div>
+
 
     </div>
 
@@ -159,23 +160,16 @@
                         <button type="button" class="mt-2 text-blue-600 text-sm hover:underline">+ Add Document</button>
                     </div>
 
-                    <!-- Supplier Notification -->
                     <div wire:poll class="border-t pt-4">
                         <p class="font-medium mb-2">Notify Suppliers</p>
 
-                        {{-- Show only when NOT quotation --}}
                         @if($selectedPpmp && $selectedPpmp->mode_of_procurement !== 'quotation')
-                            <label class="flex items-center space-x-2">
-                                <input type="radio" wire:model="inviteScope" value="all" class="form-radio text-blue-600" />
-                                <span>All registered suppliers ({{ $suppliers->count() }})</span>
-                            </label>
-
-                            <label class="flex items-center space-x-2">
-                                <input type="radio" wire:model="inviteScope" value="category" class="form-radio text-blue-600" />
-                                <span>By Category</span>
-                            </label>
-                            @if($inviteScope === 'category')
-                                <select wire:model="supplierCategoryId" class="w-full mt-2 border rounded px-3 py-2">
+                            <div class="mb-3">
+                                <select 
+                                    wire:model="supplierCategoryId" 
+                                    wire:change="$set('inviteScope', 'category')" 
+                                    class="w-full mt-2 border rounded px-3 py-2"
+                                >
                                     <option value="">-- Select Category --</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -184,32 +178,39 @@
                                 @error('supplierCategoryId') 
                                     <span class="text-red-600 text-sm">{{ $message }}</span> 
                                 @enderror
-                            @endif
+                            </div>
                         @endif
 
-                        {{-- Always allow "specific" --}}
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" wire:model="inviteScope" value="specific" class="form-radio text-blue-600" 
-                                {{ $selectedPpmp && $selectedPpmp->mode_of_procurement === 'quotation' ? 'checked disabled' : '' }} />
-                            <span>Specific Suppliers</span>
-                        </label>
+                        <div>
+                            <button 
+                                type="button" 
+                                @click="showSpecific = !showSpecific" 
+                                wire:click="$set('inviteScope', 'specific')" 
+                                class="mt-2 text-blue-600 text-sm hover:underline"
+                            >
+                                + Add Specific Suppliers
+                            </button>
 
-                        @if($inviteScope === 'specific' || ($selectedPpmp && $selectedPpmp->mode_of_procurement === 'quotation'))
-                            <button type="button" @click="showSpecific = !showSpecific" 
-                                    class="mt-2 text-blue-600 text-sm hover:underline">+ Add Specific Suppliers</button>
                             <div x-show="showSpecific" class="mt-2 space-y-2">
                                 @foreach($suppliers as $supplier)
                                     <label class="flex items-center space-x-2">
-                                        <input type="checkbox" wire:model="selectedSuppliers" value="{{ $supplier->id }}" />
+                                        <input 
+                                            type="checkbox" 
+                                            wire:model="selectedSuppliers" 
+                                            value="{{ $supplier->id }}" 
+                                            wire:change="$set('inviteScope', 'specific')" 
+                                        />
                                         <span>{{ $supplier->first_name }} {{ $supplier->last_name }} ({{ $supplier->supplierCategory->name ?? 'No Category' }})</span>
                                     </label>
                                 @endforeach
                             </div>
+
                             @error('selectedSuppliers') 
                                 <span class="text-red-600 text-sm">{{ $message }}</span> 
                             @enderror
-                        @endif
+                        </div>
                     </div>
+
 
                 </div>
 

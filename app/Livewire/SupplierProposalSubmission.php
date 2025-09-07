@@ -38,14 +38,17 @@ class SupplierProposalSubmission extends Component
     // load only invitations that (1) are published and (2) this supplier was invited to
     public function loadInvitations()
     {
-        $this->invitations = Invitation::where('status','published')
-            // check pivot "invitation_supplier"
-            ->whereHas('suppliers', function($q) {
-                $q->where('supplier_id', Auth::id());
-            })
-            ->with('ppmp') // eager load PPMP details
-            ->orderBy('submission_deadline','asc')
-            ->get();
+        // Load only invitations that are:
+        // 1. Published
+        // 2. Supplier was invited AND accepted
+        $this->invitations = Invitation::where('status', 'published')
+        ->whereHas('suppliers', function($q) {
+            $q->where('supplier_id', Auth::id())
+              ->where('invitation_supplier.response', 'accepted'); // <-- use pivot table column directly
+        })
+        ->with('ppmp') // eager load PPMP details
+        ->orderBy('submission_deadline', 'asc')
+        ->get();
     }
 
     public function openSubmission($invitationId)
@@ -59,10 +62,10 @@ class SupplierProposalSubmission extends Component
         }
 
         // ✅ Deadline check: prevent late submissions
-        if (Carbon::now()->gt(Carbon::parse($invitation->submission_deadline))) {
-            session()->flash('error', 'Submission deadline passed.');
-            return;
-        }
+       // if (Carbon::now()->gt(Carbon::parse($invitation->submission_deadline))) {
+       //     session()->flash('error', 'Submission deadline passed.');
+      //      return;
+       // }
 
         // ✅ Set invitation for modal
         $this->selectedInvitation = $invitation;

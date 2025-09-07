@@ -54,7 +54,7 @@
                 <div x-data="{ showModal: @entangle('showModal') }" class="relative">
 
                     <!-- Table -->
-                    <div class="border border-gray-300 m-4 rounded-md overflow-hidden bg-white">
+                    <div wire:poll class="border border-gray-300 m-4 rounded-md overflow-hidden bg-white">
                         @if($invitations->isEmpty())
                             <div class="text-sm text-gray-600 p-4">No active invitations.</div>
                         @else
@@ -93,15 +93,15 @@
                         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                         
                         @if($selectedInvitation)
-                        <div class="bg-white w-[95%] md:w-[800px] rounded-md shadow-lg max-h-[90vh] overflow-y-auto"
-                            @click.away="showModal = false">
+                        <div class="bg-white ml-30 w-[90%] md:w-[800px] rounded-md shadow-lg max-h-[90vh] overflow-y-auto"
+                             @click.away="showModal = false">
 
                             <!-- Header -->
                             <div class="flex justify-between items-center px-6 py-4 border-b border-gray-300 bg-[#F9FAFB]">
                                 <div>
                                     <p class="text-base font-semibold">Submit Proposal</p>
                                     <p class="text-sm text-gray-600">
-                                        Ref: <span class="font-medium">{{ $selectedInvitation->reference_no }}</span>
+                                        Reference No.: <span class="font-medium">{{ $selectedInvitation->reference_no }}</span>
                                     </p>
                                 </div>
                                 <button @click="showModal = false" class="text-gray-600 text-xl font-bold hover:text-black">&times;</button>
@@ -111,7 +111,15 @@
                             <div class="px-6 py-4 border-b border-gray-300 bg-[#F9FAFB]">
                                 <p class="text-sm text-gray-600">Project: {{ $selectedInvitation->ppmp->project_title }}</p>
                                 <p class="text-sm text-gray-600">Mode: {{ ucfirst($selectedInvitation->ppmp->mode_of_procurement) }}</p>
-                                <p class="text-sm text-gray-600">Deadline: {{ \Carbon\Carbon::parse($selectedInvitation->submission_deadline)->toDateString() }}</p>
+                                <div class="flex items-center space-x-2 mt-2">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded">
+                                        Budget: ₱{{ number_format($selectedInvitation->ppmp->abc, 2) }}
+                                    </span>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded">
+                                        Deadline: {{ \Carbon\Carbon::parse($selectedInvitation->submission_deadline)->toFormattedDateString() }}
+                                    </span>
+                                </div>
+
                             </div>
 
                             <!-- Proposal Form -->
@@ -137,7 +145,7 @@
                                                         <td class="px-3 py-1 border text-right">{{ $si->procurementItem->quantity ?? 1 }}</td>
                                                         <td class="px-3 py-1 border text-right">
                                                             <input type="number" step="0.01" wire:model="unitPrices.{{ $si->id }}"
-                                                                class="w-32 text-right border rounded px-2 py-1" />
+                                                                class="w-32 text-right border rounded px-2 py-1" placeholder="Enter price" />
                                                         </td>
                                                         <td class="px-3 py-1 border text-right">
                                                             {{ number_format($si->total_price ?? 0, 2) }}
@@ -159,32 +167,60 @@
                                 @else
                                     {{-- BIDDING --}}
                                     <div>
-                                        <h4 class="font-medium mb-2">Bidding — Upload Proposals</h4>
+                                        <h4 class="font-medium mb-4">Required Documents</h4>
 
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div>
-                                                <label class="block text-xs">Bid Amount</label>
-                                                <input type="number" step="0.01" wire:model="bid_amount" class="w-full border rounded px-2 py-1" />
+                                        <!-- Upload Sections Styled Like Screenshot -->
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-center border rounded px-4 py-3">
+                                                <div>
+                                                    <p class="font-medium text-sm">Technical Proposal</p>
+                                                    <p class="text-xs text-gray-500">PDF format (max 10MB)</p>
+                                                </div>
+                                                <input type="file" wire:model="technicalProposal" class="hidden" id="tech-proposal">
+                                                <label for="tech-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
                                             </div>
-                                            <div>
-                                                <label class="block text-xs">Technical Proposal</label>
-                                                <input type="file" wire:model="technicalProposal" />
+
+                                            <div class="flex justify-between items-center border rounded px-4 py-3">
+                                                <div>
+                                                    <p class="font-medium text-sm">Financial Proposal</p>
+                                                    <p class="text-xs text-gray-500">Excel format (max 5MB)</p>
+                                                </div>
+                                                <input type="file" wire:model="financialProposal" class="hidden" id="fin-proposal">
+                                                <label for="fin-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
                                             </div>
-                                            <div>
-                                                <label class="block text-xs">Financial Proposal</label>
-                                                <input type="file" wire:model="financialProposal" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs">Company Profile</label>
-                                                <input type="file" wire:model="companyProfile" />
+
+                                            <div class="flex justify-between items-center border rounded px-4 py-3">
+                                                <div>
+                                                    <p class="font-medium text-sm">Company Profile</p>
+                                                    <p class="text-xs text-gray-500">PDF format (max 5MB)</p>
+                                                </div>
+                                                <input type="file" wire:model="companyProfile" class="hidden" id="comp-profile">
+                                                <label for="comp-profile" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
                                             </div>
                                         </div>
 
-                                        <div class="mt-3 flex justify-between items-center">
-                                            <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Remarks (optional)"></textarea>
-                                            <div class="space-x-2 ml-3">
+                                        <!-- Bid Amount -->
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium mb-1">Bid Amount*</label>
+                                            <input type="number" step="0.01" wire:model="bid_amount" 
+                                                class="w-full border rounded px-3 py-2" placeholder="Enter your bid amount" />
+                                        </div>
+
+                                        <!-- Additional Notes -->
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium mb-1">Additional Notes</label>
+                                            <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Any special conditions or clarifications..."></textarea>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="mt-4 flex justify-between items-center">
+                                            <div class="flex items-center space-x-2">
+                                                <input type="checkbox" class="h-4 w-4">
+                                                <label class="text-xs text-gray-600">I certify that all information provided is accurate and I agree to the terms of bidding</label>
+                                            </div>
+                                            <div class="space-x-2">
                                                 <button wire:click="saveBiddingDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
-                                                <button wire:click="submitBidding" class="px-3 py-1 bg-blue-600 text-white rounded">Submit Bid</button>
+                                                <button wire:click="submitBidding" class="px-3 py-1 bg-green-600 text-white rounded">Submit Bid</button>
                                             </div>
                                         </div>
                                     </div>
@@ -193,6 +229,7 @@
                         </div>
                         @endif
                     </div>
+
                 </div>
             </div>
 

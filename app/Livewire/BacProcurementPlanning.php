@@ -3,12 +3,17 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Ppmp;
 
 class BacProcurementPlanning extends Component
 {
-    public $ppmps = [];
+    use WithPagination;
+
     public $selectedPpmp = null;
+    public $remarks;
+
+    protected $paginationTheme = 'tailwind'; // optional for Tailwind styles
 
     public function showPpmp($ppmpId)
     {
@@ -19,16 +24,6 @@ class BacProcurementPlanning extends Component
     {
         $this->selectedPpmp = null;
     }
-
-    public function mount()
-    {
-        // eager-load items but exclude approved ppmps
-        $this->ppmps = Ppmp::with('items')
-            ->where('status', '!=', 'approved')
-            ->latest()
-            ->get();
-    }
-
 
     public function approvePpmp($id)
     {
@@ -43,18 +38,27 @@ class BacProcurementPlanning extends Component
 
     public function rejectPpmp($id)
     {
+        $this->validate([
+            'remarks' => 'required|string|min:3',
+        ]);
+
         $ppmp = Ppmp::findOrFail($id);
         $ppmp->status = 'rejected';
+        $ppmp->remarks = $this->remarks;
         $ppmp->save();
 
-        $this->closeModal();
-        $this->dispatch('close-modal');
-        session()->flash('message', 'PPMP rejected successfully.');
+        $this->remarks = null; 
+        $this->dispatch('close-reject-modal');
+        session()->flash('message', 'PPMP rejected.');
     }
-
 
     public function render()
     {
-        return view('livewire.bac-procurement-planning');
+        return view('livewire.bac-procurement-planning', [
+            'ppmps' => Ppmp::with('items', 'requester')
+                ->where('status', '!=', 'approved')
+                ->latest()
+                ->paginate(10), // ✅ paginate instead of get()
+        ]);
     }
 }

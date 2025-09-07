@@ -59,11 +59,29 @@
 
                                         {{-- Response / Submission Status --}}
                                         <td class="px-2 py-1">
-                                            @if($submission && $submission->status !== 'draft')
-                                                {{ ucfirst($submission->status) }}
-                                            @else
-                                                {{ $supplier->pivot->response ?? 'Pending' }}
-                                            @endif
+                                            <span class="px-2 py-1 rounded-full text-sm
+                                                @if($submission && $submission->status !== 'draft')
+                                                    @switch($submission->status)
+                                                        @case('submitted') bg-blue-100 text-blue-700 @break
+                                                        @case('under_review') bg-yellow-100 text-yellow-700 @break
+                                                        @case('awarded') bg-green-100 text-green-700 @break
+                                                        @case('rejected') bg-red-100 text-red-700 @break
+                                                        @default bg-gray-100 text-gray-700
+                                                    @endswitch
+                                                @else
+                                                    @switch($supplier->pivot->response ?? 'pending')
+                                                        @case('pending') bg-yellow-100 text-yellow-700 @break
+                                                        @case('accepted') bg-green-100 text-green-700 @break
+                                                        @case('declined') bg-red-100 text-red-700 @break
+                                                        @default bg-gray-100 text-gray-700
+                                                    @endswitch
+                                                @endif">
+                                                @if($submission && $submission->status !== 'draft')
+                                                    {{ ucfirst(str_replace('_', ' ', $submission->status)) }}
+                                                @else
+                                                    {{ ucfirst($supplier->pivot->response ?? 'Pending') }}
+                                                @endif
+                                            </span>
                                         </td>
 
                                         <td class="px-2 py-1">

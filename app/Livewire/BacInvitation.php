@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Ppmp;
 use App\Models\Invitation;
 use App\Models\User;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Auth;
 
 class BacInvitation extends Component
 {
-    public $ppmps = [];
+    use WithPagination;
+
     public $selectedPpmp = null;
 
     // form fields
@@ -19,27 +21,23 @@ class BacInvitation extends Component
     public $preDate, $submissionDeadline, $documents;
 
     // supplier invite scope
-    public $inviteScope = 'all'; // all | category | specific
+    public $inviteScope = null; // all | category | specific
     public $supplierCategoryId = null;
     public $selectedSuppliers = [];
 
     public $categories = [];
     public $suppliers = [];
 
+    protected $paginationTheme = 'tailwind'; 
+
     public function mount()
     {
-        $this->ppmps = Ppmp::where('status', 'approved')
-            ->whereNotNull('mode_of_procurement') // exclude null values
-            ->where('mode_of_procurement', '!=', '') // exclude empty string
-            ->with(['items', 'invitations']) 
-            ->orderBy('created_at', 'desc')
-            ->get();
-
+        // load categories and suppliers (not paginated)
         $this->categories = SupplierCategory::all();
         $this->suppliers = User::role('supplier')->with('supplierCategory')->get();
     }
 
-
+    
     public function showPpmp($ppmpId)
     {
         $this->selectedPpmp = Ppmp::find($ppmpId);
@@ -76,8 +74,8 @@ class BacInvitation extends Component
             'approvedBudget'      => 'required|numeric|min:0',
             'sourceOfFunds'       => 'required|string|max:255',
             'preDate'             => 'required|date',
-            'submissionDeadline'  => 'required|date|after_or_equal:preBidDate',
-            'inviteScope'         => 'required|in:all,category,specific',
+            'submissionDeadline'  => 'required|date|after_or_equal:preDate',
+            'inviteScope'         => 'required|in:category,specific',
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
             'selectedSuppliers'   => 'required_if:inviteScope,specific|array',
             'selectedSuppliers.*' => 'exists:users,id',
@@ -103,10 +101,8 @@ class BacInvitation extends Component
             'status'              => 'published',
         ]);
 
+
         switch ($this->inviteScope) {
-            case 'all':
-                $suppliers = User::role('supplier')->pluck('id');
-                break;
             case 'category':
                 $suppliers = User::role('supplier')
                     ->where('supplier_category_id', $this->supplierCategoryId)
@@ -128,6 +124,14 @@ class BacInvitation extends Component
 
     public function render()
     {
-        return view('livewire.bac-invitation');
+        return view('livewire.bac-invitation', [
+            // ✅ paginate ppmps instead of loading all in mount
+            'ppmps' => Ppmp::where('status', 'approved')
+                ->whereNotNull('mode_of_procurement') // exclude null values
+                ->where('mode_of_procurement', '!=', '') // exclude empty string
+                ->with(['items', 'invitations']) 
+                ->orderBy('created_at', 'desc')
+                ->paginate(10),
+        ]);
     }
 }

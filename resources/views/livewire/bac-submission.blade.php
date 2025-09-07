@@ -1,9 +1,9 @@
 <div x-data="{ showSubmission: false }" class="relative" x-cloak>
 
-    <!-- Default Table View -->
+    <!-- Default Table View  -->
     <template x-if="!showSubmission">
         <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-            <table class="min-w-full text-sm">
+            <table wire:poll.500ms class="min-w-full text-sm">
                 <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                     <tr>
                         <th class="w-1/5 text-left px-4 py-2">Reference No</th>
@@ -53,6 +53,26 @@
                                         Pending
                                     </span>
                                 @endif
+                                {{--
+                                    @if($ppmp->invitations->isNotEmpty())
+                                        @php 
+                                            $status = $ppmp->invitations->last()->status;
+                                            // remap 'published' to 'open' for display
+                                            $displayStatus = $status === 'published' ? 'open' : $status;
+                                        @endphp
+                                        <span class="px-2 py-1 rounded-full text-sm
+                                            @if($status === 'published') bg-green-100 text-green-700
+                                            @elseif($status === 'close') bg-gray-200 text-gray-700
+                                            @elseif($status === 'awarded') bg-blue-100 text-blue-700
+                                            @endif">
+                                            {{ ucfirst($displayStatus) }}
+                                        </span>
+                                    @else
+                                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-sm">
+                                            Pending
+                                        </span>
+                                    @endif
+                                --}}
                             </td>
                             <td class="px-4 py-2 text-center">
                                 <button wire:click="showPpmp({{ $ppmp->id }})" 
@@ -65,6 +85,11 @@
                     @endforeach
                 </tbody>
             </table>
+           
+            <div class="px-4 py-2">
+                {{ $ppmps->links() }}
+            </div>
+          
         </div>
     </template>
 
@@ -74,9 +99,13 @@
 
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 class="text-lg font-semibold">Evaluation</h2>
-                <button @click="showSubmission = false; $wire.closeModal()" 
-                        class="text-sm text-blue-600 hover:underline">
-                    ← Back
+                <button
+                    @click="showSubmission = false; $wire.closeModal()"
+                    class="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline" aria-label="Back" title="Back">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>Back</span>
                 </button>
             </div>
 
@@ -107,7 +136,7 @@
                             </div>
                         @endif
 
-                        <div class="mt-2 text-sm text-gray-700 flex space-x-8">
+                        <div class="mt-2 mb-2 text-sm text-gray-700 flex space-x-8">
                             <p>
                                 <strong>Pre Date:</strong> 
                                 {{ \Carbon\Carbon::parse($selectedPpmp->invitations->last()->pre_date)->format('F d, Y') }}
@@ -152,46 +181,209 @@
 
                 <h2 class="text-lg font-semibold">Supplier Submissions</h2>
 
-                {{-- your table remains untouched --}}
-                <table class="min-w-full text-sm border">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="px-4 py-2 text-left">Supplier</th>
-                            <th class="px-4 py-2 text-left">Bid Amount</th>
-                            <th class="px-4 py-2 text-left">Status</th>
-                            <th class="px-4 py-2 text-left">Submitted At</th>
-                            <th class="px-4 py-2 text-left">Items</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse($submissions as $submission)
+                <div x-data="{ showDocsModal: false, showEvalModal: false }" class="relative" x-cloak>
+                    <table class="min-w-full text-sm border">
+                        <thead class="bg-gray-200">
                             <tr>
-                                <td class="px-4 py-2">{{ $submission->supplier->first_name ?? 'N/A' }}</td>
-                                <td class="px-4 py-2">₱{{ number_format($submission->bid_amount, 2) }}</td>
-                                <td class="px-4 py-2">{{ ucfirst($submission->status) }}</td>
-                                <td class="px-4 py-2">{{ $submission->submitted_at }}</td>
-                                <td class="px-4 py-2">
-                                    <ul class="list-disc pl-4">
-                                        @foreach($submission->items as $item)
-                                            <li>
-                                                {{ $item->procurementItem->description }}
-                                                - ₱{{ number_format($item->unit_price, 2) }}
-                                                (x{{ $item->procurementItem->qty }})
-                                                = ₱{{ number_format($item->total_price, 2) }}
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </td>
+                                <th class="px-4 py-2 text-left">Supplier</th>
+                                <th class="px-4 py-2 text-left">
+                                    {{ optional($selectedPpmp)->mode_of_procurement === 'quotation' ? 'Items' : 'Bid Amount' }}
+                                </th>
+                                <th class="px-4 py-2 text-left">Technical Score</th>
+                                <th class="px-4 py-2 text-left">Financial Score</th>
+                                <th class="px-4 py-2 text-left">Total Score</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                                <th class="px-4 py-2 text-left">Action</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-2 text-center text-gray-500">
-                                    No submissions yet.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @forelse($submissions as $submission)
+                                <tr>
+                                    <td class="px-4 py-2">{{ $submission->supplier->first_name ?? 'N/A' }}</td>
+
+                                    {{-- Inline condition --}}
+                                    <td class="px-4 py-2">
+                                        @if($selectedPpmp->mode_of_procurement === 'quotation')
+                                            <ul class="list-disc pl-4">
+                                                @foreach($submission->items as $item)
+                                                    <li>
+                                                        {{ $item->procurementItem->description }}
+                                                        - ₱{{ number_format($item->unit_price, 2) }}
+                                                        (x{{ $item->procurementItem->qty }})
+                                                        = ₱{{ number_format($item->total_price, 2) }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            ₱{{ number_format($submission->bid_amount, 2) }}
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-2 text-center">-</td>
+                                    <td class="px-4 py-2 text-center">-</td>
+                                    <td class="px-4 py-2 text-center">-</td>
+                                    <td class="px-4 py-2">{{ ucfirst($submission->status) }}</td>
+                                    <td class="px-4 py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <!-- View button -->
+                                            <button 
+                                                wire:click="viewSubmission({{ $submission->id }})"
+                                                @click="showDocsModal = true"
+                                                class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                                Docs
+                                            </button>
+
+                                            <button 
+                                                wire:click="evaluateSubmission({{ $submission->id }})"
+                                                @click="showEvalModal = true"
+                                                class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                                                Evaluate
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center text-gray-500">
+                                        No submissions yet.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+
+                    <!-- Docs Modal -->
+                    <div 
+                        x-show="showDocsModal" 
+                        x-transition 
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+
+                        @if($selectedSubmission)
+                        <div class="bg-white w-[95%] md:w-[700px] rounded-md shadow-lg max-h-[90vh] overflow-y-auto"
+                            @click.away="showDocsModal = false">
+
+                            <!-- Header -->
+                            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-300 bg-[#F9FAFB]">
+                                <div>
+                                    <p class="text-base font-semibold">Submitted Documents</p>
+                                    <p class="text-sm text-gray-600">
+                                        Supplier: <span class="font-medium">{{ $selectedSubmission->supplier->first_name ?? 'N/A' }}</span>
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        Bid Amount: ₱{{ number_format($selectedSubmission->bid_amount, 2) }}
+                                    </p>
+                                </div>
+                                <button @click="showDocsModal = false" class="text-gray-600 text-xl font-bold hover:text-black">&times;</button>
+                            </div>
+
+                            <!-- Submitted Docs -->
+                            <div class="p-6 space-y-4">
+                                <!-- Technical Proposal -->
+                                <div class="flex justify-between items-center border rounded px-4 py-3">
+                                    <p class="font-medium text-sm">Technical Proposal</p>
+                                    @if($selectedSubmission->technical_proposal_path)
+                                        <div class="space-x-2">
+                                            <a href="{{ Storage::url($selectedSubmission->technical_proposal_path) }}" target="_blank"
+                                            class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
+                                            <a href="{{ Storage::url($selectedSubmission->technical_proposal_path) }}" download
+                                            class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-500">Not submitted</span>
+                                    @endif
+                                </div>
+
+                                <!-- Financial Proposal -->
+                                <div class="flex justify-between items-center border rounded px-4 py-3">
+                                    <p class="font-medium text-sm">Financial Proposal</p>
+                                    @if($selectedSubmission->financial_proposal_path)
+                                        <div class="space-x-2">
+                                            <a href="{{ Storage::url($selectedSubmission->financial_proposal_path) }}" target="_blank"
+                                            class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
+                                            <a href="{{ Storage::url($selectedSubmission->financial_proposal_path) }}" download
+                                            class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-500">Not submitted</span>
+                                    @endif
+                                </div>
+
+                                <!-- Company Profile -->
+                                <div class="flex justify-between items-center border rounded px-4 py-3">
+                                    <p class="font-medium text-sm">Company Profile</p>
+                                    @if($selectedSubmission->company_profile_path)
+                                        <div class="space-x-2">
+                                            <a href="{{ Storage::url($selectedSubmission->company_profile_path) }}" target="_blank"
+                                            class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
+                                            <a href="{{ Storage::url($selectedSubmission->company_profile_path) }}" download
+                                            class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-500">Not submitted</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Evaluation Modal -->
+                    <div 
+                        x-show="showEvalModal" 
+                        x-transition 
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                        x-cloak>
+
+                        @if($evaluationSubmission)
+                        <div class="bg-white w-[95%] md:w-[500px] rounded-lg shadow-lg p-6"
+                            @click.away="showEvalModal = false">
+
+                            <h2 class="text-lg font-semibold mb-4">Evaluate {{ $evaluationSubmission->supplier->first_name ?? 'Supplier' }}</h2>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium">Technical Score</label>
+                                <input type="number" wire:model="technical_score" min="0" max="100"
+                                    class="w-full border rounded px-3 py-2">
+                                @error('technical_score') 
+                                    <span class="text-red-500 text-xs">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium">Financial Score</label>
+                                <input type="number" wire:model="financial_score" min="0" max="100"
+                                    class="w-full border rounded px-3 py-2">
+                                @error('financial_score') 
+                                    <span class="text-red-500 text-xs">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium">Total Score</label>
+                                <input type="text" wire:model="total_score" readonly
+                                    class="w-full border rounded px-3 py-2 bg-gray-100">
+                            </div>
+
+                            <div class="flex justify-end space-x-2">
+                                <button 
+                                    wire:click="saveEvaluation"
+                                    @click="showEvalModal = false"
+                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                    Save
+                                </button>
+                                <button 
+                                    @click="showEvalModal = false"
+                                    class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+
+                </div>
+
+
             </div>
 
         </div>

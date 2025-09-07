@@ -3,12 +3,16 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Ppmp;
 
 class BacModeOfProcurement extends Component
 {
-    public $ppmps = [];
+    use WithPagination;
+
     public $selectedPpmp = null;
+
+    protected $paginationTheme = 'tailwind'; // Use Tailwind pagination style
 
     public function showPpmp($ppmpId)
     {
@@ -19,16 +23,6 @@ class BacModeOfProcurement extends Component
     {
         $this->selectedPpmp = null;
     }
-
-    public function mount()
-    {
-        // eager-load items but exclude approved ppmps
-        $this->ppmps = Ppmp::with('items')
-            ->where('status', 'approved')
-            ->latest()
-            ->get();
-    }
-
 
     public function movetoBidding($id)
     {
@@ -49,11 +43,16 @@ class BacModeOfProcurement extends Component
 
         $this->closeModal();
         $this->dispatch('close-modal');
-        session()->flash('message', 'PPMP moved to Qoutation successfully.');
+        session()->flash('message', 'PPMP moved to Quotation successfully.');
     }
 
     public function render()
     {
-        return view('livewire.bac-mode-of-procurement');
+        return view('livewire.bac-mode-of-procurement', [
+            'ppmps' => Ppmp::with('items', 'requester')
+                ->where('status', 'approved')
+                ->latest()
+                ->paginate(10), // ✅ paginate instead of get()
+        ]);
     }
 }

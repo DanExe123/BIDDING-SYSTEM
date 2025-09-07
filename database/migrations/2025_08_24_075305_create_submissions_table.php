@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('financial_proposal_path')->nullable();
             $table->string('company_profile_path')->nullable();
             $table->boolean('is_certified')->default(false);
+            $table->decimal('technical_score', 5, 2)->nullable();
+            $table->decimal('financial_score', 5, 2)->nullable();
+            $table->decimal('total_score', 5, 2)->nullable();
 
             // Common
             $table->text('remarks')->nullable();

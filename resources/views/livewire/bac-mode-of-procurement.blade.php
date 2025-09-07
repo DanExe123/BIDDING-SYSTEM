@@ -78,7 +78,15 @@
                                             {{ $ppmp->mode_of_procurement ?? 'Not selected' }}
                                         </td>
                                         <td class="px-4 py-2 text-center">
-                                            {{ ucfirst($ppmp->status) }}
+                                            <span class="
+                                                px-2 py-1 rounded-full text-sm
+                                                @if($ppmp->status === 'pending') bg-yellow-100 text-yellow-800 
+                                                @elseif($ppmp->status === 'approved') bg-green-100 text-green-800 
+                                                @elseif($ppmp->status === 'rejected') bg-red-100 text-red-800 
+                                                @endif
+                                            ">
+                                                {{ ucfirst($ppmp->status) }}
+                                            </span>
                                         </td>
                                         <td class="px-4 py-2 text-center">
                                             <button wire:click="showPpmp({{ $ppmp->id }})" 
@@ -91,6 +99,11 @@
                                 @endforeach
                             </tbody>
                         </table>
+
+                        <!-- ✅ Pagination Links -->
+                        <div class="px-4 py-2">
+                            {{ $ppmps->links() }}
+                        </div>
                     </div>
 
                     <!-- Modal -->

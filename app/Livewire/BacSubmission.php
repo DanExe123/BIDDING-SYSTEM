@@ -4,45 +4,36 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Ppmp;
+use App\Models\Submission;
+use Livewire\WithPagination;
 
 class BacSubmission extends Component
 {
-    public $ppmps = [];
+    use WithPagination;
+
     public $selectedPpmp = null;
     public $submissions = [];
+    public $selectedSubmission = null;
 
-    public function mount()
-    {
-        // Load all approved PPMPs with published invitations and their submissions
-        $this->loadPpmps();
-    }
+    //evaluation scoring
+    public $evaluationSubmission = null;
+    public $technical_score, $financial_score, $total_score;
 
-    private function loadPpmps()
+    protected $paginationTheme = 'tailwind'; 
+
+    public function viewSubmission($submissionId)
     {
-        $this->ppmps = Ppmp::where('status', 'approved') // Only PPMPs that are approved
-            ->whereNotNull('mode_of_procurement')        // Exclude PPMPs without a procurement mode
-            ->where('mode_of_procurement', '!=', '')    // Exclude empty procurement mode strings
-            ->whereHas('invitations', fn($q) => 
-                $q->where('status', 'published')        // Only PPMPs that have at least one published invitation
-            )
-            ->with([
-                'items',                                 // Eager load PPMP items
-                'invitations' => fn($q) => $q->where('status', 'published') // Only published invitations
-                    ->with([
-                        'suppliers',                     // Eager load suppliers of the invitation
-                        'submissions' => fn($q) => $q->where('status', '!=', 'draft') // Only non-draft submissions
-                            ->with(['supplier', 'items.procurementItem']) // Load submission supplier and related items
-                    ])
-            ])
-            ->orderBy('created_at', 'desc')             // Order PPMPs by newest first
-            ->get()
-            ->map(fn($ppmp) => $this->addCounts($ppmp)); // Add totalInvited and totalSubmitted counts
+        $this->selectedSubmission = Submission::with('supplier')->find($submissionId);
     }
 
     public function showPpmp($ppmpId)
     {
-        $ppmp = $this->ppmps->firstWhere('id', $ppmpId); // Find the PPMP from the already loaded collection
-        if (!$ppmp) return; // Exit if not found
+        // Instead of searching in $this->ppmps (which no longer exists),
+        // fetch the PPMP from the DB again if needed:
+        $ppmp = Ppmp::with(['invitations', 'items'])
+            ->find($ppmpId);
+
+        if (!$ppmp) return;
 
         $this->selectedPpmp = $ppmp;
 
@@ -66,15 +57,67 @@ class BacSubmission extends Component
         return $ppmp;
     }
 
-
     public function closeModal()
     {
         $this->selectedPpmp = null;
         $this->submissions = [];
+        $this->selectedSubmission = null;
     }
 
+    public function evaluateSubmission($submissionId)
+    {
+        $submission = Submission::findOrFail($submissionId);
+
+        $this->evaluationSubmission = $submission;
+        $this->technical_score = $submission->technical_score;
+        $this->financial_score = $submission->financial_score;
+        $this->total_score     = $submission->total_score;
+    }
+
+    public function saveEvaluation()
+    {
+        $this->validate([
+            'technical_score' => 'required|numeric|min:0|max:100',
+            'financial_score' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $this->total_score = ($this->technical_score * 0.7) + ($this->financial_score * 0.3);
+
+        $this->evaluationSubmission->update([
+            'technical_score' => $this->technical_score,
+            'financial_score' => $this->financial_score,
+            'total_score'     => $this->total_score,
+        ]);
+
+        $this->dispatch('evaluationSaved'); 
+        $this->evaluationSubmission = null;
+    }
+
+    //issue when pigination is on then the showPpmp function is fucking broken it cant fetch, you need to reload the page or else it doesnt fetch..
     public function render()
     {
-        return view('livewire.bac-submission');
+        $query = Ppmp::where('status', 'approved')
+            ->whereNotNull('mode_of_procurement')
+            ->where('mode_of_procurement', '!=', '')
+            ->whereHas('invitations', fn($q) => $q->where('status', 'published'))
+            ->with([
+                'items',
+                'invitations' => fn($q) => $q->where('status', 'published')
+                    ->with([
+                        'suppliers',
+                        'submissions' => fn($q) => $q->where('status', '!=', 'draft')
+                            ->with(['supplier', 'items.procurementItem'])
+                    ])
+            ])
+            ->orderBy('created_at', 'desc');
+
+        $ppmps = $query->paginate(10);
+
+        // Add counts on each ppmp in the current page
+        $ppmps->getCollection()->transform(fn($ppmp) => $this->addCounts($ppmp));
+
+        return view('livewire.bac-submission', [
+            'ppmps' => $ppmps,
+        ]);
     }
 }

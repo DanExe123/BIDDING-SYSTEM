@@ -37,24 +37,36 @@
 
                 <!-- Right-Aligned Login -->
                 <div class="flex items-center space-x-4">
-                    <ul>
-                        <a href="{{ route('register') }}" class="hover:text-yellow-400">
-                            Register
-                        </a></li>
-                    </ul>
-                    <div class="relative flex items-center">
-                        <!-- Trigger Button -->
-                        <a wire:navigate href="{{ route('login') }}"
-                            class="group border border-white px-3 py-1 rounded-md relative z-20">
-                            <span class="flex items-center gap-2 text-white group-hover:text-yellow-400">
-                                Login
-                                {{-- <x-phosphor.icons::bold.caret-down class="w-5 h-5 mt-0.5 group-hover:text-yellow-400" />  --}}
-                            </span>
+                    @guest
+                        <a href="{{ route('register') }}" class="hover:text-yellow-400">Register</a>
+
+                        <a href="{{ route('login') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">
+                            <span class="flex items-center gap-2 text-white group-hover:text-yellow-400">Login</span>
                         </a>
+                    @else
+                        @php $user = Auth::user(); @endphp
 
-                    </div>
+                        @if($user->hasRole('Super_Admin'))
+                            <a href="{{ route('superadmin-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
+                        @elseif($user->hasRole('BAC_Secretary'))
+                            <a href="{{ route('bac-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
+                        @elseif($user->hasRole('Supplier'))
+                            <a href="{{ route('supplier-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
+                        @elseif($user->hasRole('Purchaser'))
+                            <a href="{{ route('purchaser-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
+                        @else
+                            <a href="{{ route('home') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
+                        @endif
 
+                        <form method="POST" action="{{ route('logout') }}" class="ml-2">
+                            @csrf
+                            <button type="submit" class="text-white group-hover:text-yellow-400 border border-white px-3 py-1 rounded-md">
+                                Logout
+                            </button>
+                        </form>
+                    @endguest
                 </div>
+
             </div>
 
             <!-- Mobile Menu -->
