@@ -1,4 +1,5 @@
-<div x-data="{ showSubmission: false }" class="relative" x-cloak>
+<div x-data="{ showSubmission: false }" x-on:ppmp-loaded.window="showSubmission = true"
+    class="relative" x-cloak>
 
     <!-- Default Table View  -->
     <template x-if="!showSubmission">
@@ -94,9 +95,8 @@
     </template>
 
     <!-- Evaluation / Submissions View -->
-    <template x-if="showSubmission">
+    <template x-if="showSubmission" x-cloak>
         <div class="bg-white rounded-md border border-gray-300 shadow-sm m-4 p-6 space-y-4">
-
             <div class="flex justify-between items-center border-b pb-2">
                 <h2 class="text-lg font-semibold">Evaluation</h2>
                 <button
@@ -119,7 +119,7 @@
             </div>
 
             <!-- ✅ Content -->
-            <div wire:loading.remove wire:target="showPpmp">
+            <div wire:loading.remove wire:target="showPpmp" >
                 @if($selectedPpmp)
                     <div class="mb-4 border-b pb-2">
                         <h2 class="text-lg font-semibold text-gray-800">
@@ -148,8 +148,6 @@
                             </p>
                         </div>
 
-
-
                         {{-- Always show the table --}}
                         <h3 class="font-bold mb-2">Requested Items</h3>
                         <table class="min-w-full border border-gray-300 text-sm">
@@ -158,8 +156,8 @@
                                     <th class="px-4 py-2 text-left">Description</th>
                                     <th class="px-4 py-2 text-left">Quantity</th>
                                     <th class="px-4 py-2 text-left">Unit</th>
-                                    <th class="px-4 py-2 text-left">Unit Cost</th>
-                                    <th class="px-4 py-2 text-left">Total Cost</th>
+                                    <th class="px-4 py-2 text-left">Estimated Unit Cost</th>
+                                    <th class="px-4 py-2 text-left">Estimated Total Cost</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -174,7 +172,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-
 
                     </div>
                 @endif
@@ -218,10 +215,35 @@
                                             ₱{{ number_format($submission->bid_amount, 2) }}
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 text-center">-</td>
-                                    <td class="px-4 py-2 text-center">-</td>
-                                    <td class="px-4 py-2 text-center">-</td>
-                                    <td class="px-4 py-2">{{ ucfirst($submission->status) }}</td>
+                                    <td class="px-4 py-2 text-center">
+                                        {{ $submission->technical_score !== null ? (fmod($submission->technical_score, 1) == 0 ? intval($submission->technical_score) : rtrim(rtrim(number_format($submission->technical_score, 2), '0'), '.')) . '/100' : '-' }}
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        {{ $submission->financial_score !== null ? (fmod($submission->financial_score, 1) == 0 ? intval($submission->financial_score) : rtrim(rtrim(number_format($submission->financial_score, 2), '0'), '.')) . '/100' : '-' }}
+                                    </td>
+                                    <td class="px-4 py-2 text-center">
+                                        {{ $submission->total_score !== null ? (fmod($submission->total_score, 1) == 0 ? intval($submission->total_score) : rtrim(rtrim(number_format($submission->total_score, 2), '0'), '.')) : '-' }}
+                                    </td>
+
+
+                                   <td class="px-4 py-2">
+                                        @php
+                                            $status = $submission->status === 'submitted' 
+                                                ? 'pending' 
+                                                : ($submission->status === 'under_review' ? 'evaluated' : $submission->status);
+
+                                            $colors = [
+                                                'pending'   => 'bg-yellow-100 text-yellow-800',
+                                                'evaluated' => 'bg-blue-100 text-blue-800',
+                                                'awarded'   => 'bg-green-100 text-green-800',
+                                                'rejected'  => 'bg-red-100 text-red-800',
+                                            ];
+                                        @endphp
+
+                                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $colors[$status] ?? 'bg-gray-100 text-gray-800' }}">
+                                            {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                        </span>
+                                    </td>
                                     <td class="px-4 py-2">
                                         <div class="flex items-center space-x-2">
                                             <!-- View button -->
@@ -282,9 +304,9 @@
                                     <p class="font-medium text-sm">Technical Proposal</p>
                                     @if($selectedSubmission->technical_proposal_path)
                                         <div class="space-x-2">
-                                            <a href="{{ Storage::url($selectedSubmission->technical_proposal_path) }}" target="_blank"
+                                            <a href="{{ route('submission.view', [$selectedSubmission->id, 'technical']) }}" target="_blank"
                                             class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
-                                            <a href="{{ Storage::url($selectedSubmission->technical_proposal_path) }}" download
+                                            <a href="{{ route('submission.download', [$selectedSubmission->id, 'technical']) }}"
                                             class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
                                         </div>
                                     @else
@@ -297,9 +319,9 @@
                                     <p class="font-medium text-sm">Financial Proposal</p>
                                     @if($selectedSubmission->financial_proposal_path)
                                         <div class="space-x-2">
-                                            <a href="{{ Storage::url($selectedSubmission->financial_proposal_path) }}" target="_blank"
+                                            <a href="{{ route('submission.view', [$selectedSubmission->id, 'financial']) }}" target="_blank"
                                             class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
-                                            <a href="{{ Storage::url($selectedSubmission->financial_proposal_path) }}" download
+                                            <a href="{{ route('submission.download', [$selectedSubmission->id, 'financial']) }}"
                                             class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
                                         </div>
                                     @else
@@ -312,26 +334,25 @@
                                     <p class="font-medium text-sm">Company Profile</p>
                                     @if($selectedSubmission->company_profile_path)
                                         <div class="space-x-2">
-                                            <a href="{{ Storage::url($selectedSubmission->company_profile_path) }}" target="_blank"
+                                            <a href="{{ route('submission.view', [$selectedSubmission->id, 'company']) }}" target="_blank"
                                             class="px-3 py-1 bg-blue-600 text-white text-sm rounded">View</a>
-                                            <a href="{{ Storage::url($selectedSubmission->company_profile_path) }}" download
+                                            <a href="{{ route('submission.download', [$selectedSubmission->id, 'company']) }}"
                                             class="px-3 py-1 bg-green-600 text-white text-sm rounded">Download</a>
                                         </div>
                                     @else
                                         <span class="text-xs text-gray-500">Not submitted</span>
                                     @endif
                                 </div>
+
                             </div>
                         </div>
                         @endif
                     </div>
 
                     <!-- Evaluation Modal -->
-                    <div 
-                        x-show="showEvalModal" 
-                        x-transition 
-                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-                        x-cloak>
+                    <div x-show="showEvalModal" x-transition 
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" x-cloak x-data 
+                        x-on:close-eval-modal.window="showEvalModal = false">
 
                         @if($evaluationSubmission)
                         <div class="bg-white w-[95%] md:w-[500px] rounded-lg shadow-lg p-6"
@@ -341,34 +362,51 @@
 
                             <div class="mb-4">
                                 <label class="block text-sm font-medium">Technical Score</label>
-                                <input type="number" wire:model="technical_score" min="0" max="100"
-                                    class="w-full border rounded px-3 py-2">
-                                @error('technical_score') 
-                                    <span class="text-red-500 text-xs">{{ $message }}</span> 
-                                @enderror
+                                <input type="number" wire:model="technical_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
+                                @error('technical_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="mb-4">
                                 <label class="block text-sm font-medium">Financial Score</label>
-                                <input type="number" wire:model="financial_score" min="0" max="100"
-                                    class="w-full border rounded px-3 py-2">
-                                @error('financial_score') 
-                                    <span class="text-red-500 text-xs">{{ $message }}</span> 
-                                @enderror
+                                <input type="number" wire:model="financial_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
+                                @error('financial_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="mb-4">
+                            <div wire:poll.500ms class="mb-4">
                                 <label class="block text-sm font-medium">Total Score</label>
-                                <input type="text" wire:model="total_score" readonly
+
+                                <!-- Input (only when not loading) -->
+                                <input type="text" 
+                                    wire:model="total_score" 
+                                    readonly
+                                    wire:loading.remove
+                                    wire:target="technical_score,financial_score"
                                     class="w-full border rounded px-3 py-2 bg-gray-100">
+
+                                <!-- Spinner (only when loading) -->
+                                <div wire:loading wire:target="technical_score,financial_score" 
+                                    class="flex justify-center items-center w-full border rounded px-3 py-2 bg-gray-100">
+                                    <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z">
+                                        </path>
+                                    </svg>
+                                </div>
                             </div>
 
                             <div class="flex justify-end space-x-2">
-                                <button 
-                                    wire:click="saveEvaluation"
-                                    @click="showEvalModal = false"
-                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                                    Save
+                                <button wire:click="saveEvaluation"wire:loading.attr="disabled" wire:target="saveEvaluation"
+                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center justify-center gap-2">
+                                    <span wire:loading.remove wire:target="saveEvaluation">
+                                        Save
+                                    </span>
+                                    <span wire:loading wire:target="saveEvaluation" class="flex items-center gap-2">
+                                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                        </svg>
+                                    </span>
                                 </button>
                                 <button 
                                     @click="showEvalModal = false"
@@ -379,13 +417,9 @@
                         </div>
                         @endif
                     </div>
-
-
                 </div>
-
-
             </div>
-
+            
         </div>
     </template>
 

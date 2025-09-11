@@ -65,6 +65,7 @@
                                         <th class="px-4 py-2 w-1/5 text-center font-semibold">Purpose</th>
                                         <th class="px-4 py-2 w-1/5 text-center font-semibold">Procurement</th>
                                         <th class="px-4 py-2 w-1/5 text-center font-semibold">Deadline</th>
+                                        <th class="px-4 py-2 w-1/6 text-center font-semibold">Status</th>
                                         <th class="px-4 py-2 w-1/5 text-right font-semibold">Action</th>
                                     </tr>
                                 </thead>
@@ -75,6 +76,30 @@
                                             <td class="px-4 py-2 text-center">{{ $inv->title ?? $inv->ppmp->project_title }}</td>
                                             <td class="px-4 py-2 text-center">{{ ucfirst($inv->ppmp->mode_of_procurement) }}</td>
                                             <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($inv->submission_deadline)->toDateString() }}</td>
+                                            <td class="px-4 py-2 text-center">
+                                               @php
+                                                    $submission = $inv->submissions->where('supplier_id', Auth::id())->first();
+                                                @endphp
+
+                                                @if($submission)
+                                                    <span class="
+                                                        @if($submission->status === 'pending') bg-yellow-100 text-yellow-800
+                                                        @elseif($submission->status === 'draft') bg-gray-100 text-gray-800
+                                                        @elseif($submission->status === 'submitted') bg-indigo-100 text-indigo-800
+                                                        @elseif($submission->status === 'under_review') bg-blue-100 text-blue-800
+                                                        @elseif($submission->status === 'awarded') bg-green-100 text-green-800
+                                                        @elseif($submission->status === 'rejected') bg-red-100 text-red-800
+                                                        @endif
+                                                        px-2 py-1 rounded-full text-xs
+                                                    ">
+                                                        {{ ucfirst($submission->status) }}
+                                                    </span>
+                                                @else
+                                                    {{-- No submission yet at all --}}
+                                                    <span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">Pending</span>
+                                                @endif
+
+                                            </td>
                                             <td class="px-4 py-2 text-right">
                                                 <button wire:click="openSubmission({{ $inv->id }})" @click="showModal = true"
                                                     class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
@@ -171,32 +196,94 @@
 
                                         <!-- Upload Sections Styled Like Screenshot -->
                                         <div class="space-y-3">
+
+                                            <!-- Technical Proposal -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
                                                 <div>
                                                     <p class="font-medium text-sm">Technical Proposal</p>
                                                     <p class="text-xs text-gray-500">PDF format (max 10MB)</p>
+
+                                                    @if($technicalProposal)
+                                                        <div class="flex items-center space-x-2 mt-1">
+                                                            <p class="text-xs text-green-600">
+                                                                ✅ {{ $technicalProposal->getClientOriginalName() }} uploaded
+                                                            </p>
+                                                            <button type="button" wire:click="$set('technicalProposal', null)" 
+                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    @endif
+
+                                                    <!--  Validation error -->
+                                                    @error('technicalProposal') 
+                                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                                    @enderror
                                                 </div>
                                                 <input type="file" wire:model="technicalProposal" class="hidden" id="tech-proposal">
-                                                <label for="tech-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
+                                                <label for="tech-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                    Upload
+                                                </label>
                                             </div>
 
+                                            <!-- Financial Proposal -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
                                                 <div>
                                                     <p class="font-medium text-sm">Financial Proposal</p>
                                                     <p class="text-xs text-gray-500">Excel format (max 5MB)</p>
+
+                                                    @if($financialProposal)
+                                                        <div class="flex items-center space-x-2 mt-1">
+                                                            <p class="text-xs text-green-600">
+                                                                ✅ {{ $financialProposal->getClientOriginalName() }} uploaded
+                                                            </p>
+                                                            <button type="button" wire:click="$set('financialProposal', null)" 
+                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    @endif
+
+                                                    <!--  Validation error -->
+                                                    @error('financialProposal') 
+                                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                                    @enderror
                                                 </div>
                                                 <input type="file" wire:model="financialProposal" class="hidden" id="fin-proposal">
-                                                <label for="fin-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
+                                                <label for="fin-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                    Upload
+                                                </label>
                                             </div>
 
+                                            <!-- Company Profile -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
                                                 <div>
                                                     <p class="font-medium text-sm">Company Profile</p>
                                                     <p class="text-xs text-gray-500">PDF format (max 5MB)</p>
+
+                                                    @if($companyProfile)
+                                                        <div class="flex items-center space-x-2 mt-1">
+                                                            <p class="text-xs text-green-600">
+                                                                ✅ {{ $companyProfile->getClientOriginalName() }} uploaded
+                                                            </p>
+                                                            <button type="button" wire:click="$set('companyProfile', null)" 
+                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    @endif
+
+                                                    <!--  Validation error -->
+                                                    @error('companyProfile') 
+                                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                                    @enderror
                                                 </div>
                                                 <input type="file" wire:model="companyProfile" class="hidden" id="comp-profile">
-                                                <label for="comp-profile" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">Upload</label>
+                                                <label for="comp-profile" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                    Upload
+                                                </label>
                                             </div>
+
                                         </div>
 
                                         <!-- Bid Amount -->
@@ -204,6 +291,10 @@
                                             <label class="block text-sm font-medium mb-1">Bid Amount*</label>
                                             <input type="number" step="0.01" wire:model="bid_amount" 
                                                 class="w-full border rounded px-3 py-2" placeholder="Enter your bid amount" />
+                                            <!--  Validation error -->
+                                            @error('bid_amount') 
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                            @enderror
                                         </div>
 
                                         <!-- Additional Notes -->
@@ -214,16 +305,24 @@
 
                                         <!-- Actions -->
                                         <div class="mt-4 flex justify-between items-center">
-                                            <div class="flex items-center space-x-2">
-                                                <input type="checkbox" class="h-4 w-4">
-                                                <label class="text-xs text-gray-600">I certify that all information provided is accurate and I agree to the terms of bidding</label>
+                                            <div>
+                                                <div class="flex items-center space-x-2">
+                                                    <input type="checkbox" wire:model="isCertified" class="h-4 w-4">
+                                                    <label class="text-xs text-gray-600">I certify that all information provided is accurate and I agree to the terms of bidding</label>
+                                                </div>
+                                                <!--  Validation error -->
+                                                @error('isCertified') 
+                                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                                @enderror
                                             </div>
+
                                             <div class="space-x-2">
                                                 <button wire:click="saveBiddingDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
                                                 <button wire:click="submitBidding" class="px-3 py-1 bg-green-600 text-white rounded">Submit Bid</button>
                                             </div>
                                         </div>
                                     </div>
+
                                 @endif
                             </div>
                         </div>

@@ -17,6 +17,9 @@ class Submission extends Model
         'remarks',
         'status',
         'submitted_at',
+        'technical_score',
+        'financial_score',
+        'total_score',
     ];
 
     public function invitation() { 

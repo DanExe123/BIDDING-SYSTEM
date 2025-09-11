@@ -26,6 +26,7 @@ class SupplierProposalSubmission extends Component
     public $technicalProposal; // Livewire file
     public $financialProposal;
     public $companyProfile;
+    public $isCertified = false;
 
     public $remarks;
 
@@ -41,15 +42,20 @@ class SupplierProposalSubmission extends Component
         // Load only invitations that are:
         // 1. Published
         // 2. Supplier was invited AND accepted
+
         $this->invitations = Invitation::where('status', 'published')
         ->whereHas('suppliers', function($q) {
             $q->where('supplier_id', Auth::id())
-              ->where('invitation_supplier.response', 'accepted'); // <-- use pivot table column directly
+            ->where('invitation_supplier.response', 'accepted');
         })
-        ->with('ppmp') // eager load PPMP details
+        ->with(['ppmp', 'submissions' => function($q) {
+            $q->where('supplier_id', Auth::id());
+        }])
         ->orderBy('submission_deadline', 'asc')
         ->get();
+
     }
+    
 
     public function openSubmission($invitationId)
     {
@@ -199,10 +205,11 @@ class SupplierProposalSubmission extends Component
     public function submitBidding()
     {
         $this->validate([
-            'bid_amount' => 'required|numeric|min:0',
-            'technicalProposal' => 'nullable|file|max:10240',
-            'financialProposal' => 'nullable|file|max:10240',
-            'companyProfile' => 'nullable|file|max:10240',
+            'bid_amount'        => 'required|numeric|min:0',
+            'technicalProposal' => 'required|file|max:10240',
+            'financialProposal' => 'required|file|max:10240',
+            'companyProfile'    => 'required|file|max:10240',
+            'isCertified'       => 'accepted', // ✅ checkbox must be true
         ]);
 
         if ($this->technicalProposal) {
@@ -215,15 +222,17 @@ class SupplierProposalSubmission extends Component
             $this->submission->company_profile_path = $this->companyProfile->store('submissions/company', 'public');
         }
 
-        $this->submission->bid_amount = $this->bid_amount;
-        $this->submission->status = 'submitted';
-        $this->submission->submitted_at = now();
+        $this->submission->bid_amount    = $this->bid_amount;
+        $this->submission->is_certified  = true; // ✅ force TRUE when submitted
+        $this->submission->status        = 'submitted';
+        $this->submission->submitted_at  = now();
         $this->submission->save();
 
         session()->flash('message', 'Bid submitted');
         $this->showModal = false;
         $this->loadInvitations();
     }
+
 
     public function render()
     {

@@ -90,12 +90,6 @@
                     Inviations
                 </a>
 
-                <a wire:navigate href="{{ route('supplier-participation') }}"
-                    class="{{ request()->routeIs('supplier-participation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
-                    <x-phosphor.icons::regular.handshake class="w-5 h-5" />
-                    Participation
-                </a>
-
                 <a wire:navigate href="{{ route('supplier-proposal-submission') }}"
                     class="{{ request()->routeIs('supplier-proposal-submission') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.handshake class="w-5 h-5" />

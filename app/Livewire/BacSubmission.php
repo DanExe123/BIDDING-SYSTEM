@@ -40,6 +40,9 @@ class BacSubmission extends Component
         // Flatten all invitations' submissions and filter out drafts
         $this->submissions = $ppmp->invitations
             ->flatMap(fn($inv) => $inv->submissions->where('status', '!=', 'draft'));
+
+        // 🔑 Tell Alpine it’s safe to show now
+        $this->dispatch('ppmpLoaded');
     }
 
     private function addCounts($ppmp)
@@ -74,6 +77,22 @@ class BacSubmission extends Component
         $this->total_score     = $submission->total_score;
     }
 
+    public function updated($propertyName)
+    {
+        if (in_array($propertyName, ['technical_score', 'financial_score'])) {
+            $this->calculateTotalScore();
+        }
+    }
+
+    private function calculateTotalScore()
+    {
+        $tech = floatval($this->technical_score ?? 0);
+        $fin  = floatval($this->financial_score ?? 0);
+
+        $this->total_score = ($tech * 0.7) + ($fin * 0.3);
+    }
+
+
     public function saveEvaluation()
     {
         $this->validate([
@@ -87,9 +106,12 @@ class BacSubmission extends Component
             'technical_score' => $this->technical_score,
             'financial_score' => $this->financial_score,
             'total_score'     => $this->total_score,
+            'status'          => 'under_review', 
         ]);
 
-        $this->dispatch('evaluationSaved'); 
+        session()->flash('message', 'Evaluation saved successfully!');
+
+        $this->dispatch('close-eval-modal');
         $this->evaluationSubmission = null;
     }
 

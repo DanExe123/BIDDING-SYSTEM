@@ -85,11 +85,14 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     
     });
 
+    //fileview&download
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/download/{submission}/{type}', [\App\Http\Controllers\DownloadController::class, 'file'])
+            ->name('submission.download');
 
-
-
-
-
+        Route::get('/view/{submission}/{type}', [\App\Http\Controllers\DownloadController::class, 'view'])
+            ->name('submission.view');
+    });
 
 
 Route::middleware(['auth'])->group(function () {

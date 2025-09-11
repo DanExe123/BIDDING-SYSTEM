@@ -62,7 +62,7 @@
                                 @if($ppmp->invitations->isEmpty())
                                     <button wire:click="showPpmp({{ $ppmp->id }})" 
                                         x-on:click="showModal = true"
-                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                        class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
                                         Invite Supplier
                                     </button>
                                 @endif
@@ -88,7 +88,6 @@
         wire:ignore.self>
         <div class="bg-white ml-30 w-[90%] md:w-[800px] rounded-md shadow-lg max-h-[90vh] overflow-y-auto"
             @click.away="showModal = false">
-
 
             <!-- Loading -->
             <div wire:loading.flex wire:target="showPpmp" class="p-10 flex justify-center items-center">

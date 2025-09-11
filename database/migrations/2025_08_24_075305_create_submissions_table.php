@@ -27,7 +27,7 @@ return new class extends Migration
 
             // Common
             $table->text('remarks')->nullable();
-            $table->enum('status', ['draft','submitted','under_review','awarded','rejected'])->default('draft');
+            $table->enum('status', ['pending','draft','submitted','under_review','awarded','rejected'])->default('pending');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
 

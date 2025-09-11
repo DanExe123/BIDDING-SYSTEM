@@ -3,7 +3,7 @@
         <button
             type="button"
             @click.prevent="$wire.view({{ $ppmp->invitations->last()->id }}); open = true"
-            class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
             View
         </button>
     @endif
