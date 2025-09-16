@@ -97,9 +97,9 @@
         <!-- Card Container (absolutely centered on split line) -->
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full px-6">
             <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <div class="h-32 md:h-40 bg-yellow-100 shadow-md rounded"></div>
-                <div class="h-32 md:h-40 bg-yellow-100 shadow-md rounded"></div>
-                <div class="h-32 md:h-40 bg-yellow-100 shadow-md rounded"></div>
+                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
+                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
+                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
             </div>
         </div>
     </section>

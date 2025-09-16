@@ -1,4 +1,4 @@
-<div class="flex min-h-screen">
+<div class="flex min-h-screen" x-cloak>
     <!-- Sidebar -->
     @include('partials.user-sidebar')
 
@@ -18,11 +18,69 @@
                     </span>
                 </div>
 
-                <div>
-                    <button class="text-gray-500 hover:text-black">
+                <div x-data="{ open: false }" class="relative">
+                    <!-- Bell Button -->
+                    <button 
+                        @click="open = !open; if(open) { $wire.markAsRead(); }" 
+                        class="text-gray-500 hover:text-black relative"
+                    >
                         <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
+                        
+                        <!-- Badge -->
+                        @if($unreadCount > 0)
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
                     </button>
+                
+                    <!-- Dropdown -->
+                    <div 
+                        x-show="open" 
+                        @click.away="open = false" 
+                        x-transition 
+                        class="absolute right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg overflow-hidden z-50"
+                    >
+                        <div class="p-4 border-b font-semibold text-gray-700">Notifications</div>
+                
+                        <ul class="max-h-60 overflow-y-auto">
+                            @if($adminCount > 0)
+                                <li class="px-4 py-2 hover:bg-gray-100 flex items-start gap-2">
+                                    <x-phosphor.icons::regular.users class="w-5 h-5 text-blue-500 mt-1" />
+                                    <p class="text-sm text-gray-700">
+                                        You have {{ $adminCount }} {{ Str::plural('BAC Secretary', $adminCount) }}
+                                    </p>
+                                </li>
+                            @endif
+                
+                            @if($purchaserCount > 0)
+                                <li class="px-4 py-2 hover:bg-gray-100 flex items-start gap-2">
+                                    <x-phosphor.icons::regular.shopping-cart class="w-5 h-5 text-green-500 mt-1" />
+                                    <p class="text-sm text-gray-700">
+                                        You have {{ $purchaserCount }} {{ Str::plural('purchaser', $purchaserCount) }}
+                                    </p>
+                                </li>
+                            @endif
+                
+                            @if($supplierCount > 0)
+                                <li class="px-4 py-2 hover:bg-gray-100 flex items-start gap-2">
+                                    <x-phosphor.icons::regular.factory class="w-5 h-5 text-purple-500 mt-1" />
+                                    <p class="text-sm text-gray-700">
+                                        You have {{ $supplierCount }} {{ Str::plural('supplier', $supplierCount) }}
+                                    </p>
+                                </li>
+                            @endif
+                
+                            @if($adminCount + $purchaserCount + $supplierCount === 0)
+                                <li class="px-4 py-2 text-center text-sm text-gray-500">
+                                    No new notifications
+                                </li>
+                            @endif
+                        </ul>
+                
+                    </div>
                 </div>
+                
         </header>
 
         <!-- Page content -->
