@@ -88,33 +88,35 @@
 
                 <!-- Row 3 & 4: Other Fields (2 columns each) -->
                 <div x-data="{
-                    username: '',
-                    email: '',
-                    generateEmail() {
-                        if (this.username) {
-                            this.email = this.username.toLowerCase().replace(/\s+/g, '') + '@gmail.com';
-                        } else {
-                            this.email = '';
+                        firstName: @entangle('first_name'),
+                        lastName: @entangle('last_name'),
+                        get username() {
+                            if (this.firstName && this.lastName) {
+                                return (this.firstName + '.' + this.lastName).toLowerCase().replace(/\s+/g, '');
+                            }
+                            return '';
                         }
-                    }
-                }" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Username -->
+                    }" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <!-- Username (auto-generated, readonly) -->
                     <div>
-                        <x-input label="Username" placeholder="Juan" x-model="username" @input="generateEmail"
+                        <x-input 
+                            label="Username" 
+                            x-bind:value="username" 
+                            x-effect="$wire.username = username" 
+                            readonly
+                            class="!border !border-gray-400 rounded-lg bg-gray-100 font-semibold" 
+                        />
+
+                    </div>
+
+                    <!-- Email (manual input now) -->
+                    <div>
+                        <x-input label="Email" placeholder="Enter Email" wire:model="email"
                             class="!border !border-gray-400 rounded-lg" />
                     </div>
-
-                    <!-- Email -->
-                    <div>
-                        <x-input label="Email" placeholder="Auto Email Generate" x-model="email" readonly
-                            class="!border !border-gray-400 rounded-lg text-green-600 font-semibold" />
-
-                        <!-- Success Note -->
-                        <template x-if="email">
-                            <p class="text-green-600 text-sm mt-1"> Email generated successfully</p>
-                        </template>
-                    </div>
                 </div>
+
 
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -126,11 +128,28 @@
 
                 <!-- Submit Button -->
                 <div class="flex justify-center pt-4">
-                    <x-button wire:click="createAccount" spinner="createAccount" primary
-                        class="!bg-[#FAEA55] text-black !px-10">
-                        Create Account
+                    <x-button 
+                        wire:click="createAccount" 
+                        wire:loading.attr="disabled" 
+                        primary
+                        class="!bg-[#FAEA55] text-black !px-10 flex items-center gap-2"
+                    >
+                        <!-- Normal State -->
+                        <span wire:loading.remove wire:target="createAccount">Create Account</span>
+
+                        <!-- Loading State -->
+                        <span wire:loading wire:target="createAccount" class="flex items-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                                </path>
+                            </svg>
+                        </span>
                     </x-button>
                 </div>
+
 
             </div>
 

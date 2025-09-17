@@ -57,7 +57,7 @@
                     </h2>
                 </div>
 
-                <div wire:poll class="p-6">
+                <div class="p-6">
                     <!-- Tabs -->
                     <div class="flex space-x-4 border-b border-gray-300 mb-4">
                         <button @click="tab = 'invitation'"

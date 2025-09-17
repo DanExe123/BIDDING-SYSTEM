@@ -4,7 +4,7 @@
 
     <!-- Request Table -->
     <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-       <table wire:poll.1000ms class="min-w-full text-sm">
+       <table class="min-w-full text-sm">
             <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                 <tr>
                     <th class="w-1/5 text-left px-4 py-2">Reference No</th>
@@ -159,7 +159,7 @@
                         <button type="button" class="mt-2 text-blue-600 text-sm hover:underline">+ Add Document</button>
                     </div>
 
-                    <div wire:poll class="border-t pt-4">
+                    <div class="border-t pt-4">
                         <p class="font-medium mb-2">Notify Suppliers</p>
 
                         @if($selectedPpmp && $selectedPpmp->mode_of_procurement !== 'quotation')
