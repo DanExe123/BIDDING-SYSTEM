@@ -58,6 +58,8 @@ class BacInvitation extends Component
 
         $paddedId = str_pad($ppmpId, 4, '0', STR_PAD_LEFT);
         $this->referenceNo = $prefix . '-' . date('Y') . '-PPMP' . $ppmpId . '-' . $paddedId;
+
+        //dd($ppmpId);
     }
 
     public function closeModal()

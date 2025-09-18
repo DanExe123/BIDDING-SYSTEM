@@ -33,11 +33,34 @@
                 <div wire:loading.remove wire:target="view">
                     @if($invitation)
                         <div class="mb-4 space-y-1">
-                            <p><strong>Reference No:</strong> {{ $invitation->reference_no }}</p>
-                            <p><strong>Title:</strong> {{ $invitation->title }}</p>
-                            <p><strong>Project:</strong> {{ $invitation->ppmp->project_title }}</p>
-                            <p><strong>Status:</strong> {{ ucfirst($invitation->status) }}</p>
+
+                            <h2 class="text-lg font-semibold text-gray-800">
+                                Reference: {{ $invitation->reference_no }}
+                            </h2>
+                            <p class="text-sm text-gray-600">
+                                Project: {{ $invitation->ppmp->project_title }}
+                            </p>
+
+                            {{-- Show Bid Amount only if bidding --}}
+                            @if($invitation->ppmp->mode_of_procurement === 'bidding')
+                                <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mb-2">
+                                    <strong>Budget:</strong> ₱{{ number_format($invitation->ppmp->abc, 2) }}
+                                </div>
+                            @endif
+
+                            <div class="mt-2 mb-2 text-sm text-gray-700 flex space-x-8">
+                                <p>
+                                    <strong>Pre Date:</strong> 
+                                    {{ \Carbon\Carbon::parse($invitation->pre_date)->format('F d, Y') }}
+                                </p>
+                                <p>-</p>
+                                <p>
+                                    <strong>Submission Deadline:</strong> 
+                                    {{ \Carbon\Carbon::parse($invitation->submission_deadline)->format('F d, Y') }}
+                                </p>
+                            </div>
                         </div>
+
 
                         <h3 class="font-semibold mb-2">Invited Suppliers</h3>
                         <table class="w-full border text-sm">
