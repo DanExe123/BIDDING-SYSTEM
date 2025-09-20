@@ -70,8 +70,8 @@
 
                 </div>
 
-                <a wire:navigate href="{{ route('notice-of-award') }}"
-                    class="{{ request()->routeIs('notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                <a wire:navigate href="{{ route('bac-notice-of-award') }}"
+                    class="{{ request()->routeIs('bac-notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.trophy class="w-5 h-5" />
                     <span class="text-sm whitespace-nowrap">Notice of Award</span>
                 </a>
@@ -96,8 +96,8 @@
                     Proposal Submission
                 </a>
 
-                <a wire:navigate href="{{ route('notice-of-award') }}"
-                    class="{{ request()->routeIs('notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                <a wire:navigate href="{{ route('supplier-notice-of-award') }}"
+                    class="{{ request()->routeIs('supplier-notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.trophy class="w-5 h-5" />
                     Notice of Award
                 </a>

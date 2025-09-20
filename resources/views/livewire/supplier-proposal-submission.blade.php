@@ -103,7 +103,7 @@
                                             <td class="px-4 py-2 text-right">
                                                 <button wire:click="openSubmission({{ $inv->id }})" @click="showModal = true"
                                                     class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-                                                    Open
+                                                    open
                                                 </button>
                                             </td>
                                         </tr>
@@ -159,6 +159,7 @@
                                                 <tr>
                                                     <th class="px-3 py-1 border text-left">Item</th>
                                                     <th class="px-3 py-1 border text-right">Qty</th>
+                                                    <th class="px-3 py-1 border text-right">Unit</th>
                                                     <th class="px-3 py-1 border text-right">Unit Price</th>
                                                     <th class="px-3 py-1 border text-right">Total</th>
                                                 </tr>
@@ -167,22 +168,27 @@
                                                 @foreach($submissionItems as $si)
                                                     <tr class="border-b border-gray-200">
                                                         <td class="px-3 py-1 border">{{ $si->procurementItem->description ?? 'Item #' . $si->procurement_item_id }}</td>
-                                                        <td class="px-3 py-1 border text-right">{{ $si->procurementItem->quantity ?? 1 }}</td>
+                                                        <td class="px-3 py-1 border text-right">{{ $si->procurementItem->qty ?? 1 }}</td>
+                                                        <td class="px-3 py-1 border text-right">{{ $si->procurementItem->unit ?? '-' }}</td> 
                                                         <td class="px-3 py-1 border text-right">
                                                             <input type="number" step="0.01" wire:model="unitPrices.{{ $si->id }}"
                                                                 class="w-32 text-right border rounded px-2 py-1" placeholder="Enter price" />
                                                         </td>
                                                         <td class="px-3 py-1 border text-right">
-                                                            {{ number_format($si->total_price ?? 0, 2) }}
+                                                            {{ number_format((float) ($unitPrices[$si->id] ?? 0) * ($si->procurementItem->qty ?? 1), 2) }}
                                                         </td>
+
                                                     </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
 
-                                        <div class="mt-3 flex justify-between items-center">
+                                        <div class="mt-3 flex flex-col space-y-2">
+                                            <!-- Remarks textarea -->
                                             <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Remarks (optional)"></textarea>
-                                            <div class="space-x-2 ml-3">
+
+                                            <!-- Buttons aligned to the right -->
+                                            <div class="flex justify-end space-x-2">
                                                 <button wire:click="saveQuotationDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
                                                 <button wire:click="submitQuotation" class="px-3 py-1 bg-blue-600 text-white rounded">Submit Quotation</button>
                                             </div>
@@ -194,92 +200,97 @@
                                     <div>
                                         <h4 class="font-medium mb-4">Required Documents</h4>
 
-                                        <!-- Upload Sections Styled Like Screenshot -->
-                                        <div class="space-y-3">
+                                      <div class="space-y-3">
 
                                             <!-- Technical Proposal -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
-                                                <div>
+                                                <div class="w-full">
                                                     <p class="font-medium text-sm">Technical Proposal</p>
-                                                    <p class="text-xs text-gray-500">PDF format (max 10MB)</p>
 
                                                     @if($technicalProposal)
-                                                        <div class="flex items-center space-x-2 mt-1">
-                                                            <p class="text-xs text-green-600">
-                                                                ✅ {{ $technicalProposal->getClientOriginalName() }} uploaded
-                                                            </p>
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $technicalProposal->getClientOriginalName() }}</p>
                                                             <button type="button" wire:click="$set('technicalProposal', null)" 
-                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
-                                                                ✕
-                                                            </button>
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
                                                         </div>
+                                                    @elseif($technicalProposalOriginalName)
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $technicalProposalOriginalName }}</p>
+                                                            <button type="button" wire:click="removeTechnicalProposal" 
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500">PDF format (max 10MB)</p>
                                                     @endif
 
-                                                    <!--  Validation error -->
                                                     @error('technicalProposal') 
                                                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
                                                     @enderror
                                                 </div>
                                                 <input type="file" wire:model="technicalProposal" class="hidden" id="tech-proposal">
-                                                <label for="tech-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                <label for="tech-proposal" class="ml-3 px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
                                                     Upload
                                                 </label>
                                             </div>
 
                                             <!-- Financial Proposal -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
-                                                <div>
+                                                <div class="w-full">
                                                     <p class="font-medium text-sm">Financial Proposal</p>
-                                                    <p class="text-xs text-gray-500">Excel format (max 5MB)</p>
 
                                                     @if($financialProposal)
-                                                        <div class="flex items-center space-x-2 mt-1">
-                                                            <p class="text-xs text-green-600">
-                                                                ✅ {{ $financialProposal->getClientOriginalName() }} uploaded
-                                                            </p>
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $financialProposal->getClientOriginalName() }}</p>
                                                             <button type="button" wire:click="$set('financialProposal', null)" 
-                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
-                                                                ✕
-                                                            </button>
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
                                                         </div>
+                                                    @elseif($financialProposalOriginalName)
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $financialProposalOriginalName }}</p>
+                                                            <button type="button" wire:click="removeFinancialProposal" 
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500">Excel format (max 5MB)</p>
                                                     @endif
 
-                                                    <!--  Validation error -->
                                                     @error('financialProposal') 
                                                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
                                                     @enderror
                                                 </div>
                                                 <input type="file" wire:model="financialProposal" class="hidden" id="fin-proposal">
-                                                <label for="fin-proposal" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                <label for="fin-proposal" class="ml-3 px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
                                                     Upload
                                                 </label>
                                             </div>
 
                                             <!-- Company Profile -->
                                             <div class="flex justify-between items-center border rounded px-4 py-3">
-                                                <div>
+                                                <div class="w-full">
                                                     <p class="font-medium text-sm">Company Profile</p>
-                                                    <p class="text-xs text-gray-500">PDF format (max 5MB)</p>
 
                                                     @if($companyProfile)
-                                                        <div class="flex items-center space-x-2 mt-1">
-                                                            <p class="text-xs text-green-600">
-                                                                ✅ {{ $companyProfile->getClientOriginalName() }} uploaded
-                                                            </p>
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $companyProfile->getClientOriginalName() }}</p>
                                                             <button type="button" wire:click="$set('companyProfile', null)" 
-                                                                    class="text-red-500 hover:text-red-700 text-xs font-bold">
-                                                                ✕
-                                                            </button>
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
                                                         </div>
+                                                    @elseif($companyProfileOriginalName)
+                                                        <div class="flex items-center justify-between bg-gray-100 text-gray-700 text-xs rounded px-3 py-2 mt-2 w-2/3">
+                                                            <p class="truncate">{{ $companyProfileOriginalName }}</p>
+                                                            <button type="button" wire:click="removeCompanyProfile" 
+                                                                    class="text-red-500 hover:text-red-700 font-bold text-sm ml-2">✕</button>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500">PDF format (max 5MB)</p>
                                                     @endif
 
-                                                    <!--  Validation error -->
                                                     @error('companyProfile') 
                                                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
                                                     @enderror
                                                 </div>
                                                 <input type="file" wire:model="companyProfile" class="hidden" id="comp-profile">
-                                                <label for="comp-profile" class="px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
+                                                <label for="comp-profile" class="ml-3 px-3 py-1 bg-blue-600 text-white text-sm rounded cursor-pointer">
                                                     Upload
                                                 </label>
                                             </div>

@@ -28,6 +28,11 @@ class SupplierProposalSubmission extends Component
     public $companyProfile;
     public $isCertified = false;
 
+    // Add these public properties
+    public $technicalProposalOriginalName;
+    public $financialProposalOriginalName;
+    public $companyProfileOriginalName;
+
     public $remarks;
 
     public function mount()
@@ -55,7 +60,31 @@ class SupplierProposalSubmission extends Component
         ->get();
 
     }
-    
+
+    public function removeTechnicalProposal()
+    {
+        $this->submission->technical_proposal_path = null;
+        $this->submission->technical_proposal_original_name = null;
+        $this->submission->save();
+        $this->technicalProposalOriginalName = null;
+    }
+
+    public function removeFinancialProposal()
+    {
+        $this->submission->financial_proposal_path = null;
+        $this->submission->financial_proposal_original_name = null;
+        $this->submission->save();
+        $this->financialProposalOriginalName = null;
+    }
+
+    public function removeCompanyProfile()
+    {
+        $this->submission->company_profile_path = null;
+        $this->submission->company_profile_original_name = null;
+        $this->submission->save();
+        $this->companyProfileOriginalName = null;
+    }
+
 
     public function openSubmission($invitationId)
     {
@@ -84,6 +113,11 @@ class SupplierProposalSubmission extends Component
 
         $this->submission = $submission;
         $this->remarks = $submission->remarks;
+
+        // Populate original file names
+        $this->technicalProposalOriginalName = $submission->technical_proposal_original_name;
+        $this->financialProposalOriginalName = $submission->financial_proposal_original_name;
+        $this->companyProfileOriginalName    = $submission->company_profile_original_name;
 
         // ✅ Handle Quotation Mode
         if ($invitation->ppmp->mode_of_procurement === 'quotation') {
@@ -118,7 +152,7 @@ class SupplierProposalSubmission extends Component
 
         foreach ($this->submissionItems as $si) {
             $price = $this->unitPrices[$si->id] ?? null;
-            $qty = $si->procurementItem->quantity ?? 1;
+            $qty = $si->procurementItem->qty ?? 1;
             $si->unit_price = $price;
             $si->total_price = is_null($price) ? null : ($price * $qty);
             $si->save();
@@ -155,7 +189,7 @@ class SupplierProposalSubmission extends Component
         // compute totals (and save)
         foreach ($this->submissionItems as $si) {
             $price = $this->unitPrices[$si->id];
-            $qty = $si->procurementItem->quantity ?? 1;
+            $qty = $si->procurementItem->qty ?? 1;
             $si->unit_price = $price;
             $si->total_price = $price * $qty;
             $si->save();
@@ -166,7 +200,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->remarks = $this->remarks;
         $this->submission->save();
 
-      session()->flash('message', 'Quotation submitted');
+        session()->flash('message', 'Quotation submitted');
 
         $this->showModal = false;
         $this->loadInvitations();
@@ -183,43 +217,65 @@ class SupplierProposalSubmission extends Component
             'remarks' => 'nullable|string',
         ]);
 
-        // store files only if provided (keep existing if not)
+        // store files only if provided
         if ($this->technicalProposal) {
             $this->submission->technical_proposal_path = $this->technicalProposal->store('submissions/technical', 'public');
+            $this->submission->technical_proposal_original_name = $this->technicalProposal->getClientOriginalName();
         }
+
         if ($this->financialProposal) {
             $this->submission->financial_proposal_path = $this->financialProposal->store('submissions/financial', 'public');
+            $this->submission->financial_proposal_original_name = $this->financialProposal->getClientOriginalName();
         }
+
         if ($this->companyProfile) {
             $this->submission->company_profile_path = $this->companyProfile->store('submissions/company', 'public');
+            $this->submission->company_profile_original_name = $this->companyProfile->getClientOriginalName();
         }
 
         $this->submission->bid_amount = $this->bid_amount;
         $this->submission->remarks = $this->remarks;
         $this->submission->save();
 
-       session()->flash('message', 'Draft saved');
+        session()->flash('message', 'Draft saved');
     }
+
 
     // bidding: final submission (require bid_amount and optionally files)
     public function submitBidding()
     {
         $this->validate([
-            'bid_amount'        => 'required|numeric|min:0',
+           'bid_amount'        => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) {
+                    $abc = $this->selectedInvitation->ppmp->abc ?? 0;
+                    if ($value > $abc) {
+                        $fail("The bid amount cannot exceed the ABC (₱" . number_format($abc, 2) . ").");
+                    }
+                }
+            ],
             'technicalProposal' => 'required|file|max:10240',
             'financialProposal' => 'required|file|max:10240',
             'companyProfile'    => 'required|file|max:10240',
             'isCertified'       => 'accepted', // ✅ checkbox must be true
         ]);
 
+        // store files only if provided
         if ($this->technicalProposal) {
             $this->submission->technical_proposal_path = $this->technicalProposal->store('submissions/technical', 'public');
+            $this->submission->technical_proposal_original_name = $this->technicalProposal->getClientOriginalName();
         }
+
         if ($this->financialProposal) {
             $this->submission->financial_proposal_path = $this->financialProposal->store('submissions/financial', 'public');
+            $this->submission->financial_proposal_original_name = $this->financialProposal->getClientOriginalName();
         }
+
         if ($this->companyProfile) {
             $this->submission->company_profile_path = $this->companyProfile->store('submissions/company', 'public');
+            $this->submission->company_profile_original_name = $this->companyProfile->getClientOriginalName();
         }
 
         $this->submission->bid_amount    = $this->bid_amount;
@@ -234,6 +290,7 @@ class SupplierProposalSubmission extends Component
     }
 
 
+    
     public function render()
     {
         return view('livewire.supplier-proposal-submission');

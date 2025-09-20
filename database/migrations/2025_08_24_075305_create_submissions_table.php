@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->enum('status', ['pending','draft','submitted','under_review','awarded','rejected'])->default('pending');
             $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('award_date')->nullable();
             $table->timestamps();
 
             $table->unique(['invitation_id', 'supplier_id']);

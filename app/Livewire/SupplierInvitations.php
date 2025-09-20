@@ -16,22 +16,13 @@ class SupplierInvitations extends Component
     {
         $userId = auth()->id();
 
-        $this->invitations = Invitation::with('ppmp', 'suppliers', 'supplierCategory')
+        $this->invitations = Invitation::with(['ppmp', 'suppliers'])
             ->where('status', 'published')
-            ->where(function($query) use ($userId) {
-                $query->where('invite_scope', 'all')
-                     ->orWhere(function($q) use ($userId) {
-                        $q->where('invite_scope', 'specific')
-                           ->whereHas('suppliers', fn($q2) => $q2->where('users.id', $userId));
-                    })
-                     ->orWhere(function($q) use ($userId) {
-                        $q->where('invite_scope', 'category')
-                           ->whereHas('supplierCategory.users', fn($q2) => $q2->where('users.id', $userId));
-                    });
-            })
+            ->whereHas('suppliers', fn($q) => $q->where('users.id', $userId))
             ->orderBy('created_at', 'desc')
             ->get();
     }
+
 
     public function getSupplierResponseAttribute()
     {

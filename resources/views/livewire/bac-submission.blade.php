@@ -86,6 +86,7 @@
                     @endforeach
                 </tbody>
             </table>
+
            
             <div class="px-4 py-2">
                 {{ $ppmps->links() }}
@@ -272,6 +273,17 @@
                             @endforelse
                         </tbody>
                     </table>
+
+                    <div class="flex justify-end mt-4">
+                        @if($selectedPpmp)
+                            <a href="{{ route('generate.report', $selectedPpmp->id) }}" 
+                            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 inline-flex items-center justify-center">
+                                Generate Report
+                            </a>
+                        @endif
+                    </div>
+
+
 
                     <!-- Docs Modal -->
                     <div 

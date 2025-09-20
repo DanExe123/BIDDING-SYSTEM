@@ -18,6 +18,7 @@ use App\Livewire\GenerateReport;
 /// procurement module //
 use App\Livewire\BacModeOfProcurement;
 use App\Livewire\BacProcurementWorkflow;
+use App\Livewire\BacNoticeOfAward;
 
 // supplier side // 
 use App\Livewire\SupplierDashboard;
@@ -30,6 +31,7 @@ use App\Livewire\SupplierBidInitiation;
 use App\Livewire\SupplierBidParticipation;
 use App\Livewire\SupplierBidding;
 use App\Livewire\SupplierQuotation;
+use App\Livewire\SupplierNoticeOfAward;
 // purchaser side // 
 use App\Livewire\PurchaserDashboard;
 use App\Livewire\PurchaserProcurementPlanning;
@@ -59,6 +61,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::get('/supplier/bid-initiation', SupplierBidInitiation::class)->name('supplier-bid-initiation'); 
     Route::get('/supplier/bid-evaluation', SupplierBidEvaluation::class)->name('supplier-bid-evaluation'); 
     Route::get('/supplier/bid-participation', SupplierBidParticipation::class)->name('supplier-bid-participation'); 
+    Route::get('/supplier-notice-of-award', SupplierNoticeOfAward::class)->name('supplier-notice-of-award'); 
  
 });
 
@@ -78,12 +81,17 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
         // temporary for purchase request route // 
         Route::get('/bacsec/purchase-request', BacProcurementPlanning::class)->name('bac-procurement-planning');
     //  Route::get('/notice-of-award', NoticeOfAward::class)->name('notice-of-award'); 
-        Route::get('/generate-report',GenerateReport::class)->name('generate-report');
+        Route::get('/generate-report/{ppmpId}', GenerateReport::class)->name('generate.report');
         //procurement planning module // 
         Route::get('/bac-mode-of-procurement',BacModeOfProcurement::class)->name('bac-mode-of-procurement');
         Route::get('/bac-procurement-workflow',BacProcurementWorkflow::class)->name('bac-procurement-workflow');
+        Route::get('/bac-notice-of-award', BacNoticeOfAward::class)->name('bac-notice-of-award'); 
     
     });
+
+    Route::get('/award/{id}/pdf', [\App\Http\Controllers\AwardController::class, 'generateAward'])
+     ->name('award.pdf');
+
 
     //fileview&download
     Route::middleware(['auth'])->group(function () {

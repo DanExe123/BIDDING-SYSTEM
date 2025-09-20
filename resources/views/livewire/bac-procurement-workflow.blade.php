@@ -53,7 +53,7 @@
                     <h2 class="text-lg font-semibold text-white">
                         <span x-show="tab === 'invitation'">Invitations</span>
                         <span x-show="tab === 'opening'">Evaluation</span>
-                        <span x-show="tab === 'recommendation'">Recommendation for Award</span>
+            
                     </h2>
                 </div>
 
@@ -70,11 +70,6 @@
                             class="px-4 py-2 rounded-t-md font-medium">
                             Evaluation
                         </button>
-                        <button @click="tab = 'recommendation'"
-                            :class="tab === 'recommendation' ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black'"
-                            class="px-4 py-2 rounded-t-md font-medium">
-                            Recommendation for Award
-                        </button>
                     </div>
 
                     <!-- Tab Content -->
@@ -87,21 +82,6 @@
                         <!-- Bid Opening & Evaluation -->
                         <div x-show="tab === 'opening'">
                             <livewire:bac-submission />
-                        </div>
-
-                        <!-- Recommendation for Award -->
-                        <div x-show="tab === 'recommendation'">
-                            <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-                                <div
-                                    class="bg-blue-200 flex justify-between text-sm px-4 py-2 font-semibold border-b border-gray-300">
-                                    <span class="w-1/2">Recommended Supplier:</span>
-                                    <span class="w-1/2 text-right">Reason:</span>
-                                </div>
-                                <div class="flex justify-between px-4 py-2 text-sm">
-                                    <span class="w-1/2">XYZ Builders</span>
-                                    <span class="w-1/2 text-right">Lowest bid & Compliant</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
