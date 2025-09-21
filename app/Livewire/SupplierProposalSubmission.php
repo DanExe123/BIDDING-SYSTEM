@@ -27,6 +27,7 @@ class SupplierProposalSubmission extends Component
     public $financialProposal;
     public $companyProfile;
     public $isCertified = false;
+    public $delivery_days;
 
     // Add these public properties
     public $technicalProposalOriginalName;
@@ -113,6 +114,7 @@ class SupplierProposalSubmission extends Component
 
         $this->submission = $submission;
         $this->remarks = $submission->remarks;
+        $this->delivery_days = $submission->delivery_days;
 
         // Populate original file names
         $this->technicalProposalOriginalName = $submission->technical_proposal_original_name;
@@ -159,6 +161,7 @@ class SupplierProposalSubmission extends Component
         }
 
         $this->submission->remarks = $this->remarks;
+        $this->submission->delivery_days = $this->delivery_days;
         $this->submission->save();
 
         session()->flash('message', 'Draft saved');
@@ -167,7 +170,11 @@ class SupplierProposalSubmission extends Component
 
     protected function validateUnitPrices()
     {
-        $rules = ['remarks' => 'nullable|string'];
+        $rules = [
+            'remarks' => 'nullable|string',
+            'delivery_days' => 'required|integer|min:1',
+        ];
+        
         foreach ($this->submissionItems as $si) {
             $rules["unitPrices.{$si->id}"] = 'nullable|numeric|min:0';
         }
@@ -198,6 +205,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->status = 'submitted';
         $this->submission->submitted_at = now();
         $this->submission->remarks = $this->remarks;
+        $this->submission->delivery_days = $this->delivery_days;
         $this->submission->save();
 
         session()->flash('message', 'Quotation submitted');
@@ -215,6 +223,7 @@ class SupplierProposalSubmission extends Component
             'financialProposal' => 'nullable|file|max:10240',
             'companyProfile' => 'nullable|file|max:10240',
             'remarks' => 'nullable|string',
+            'delivery_days' => 'required|integer|min:1', 
         ]);
 
         // store files only if provided
@@ -235,6 +244,7 @@ class SupplierProposalSubmission extends Component
 
         $this->submission->bid_amount = $this->bid_amount;
         $this->submission->remarks = $this->remarks;
+        $this->submission->delivery_days = $this->delivery_days;
         $this->submission->save();
 
         session()->flash('message', 'Draft saved');
@@ -260,6 +270,7 @@ class SupplierProposalSubmission extends Component
             'financialProposal' => 'required|file|max:10240',
             'companyProfile'    => 'required|file|max:10240',
             'isCertified'       => 'accepted', // ✅ checkbox must be true
+            'delivery_days' => 'required|integer|min:1', 
         ]);
 
         // store files only if provided
@@ -282,6 +293,7 @@ class SupplierProposalSubmission extends Component
         $this->submission->is_certified  = true; // ✅ force TRUE when submitted
         $this->submission->status        = 'submitted';
         $this->submission->submitted_at  = now();
+        $this->submission->delivery_days = $this->delivery_days;
         $this->submission->save();
 
         session()->flash('message', 'Bid submitted');

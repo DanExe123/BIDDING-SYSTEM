@@ -25,8 +25,13 @@ return new class extends Migration
             $table->decimal('financial_score', 5, 2)->nullable();
             $table->decimal('total_score', 5, 2)->nullable();
 
+            $table->string('technical_proposal_original_name')->nullable();
+            $table->string('financial_proposal_original_name')->nullable();
+            $table->string('company_profile_original_name')->nullable();
+
             // Common
             $table->text('remarks')->nullable();
+            $table->integer('delivery_days')->nullable();
             $table->enum('status', ['pending','draft','submitted','under_review','awarded','rejected'])->default('pending');
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('award_date')->nullable();

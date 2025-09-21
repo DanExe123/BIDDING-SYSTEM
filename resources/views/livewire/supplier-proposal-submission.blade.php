@@ -183,6 +183,17 @@
                                             </tbody>
                                         </table>
 
+                                        <!-- Delivery Days -->
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium mb-1">Delivery Days*</label>
+                                            <input type="number" min="1" wire:model="delivery_days" 
+                                                class="w-full border rounded px-3 py-2" placeholder="Enter delivery days" />
+                                            @error('delivery_days') 
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                            @enderror
+                                        </div>
+
+
                                         <div class="mt-3 flex flex-col space-y-2">
                                             <!-- Remarks textarea -->
                                             <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Remarks (optional)"></textarea>
@@ -307,6 +318,17 @@
                                                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
                                             @enderror
                                         </div>
+
+                                        <!-- Delivery Days -->
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium mb-1">Delivery Days*</label>
+                                            <input type="number" min="1" wire:model="delivery_days" 
+                                                class="w-full border rounded px-3 py-2" placeholder="Enter delivery days" />
+                                            @error('delivery_days') 
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                            @enderror
+                                        </div>
+
 
                                         <!-- Additional Notes -->
                                         <div class="mt-4">
