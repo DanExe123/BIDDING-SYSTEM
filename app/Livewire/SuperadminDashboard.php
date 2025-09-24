@@ -58,11 +58,15 @@ class SuperadminDashboard extends Component
             ])
         )->toArray();
 
-        $this->unreadCount = count($this->notifications);
+        // 🔥 Count only users that are not yet marked as read
+        $this->unreadCount = User::where('is_read', false)->count(); 
     }
 
     public function markAsRead()
     {
+        // 🔥 Mark all unread users as read
+        User::where('is_read', false)->update(['is_read' => true]);
+
         $this->unreadCount = 0;
     }
 

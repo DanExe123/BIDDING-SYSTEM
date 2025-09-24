@@ -49,10 +49,11 @@ class UserSeeder extends Seeder
                     'middle_initial' => $data['middle_initial'],
                     'username'       => $data['username'],
                     'password'       => bcrypt('password'),
+                    'is_read'        => false, // 
                 ]
             );
 
-            $user->assignRole($data['role']); // Spatie role assignment
+            $user->assignRole($data['role']);
         }
 
         // 🔥 Three Suppliers per Supplier Category
@@ -67,20 +68,18 @@ class UserSeeder extends Seeder
                         'email' => strtolower(str_replace(' ', '_', $category->name)) . "_{$i}@supplier.com",
                     ],
                     [
-                        // 👇 Put the whole thing in first_name, leave last_name null
                         'first_name'            => $supplierName,
                         'last_name'             => null,
                         'middle_initial'        => null,
                         'username'              => strtolower(str_replace(' ', '_', $category->name)) . "_supplier{$i}",
                         'password'              => bcrypt('password'),
                         'supplier_category_id'  => $category->id,
+                        'is_read'               => false,
                     ]
                 );
 
                 $supplier->assignRole('Supplier');
             }
         }
-
-
     }
 }

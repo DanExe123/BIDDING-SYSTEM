@@ -3,15 +3,12 @@
     @include('partials.user-sidebar')
 
     <!-- Main content area (topbar + page content) -->
-    <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
+    <div class="flex-1 flex flex-col bg-gray-100 min-h-screen" x-cloak>
         <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
             <h1 class="text-xl font-semibold">Procurement Planning</h1>
-            <div>
-                <button class="text-gray-500 hover:text-black">
-                    <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
-                </button>
-            </div>
+           
+         @livewire('purchaser-notification-bell')   
         </header>
 
         @if (session()->has('message'))
@@ -41,7 +38,7 @@
         @endif
 
         <!-- Page content -->
-        <main class="p-6 space-y-6 flex-1" x-cloak>
+        <main class="p-6 space-y-6 flex-1">
             <div x-data="{ view: 'create' }" class="p-4">
                 <!-- Toggle Buttons -->
                 <div class="flex justify-center gap-10 py-2">

@@ -25,24 +25,24 @@
 
                 <!-- Page content -->
                 <main class="p-6 space-y-6 flex-1">
-                    <!-- Summary Cards -->
+                   <!-- Summary Cards -->
                     <h2 class="text-start text-lg font-bold text-blue-900 mb-4">Welcome SuperAdmin!!</h2>
                     <div class="flex gap-x-4">
                         <!-- Admin -->
                         <div class="bg-gray-100 p-3 rounded-md text-center shadow w-20 h-20">
-                            <div class="text-xl font-bold">1</div>
+                            <div class="text-xl font-bold">{{ $adminCount }}</div>
                             <x-phosphor.icons::regular.user class="w-6 h-6 text-gray-700 mx-auto mt-2" />
                         </div>
 
                         <!-- Purchaser -->
                         <div class="bg-gray-100 p-3 rounded-md text-center shadow w-20 h-20">
-                            <div class="text-xl font-bold">2</div>
+                            <div class="text-xl font-bold">{{ $purchaserCount }}</div>
                             <x-phosphor.icons::regular.shopping-cart class="w-6 h-6 text-gray-700 mx-auto mt-2" />
                         </div>
 
                         <!-- Supplier -->
                         <div class="bg-gray-100 p-3 rounded-md text-center shadow w-20 h-20">
-                            <div class="text-xl font-bold">2</div>
+                            <div class="text-xl font-bold">{{ $supplierCount }}</div>
                             <x-phosphor.icons::regular.package class="w-6 h-6 text-gray-700 mx-auto mt-2" />
                         </div>
                     </div>
@@ -109,3 +109,6 @@
             </main>
             </div>
 </div>
+
+
+

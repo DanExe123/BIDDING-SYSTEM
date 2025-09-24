@@ -37,6 +37,7 @@ use App\Livewire\PurchaserDashboard;
 use App\Livewire\PurchaserProcurementPlanning;
 use App\Livewire\PurchaserBidMonitoring;
 use App\Livewire\InspectionReport;
+use App\Livewire\PurchaserNotificationBell;
 
 Route::get('/', function () {
     return view('welcome');
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
         Route::get('/purchaser/procurement-planning', PurchaserProcurementPlanning::class)->name('purchaser-procurement-planning');
         Route::get('/purchaser/bid-monitoring', PurchaserBidMonitoring::class)->name('purchaser-bid-monitoring');
         Route::get('/purchaser/inspection-report', InspectionReport::class)->name('inspection-report');
+        Route::get('/bell', PurchaserNotificationBell::class)->name('purchaser-notification-bell');
     });
 
     Route::middleware(['auth', 'role:BAC_Secretary'])->group(function () {
