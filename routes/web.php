@@ -38,6 +38,8 @@ use App\Livewire\PurchaserProcurementPlanning;
 use App\Livewire\PurchaserBidMonitoring;
 use App\Livewire\InspectionReport;
 use App\Livewire\PurchaserNotificationBell;
+use App\Livewire\BacNotificationBell;
+use App\Livewire\SupplierNotificationBell;
 
 Route::get('/', function () {
     return view('welcome');
@@ -63,6 +65,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::get('/supplier/bid-evaluation', SupplierBidEvaluation::class)->name('supplier-bid-evaluation'); 
     Route::get('/supplier/bid-participation', SupplierBidParticipation::class)->name('supplier-bid-participation'); 
     Route::get('/supplier-notice-of-award', SupplierNoticeOfAward::class)->name('supplier-notice-of-award'); 
+    Route::get('/bell', SupplierNotificationBell::class)->name('supplier-notification-bell'); 
  
 });
 
@@ -88,6 +91,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
         Route::get('/bac-mode-of-procurement',BacModeOfProcurement::class)->name('bac-mode-of-procurement');
         Route::get('/bac-procurement-workflow',BacProcurementWorkflow::class)->name('bac-procurement-workflow');
         Route::get('/bac-notice-of-award', BacNoticeOfAward::class)->name('bac-notice-of-award'); 
+        Route::get('/bell', BacNotificationBell::class)->name('bac-notification-bell'); 
     
     });
 
