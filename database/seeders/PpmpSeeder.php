@@ -68,6 +68,9 @@ class PpmpSeeder extends Seeder
         /**
          * --- QUOTATION PPMP ---
          */
+        /**
+         * --- QUOTATION PPMP ---
+         */
         $ppmpQuotation = Ppmp::create([
             'requested_by' => $purchaser->id,
             'project_title' => 'Office Supplies Procurement',
@@ -91,6 +94,13 @@ class PpmpSeeder extends Seeder
         // ✅ Reference No generator
         $referenceNo = $this->generateReferenceNo($ppmpQuotation->id, $ppmpQuotation->mode_of_procurement);
 
+        // ✅ Get suppliers specifically for "Office Equipment"
+        $officeCategory = SupplierCategory::where('name', 'Office Equipment')->first();
+        $officeSuppliers = User::role('Supplier')
+            ->where('supplier_category_id', $officeCategory->id)
+            ->take(2)
+            ->get();
+
         $invitationQuotation = Invitation::create([
             'ppmp_id' => $ppmpQuotation->id,
             'title' => 'Request for Quotation - Office Supplies',
@@ -103,12 +113,13 @@ class PpmpSeeder extends Seeder
             'created_by' => $purchaser->id,
         ]);
 
-        foreach ($suppliers->take(2) as $supplier) {
+        foreach ($officeSuppliers as $supplier) {
             InvitationSupplier::create([
                 'invitation_id' => $invitationQuotation->id,
                 'supplier_id' => $supplier->id,
             ]);
         }
+
     }
 
     /**
