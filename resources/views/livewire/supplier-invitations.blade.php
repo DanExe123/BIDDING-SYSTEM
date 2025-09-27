@@ -70,7 +70,28 @@
                                         <td class="px-4 py-2">{{ $invitation->reference_no }}</td>
                                         <td class="px-4 py-2 text-center">{{ $invitation->title }}</td>
                                         <td class="px-4 py-2 text-center">{{ $invitation->ppmp?->mode_of_procurement }}</td>
-                                        <td class="px-4 py-2 text-center">{{ $invitation->suppliers()->where('supplier_id', auth()->id())->first()?->pivot?->response }}</td>
+                                        <td class="px-4 py-2 text-center">
+                                            @php
+                                                $response = $invitation->suppliers()
+                                                    ->where('supplier_id', auth()->id())
+                                                    ->first()?->pivot?->response;
+                                            @endphp
+
+                                            @if ($response === 'accepted')
+                                                <span class="px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
+                                                    {{ ucfirst($response) }}
+                                                </span>
+                                            @elseif ($response === 'declined')
+                                                <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
+                                                    {{ ucfirst($response) }}
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">
+                                                    Pending
+                                                </span>
+                                            @endif
+                                        </td>
+
                                         <td class="px-4 py-2 text-right">
                                             <button wire:click="selectInvitation({{ $invitation->id }})" @click="showModal = true"
                                                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">

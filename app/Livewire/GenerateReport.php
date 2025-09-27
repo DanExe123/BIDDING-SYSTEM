@@ -24,9 +24,9 @@ class GenerateReport extends Component
         $this->ppmpId = $ppmpId;
 
         $ppmp = Ppmp::with([
-    'invitations.submissions' => fn($q) => $q->where('status', '!=', 'draft')
-        ->with(['supplier', 'items'])
-])->findOrFail($ppmpId);
+            'invitations.submissions' => fn($q) => $q->where('status', '!=', 'draft')
+                ->with(['supplier', 'items'])
+        ])->findOrFail($ppmpId);
 
 
         $this->ppmp = $ppmp;
@@ -37,42 +37,53 @@ class GenerateReport extends Component
     }
 
     private function computeWinner()
-{
-    if (empty($this->submissions) || $this->submissions->isEmpty()) {
-        $this->winner = null;
-        return null;
+    {
+        if (empty($this->submissions) || $this->submissions->isEmpty()) {
+            $this->winner = null;
+            return null;
+        }
+
+        if ($this->ppmp->mode_of_procurement === 'bidding') {
+            // bidding: highest total_score wins
+            $sorted = $this->submissions->sort(function ($a, $b) {
+                $aScore = $a->total_score ?? 0;
+                $bScore = $b->total_score ?? 0;
+
+                if ($aScore == $bScore) {
+                    $aBid = $a->bid_amount ?? PHP_INT_MAX;
+                    $bBid = $b->bid_amount ?? PHP_INT_MAX;
+
+                    if ($aBid == $bBid) {
+                        $aDays = $a->delivery_days ?? PHP_INT_MAX;
+                        $bDays = $b->delivery_days ?? PHP_INT_MAX;
+                        return $aDays <=> $bDays; // earlier delivery wins if tie on score & bid
+                    }
+
+                    return $aBid <=> $bBid; // lower bid wins if tie on score
+                }
+
+                return $bScore <=> $aScore; // higher score wins
+            });
+        } else {
+            // quotation: lower total price wins, tie-break with delivery days
+            $sorted = $this->submissions->sort(function ($a, $b) {
+                $aTotal = $a->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
+                $bTotal = $b->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
+
+                if ($aTotal == $bTotal) {
+                    $aDays = $a->delivery_days ?? PHP_INT_MAX;
+                    $bDays = $b->delivery_days ?? PHP_INT_MAX;
+                    return $aDays <=> $bDays; // earlier delivery wins
+                }
+
+                return $aTotal <=> $bTotal; // lower price wins
+            });
+        }
+
+
+        $this->winner = $sorted->first();
+        return $this->winner;
     }
-
-    if ($this->ppmp->mode_of_procurement === 'bidding') {
-        // existing bidding logic
-        $sorted = $this->submissions->sort(function ($a, $b) {
-            $aScore = $a->total_score ?? 0;
-            $bScore = $b->total_score ?? 0;
-
-            if ($aScore == $bScore) {
-                $aBid = $a->bid_amount ?? PHP_INT_MAX;
-                $bBid = $b->bid_amount ?? PHP_INT_MAX;
-                return $aBid <=> $bBid;
-            }
-            return $bScore <=> $aScore;
-        });
-    } else { // quotation
-        $sorted = $this->submissions->sort(function ($a, $b) {
-            $aTotal = $a->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
-            $bTotal = $b->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
-
-            if ($aTotal == $bTotal) {
-                $aDays = $a->delivery_days ?? PHP_INT_MAX;
-                $bDays = $b->delivery_days ?? PHP_INT_MAX;
-                return $aDays <=> $bDays; // earlier delivery wins
-            }
-            return $aTotal <=> $bTotal; // lower price wins
-        });
-    }
-
-    $this->winner = $sorted->first();
-    return $this->winner;
-}
 
 
     public function issueAward($submissionId)
@@ -95,9 +106,7 @@ class GenerateReport extends Component
         // mark awarded and save remarks/award_date if your schema supports it
         $submission->status = 'awarded';
         // if you have columns for awarded_at / award_date, set them:
-        if (in_array('awarded_at', $submission->getFillable())) {
-            $submission->awarded_at = $this->award_date;
-        }
+        $submission->award_date  = $this->award_date;
         // store remarks into submission->remarks if desired
         $submission->remarks = $this->remarks;
         $submission->save();
@@ -107,6 +116,8 @@ class GenerateReport extends Component
         // redirect to BAC procurement workflow page — replace route name if different
         return redirect()->route('bac-procurement-workflow');
     }
+
+    
 
     public function render()
     {

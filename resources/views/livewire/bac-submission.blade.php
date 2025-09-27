@@ -194,9 +194,11 @@
                                     <th class="px-4 py-2 text-left">Financial Score</th>
                                     <th class="px-4 py-2 text-left">Total Score</th>
                                 @endif
-
+                                <th class="px-4 py-2 text-left">Delivery days</th>
                                 <th class="px-4 py-2 text-left">Status</th>
-                                <th class="px-4 py-2 text-left">Action</th>
+                                @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
+                                    <th class="px-4 py-2 text-left">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -206,32 +208,31 @@
 
                                     {{-- Inline condition --}}
                                     <td class="px-4 py-2">
-    @if($selectedPpmp->mode_of_procurement === 'quotation')
-        <table class="w-full border text-xs">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="px-2 py-1 text-left">Description</th>
-                    <th class="px-2 py-1 text-right">Unit Price</th>
-                    <th class="px-2 py-1 text-right">Qty</th>
-                    <th class="px-2 py-1 text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($submission->items as $item)
-                    <tr>
-                        <td class="px-2 py-1">{{ $item->procurementItem->description }}</td>
-                        <td class="px-2 py-1 text-right">₱{{ number_format($item->unit_price, 2) }}</td>
-                        <td class="px-2 py-1 text-right">{{ $item->procurementItem->qty }}</td>
-                        <td class="px-2 py-1 text-right">₱{{ number_format($item->total_price, 2) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @else
-        ₱{{ number_format($submission->bid_amount, 2) }}
-    @endif
-</td>
-
+                                        @if($selectedPpmp->mode_of_procurement === 'quotation')
+                                            <table class="w-full border text-xs">
+                                                <thead>
+                                                    <tr class="bg-gray-100">
+                                                        <th class="px-2 py-1 text-left">Description</th>
+                                                        <th class="px-2 py-1 text-right">Unit Price</th>
+                                                        <th class="px-2 py-1 text-right">Qty</th>
+                                                        <th class="px-2 py-1 text-right">Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($submission->items as $item)
+                                                        <tr>
+                                                            <td class="px-2 py-1">{{ $item->procurementItem->description }}</td>
+                                                            <td class="px-2 py-1 text-right">₱{{ number_format($item->unit_price, 2) }}</td>
+                                                            <td class="px-2 py-1 text-right">{{ $item->procurementItem->qty }}</td>
+                                                            <td class="px-2 py-1 text-right">₱{{ number_format($item->total_price, 2) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        @else
+                                            ₱{{ number_format($submission->bid_amount, 2) }}
+                                        @endif
+                                    </td>
 
                                     {{-- Show only if bidding --}}
                                     @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
@@ -257,6 +258,7 @@
                                                 : '-' }}
                                         </td>
                                     @endif
+                                   <td class="px-4 py-2 text-center">{{ $submission->delivery_days ?? 'N/A' }}</td>
 
                                     <td class="px-4 py-2">
                                         {{-- Status logic --}}
@@ -277,24 +279,26 @@
                                             {{ ucfirst(str_replace('_', ' ', $status)) }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2">
-                                        <div class="flex items-center space-x-2">
-                                            <!-- Docs button -->
-                                            <button 
-                                                wire:click="viewSubmission({{ $submission->id }})"
-                                                @click="showDocsModal = true"
-                                                class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                                Docs
-                                            </button>
+                                    @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
+                                        <td class="px-4 py-2">
+                                            <div class="flex items-center space-x-2">
+                                                <!-- Docs button -->
+                                                <button 
+                                                    wire:click="viewSubmission({{ $submission->id }})"
+                                                    @click="showDocsModal = true"
+                                                    class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                                    Docs
+                                                </button>
 
-                                            <button 
-                                                wire:click="evaluateSubmission({{ $submission->id }})"
-                                                @click="showEvalModal = true"
-                                                class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
-                                                Evaluate
-                                            </button>
-                                        </div>
-                                    </td>
+                                                <button 
+                                                    wire:click="evaluateSubmission({{ $submission->id }})"
+                                                    @click="showEvalModal = true"
+                                                    class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                                                    Evaluate
+                                                </button>
+                                            </div>
+                                        </td>
+                                     @endif
                                 </tr>
                             @empty
                                 <tr>

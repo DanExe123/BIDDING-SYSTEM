@@ -99,7 +99,7 @@
                             @else
                                 @php
                                     $invitation = $selectedPpmp->invitations->first();
-                                    $awardedSubmission = $invitation?->submissions->first() ?? null;
+                                    $awardedSubmission = $invitation?->submissions->where('status', 'awarded')->first();
                                 @endphp
 
                                 <!-- Header -->
@@ -114,30 +114,39 @@
                                 </div>
 
                                 <!-- Award Details -->
+                                <!-- Award Details -->
                                 <div class="px-6 py-4 border-b border-gray-300 bg-[#F9FAFB] space-y-4">
+
+                                    <!-- Supplier (always shown) -->
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label class="text-sm text-gray-600">Supplier</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2 font-semibold"
-                                                  value="{{ $awardedSubmission?->supplier?->first_name ?? 'N/A' }}">
+                                                value="{{ $awardedSubmission?->supplier?->first_name ?? 'N/A' }}">
                                         </div>
+
+                                        <!-- Conditional for Bidding -->
+                                        @if($selectedPpmp?->mode_of_procurement === 'bidding')
                                         <div>
                                             <label class="text-sm text-gray-600">Bid Amount</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2 font-semibold text-green-700"
-                                                  value="₱{{ number_format($awardedSubmission?->bid_amount ?? 0, 2) }}">
+                                                value="₱{{ number_format($awardedSubmission?->bid_amount ?? 0, 2) }}">
                                         </div>
+                                        @endif
                                     </div>
 
+                                    <!-- Only for Bidding: Scores -->
+                                    @if($selectedPpmp?->mode_of_procurement === 'bidding')
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
                                             <label class="text-sm text-gray-600">Technical Score</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2"
-                                                  value="{{ $awardedSubmission?->technical_score ?? 'N/A' }}">
+                                                value="{{ $awardedSubmission?->technical_score ?? 'N/A' }}">
                                         </div>
                                         <div>
                                             <label class="text-sm text-gray-600">Financial Score</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2"
-                                                  value="{{ $awardedSubmission?->financial_score ?? 'N/A' }}">
+                                                value="{{ $awardedSubmission?->financial_score ?? 'N/A' }}">
                                         </div>
                                     </div>
 
@@ -145,29 +154,98 @@
                                         <div>
                                             <label class="text-sm text-gray-600">Total Score</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2 font-bold"
-                                                  value="{{ $awardedSubmission?->total_score ?? 'N/A' }}">
+                                                value="{{ $awardedSubmission?->total_score ?? 'N/A' }}">
                                         </div>
                                         <div>
                                             <label class="text-sm text-gray-600">Award Date</label>
                                             <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2"
-                                                  value="{{ $awardedSubmission?->awarded_at ? \Carbon\Carbon::parse($awardedSubmission->awarded_at)->format('F d, Y') : '—' }}">
+                                                value="{{ $awardedSubmission?->award_date ? \Carbon\Carbon::parse($awardedSubmission->award_date)->format('F d, Y') : '—' }}">
                                         </div>
                                     </div>
+                                    @endif
+
+                                    <!-- Only for Quotation: Submitted Items -->
+                                    @if($selectedPpmp?->mode_of_procurement === 'quotation')
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-sm text-gray-600">Award Date</label>
+                                                <input type="text" readonly class="w-full border-none bg-transparent px-3 py-2"
+                                                    value="{{ $awardedSubmission?->award_date ? \Carbon\Carbon::parse($awardedSubmission->award_date)->format('F d, Y') : '—' }}">
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <p class="text-sm text-gray-600 font-semibold mb-2">Submitted Items:</p>
+
+                                        @if($awardedSubmission?->items && $awardedSubmission->items->isNotEmpty())
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full border border-gray-300 rounded-md text-sm">
+                                                    <thead class="bg-gray-100 font-semibold text-gray-700">
+                                                        <tr>
+                                                            <th class="px-4 py-2 border-b border-gray-300 text-left">Item</th>
+                                                            <th class="px-4 py-2 border-b border-gray-300 text-left">Description</th>
+                                                            <th class="px-4 py-2 border-b border-gray-300 text-right">Quantity</th>
+                                                            <th class="px-4 py-2 border-b border-gray-300 text-right">Unit Price</th>
+                                                            <th class="px-4 py-2 border-b border-gray-300 text-right">Total Price</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($awardedSubmission->items as $item)
+                                                            <tr class="hover:bg-gray-50">
+                                                                <td class="px-4 py-2 border-b border-gray-200">
+                                                                    {{ $item->procurementItem?->name ?? 'Item' }}
+                                                                </td>
+                                                                <td class="px-4 py-2 border-b border-gray-200">
+                                                                    {{ $item->procurementItem?->description ?? '—' }}
+                                                                </td>
+                                                                <td class="px-4 py-2 border-b border-gray-200 text-right">
+                                                                    {{ $item->procurementItem?->qty ?? 0 }}
+                                                                </td>
+                                                                <td class="px-4 py-2 border-b border-gray-200 text-right">
+                                                                    ₱{{ number_format($item->unit_price ?? 0, 2) }}
+                                                                </td>
+                                                                <td class="px-4 py-2 border-b border-gray-200 text-right">
+                                                                    ₱{{ number_format($item->total_price ?? 0, 2) }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @endif
+
+
+                                        </div>
+                                    @endif
+
                                 </div>
 
                                 <!-- File Download -->
                                 <div class="p-6">
                                     <p class="text-sm font-semibold text-gray-700 mb-2">Award Document:</p>
                                     <div class="flex items-center justify-between border border-gray-200 rounded-md px-4 py-2">
-                                        <span class="text-sm text-gray-600">
-                                            Notice_Of_Award_{{ $invitation?->reference_no ?? 'N/A' }}.pdf
-                                        </span>
-                                        <a href="{{ route('award.pdf', $selectedPpmp->id) }}"
-                                          target="_blank"
-                                          class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
-                                            📥 Download
-                                        </a>
+                                        @if($selectedPpmp->mode_of_procurement === 'bidding')
+                                            <span class="text-sm text-gray-600">
+                                                Notice_Of_Award_{{ $invitation?->reference_no ?? 'N/A' }}.pdf
+                                            </span>
+                                            <a href="{{ route('award.pdf', $selectedPpmp->id) }}"
+                                            target="_blank"
+                                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
+                                                📥 Download
+                                            </a>
+                                        @endif
+
+                                        @if($selectedPpmp->mode_of_procurement === 'quotation')
+                                            <span class="text-sm text-gray-600">
+                                                Notice_Of_Award_{{ $invitation?->reference_no ?? 'N/A' }}.pdf
+                                            </span>
+                                            <a href="{{ route('award.quotation.pdf', $selectedPpmp->id) }}" 
+                                            target="_blank"
+                                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
+                                                📥 Download
+                                            </a>
+                                         @endif
                                     </div>
+
                                 </div>
 
                                 <!-- Footer -->

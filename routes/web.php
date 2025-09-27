@@ -96,7 +96,9 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     });
 
     Route::get('/award/{id}/pdf', [\App\Http\Controllers\AwardController::class, 'generateAward'])
-     ->name('award.pdf');
+        ->name('award.pdf');
+    Route::get('/ppmp/{id}/award-quotation', [\App\Http\Controllers\AwardController::class, 'generateQuotationAward'])
+        ->name('award.quotation.pdf');
 
 
     //fileview&download
