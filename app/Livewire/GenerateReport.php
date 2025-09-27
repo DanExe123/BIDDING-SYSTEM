@@ -24,9 +24,10 @@ class GenerateReport extends Component
         $this->ppmpId = $ppmpId;
 
         $ppmp = Ppmp::with([
-            'invitations.submissions' => fn($q) => $q->where('status', '!=', 'draft')
-                ->with('supplier')
-        ])->findOrFail($ppmpId);
+    'invitations.submissions' => fn($q) => $q->where('status', '!=', 'draft')
+        ->with(['supplier', 'items'])
+])->findOrFail($ppmpId);
+
 
         $this->ppmp = $ppmp;
         // flatten submissions (collection)
@@ -36,28 +37,43 @@ class GenerateReport extends Component
     }
 
     private function computeWinner()
-    {
-        if (empty($this->submissions) || $this->submissions->isEmpty()) {
-            $this->winner = null;
-            return null;
-        }
+{
+    if (empty($this->submissions) || $this->submissions->isEmpty()) {
+        $this->winner = null;
+        return null;
+    }
 
-        // Sort: first by total_score desc, then by bid_amount asc (lower bid wins on tie)
+    if ($this->ppmp->mode_of_procurement === 'bidding') {
+        // existing bidding logic
         $sorted = $this->submissions->sort(function ($a, $b) {
-            // ensure nulls don't break
             $aScore = $a->total_score ?? 0;
             $bScore = $b->total_score ?? 0;
+
             if ($aScore == $bScore) {
                 $aBid = $a->bid_amount ?? PHP_INT_MAX;
                 $bBid = $b->bid_amount ?? PHP_INT_MAX;
-                return $aBid <=> $bBid; // lower bid earlier
+                return $aBid <=> $bBid;
             }
-            return $bScore <=> $aScore; // higher score earlier
+            return $bScore <=> $aScore;
         });
+    } else { // quotation
+        $sorted = $this->submissions->sort(function ($a, $b) {
+            $aTotal = $a->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
+            $bTotal = $b->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
 
-        $this->winner = $sorted->first();
-        return $this->winner;
+            if ($aTotal == $bTotal) {
+                $aDays = $a->delivery_days ?? PHP_INT_MAX;
+                $bDays = $b->delivery_days ?? PHP_INT_MAX;
+                return $aDays <=> $bDays; // earlier delivery wins
+            }
+            return $aTotal <=> $bTotal; // lower price wins
+        });
     }
+
+    $this->winner = $sorted->first();
+    return $this->winner;
+}
+
 
     public function issueAward($submissionId)
     {

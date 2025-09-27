@@ -133,13 +133,13 @@
 
                                 <div class="grid grid-cols-2 gap-4 mb-2">
                                     <div>
-                                        <label class="text-sm text-gray-600">Approved Budget</label>
+                                        <label class="text-sm text-gray-600">Pre date</label>
                                         <input type="date" readonly class="w-full border-none bg-transparent px-3 py-2"
                                             value="{{ $selectedInvitation?->pre_date ?? 'N/A' }}">
                                     </div>
 
                                     <div>
-                                        <label class="text-sm text-gray-600">Source of Funds</label>
+                                        <label class="text-sm text-gray-600">Deadline</label>
                                         <input type="date" readonly class="w-full border-none bg-transparent px-3 py-2"
                                             value="{{ $selectedInvitation?->submission_deadline ?? 'N/A' }}">
                                     </div>

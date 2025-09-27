@@ -15,6 +15,7 @@ class Invitation extends Model
         'pre_date',
         'submission_deadline',
         'documents',
+        'document_name',
         'invite_scope',
         'supplier_category_id',
         'status',

@@ -19,6 +19,7 @@ class Submission extends Model
         'submitted_at',
         'technical_score',
         'financial_score',
+        'delivery_days',
         'total_score',
         'technical_proposal_original_name',
         'financial_proposal_original_name',

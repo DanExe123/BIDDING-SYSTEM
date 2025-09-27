@@ -22,15 +22,60 @@
     <!-- Summary (BIGGER text) -->
     <div class="w-full md:w-2/5 space-y-4 text-base text-gray-800">
       @forelse($submissions as $submission)
-        <p class="leading-relaxed">
-          <strong class="text-lg">{{ $submission->supplier->first_name }}</strong>
-          scored <strong>{{ $submission->total_score ?? '-' }}</strong>/100 overall
-          (Technical: {{ $submission->technical_score ?? '-' }}, Financial: {{ $submission->financial_score ?? '-' }}),
-          with a bid amount of <strong>₱{{ number_format($submission->bid_amount ?? 0, 2) }}</strong>.
-        </p>
+        @if($ppmp->mode_of_procurement === 'bidding')
+            <p class="leading-relaxed">
+                <strong class="text-lg">{{ $submission->supplier->first_name }}</strong>
+                scored <strong>{{ $submission->total_score ?? '-' }}</strong>/100 overall
+                (Technical: {{ $submission->technical_score ?? '-' }}, Financial: {{ $submission->financial_score ?? '-' }}),
+                with a bid amount of <strong>₱{{ number_format($submission->bid_amount ?? 0, 2) }}</strong>.
+            </p>
+        @elseif($ppmp->mode_of_procurement === 'quotation' && $submission->items->count() > 0)
+            @php
+                $totalPrice = $submission->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->procurementItem->qty ?? 1));
+            @endphp
+
+            <p class="leading-relaxed">
+                <strong class="text-lg">{{ $submission->supplier->first_name }}</strong>
+                quoted a total of <strong>₱{{ number_format($totalPrice, 2) }}</strong> 
+                with delivery in <strong>{{ $submission->delivery_days ?? 'N/A' }} days</strong>.
+            </p>
+
+            <div class="ml-6 mt-2">
+                <ul class="list-disc pl-5 text-gray-700">
+                    @foreach($submission->items as $item)
+                        <li>
+                            {{ $item->procurementItem->description ?? 'N/A' }}
+                            - ₱{{ number_format($item->unit_price, 2) }}
+                            (x{{ $item->procurementItem->qty ?? 1 }})
+                            = ₱{{ number_format($item->total_price, 2) }}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
       @empty
-        <p class="text-gray-600">No submissions found.</p>
+          <p class="text-gray-600">No submissions found.</p>
       @endforelse
+
+      @if($ppmp->mode_of_procurement === 'quotation' && $submissions->count() > 0)
+        @php
+            $sorted = $submissions->sort(function ($a, $b) {
+                $aTotal = $a->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->procurementItem->qty ?? 1));
+                $bTotal = $b->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->procurementItem->qty ?? 1));
+                if ($aTotal == $bTotal) {
+                    return ($a->delivery_days ?? PHP_INT_MAX) <=> ($b->delivery_days ?? PHP_INT_MAX);
+                }
+                return $aTotal <=> $bTotal;
+            });
+            $lowest = $sorted->first();
+        @endphp
+        <p class="mt-4 font-semibold text-green-700">
+            Supplier <strong>{{ $lowest->supplier->first_name }}</strong> offered the lowest total price of 
+            <strong>₱{{ number_format($lowest->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->procurementItem->qty ?? 1)), 2) }}</strong> 
+            with delivery in <strong>{{ $lowest->delivery_days ?? 'N/A' }} days</strong>, which is lower than all other suppliers.
+        </p>
+    @endif
+
 
       <!-- Action Button (unchanged size) -->
       <div x-data="{ showModal: false }" class="relative">

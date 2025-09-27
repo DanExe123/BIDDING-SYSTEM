@@ -102,94 +102,164 @@
 
             <!-- Modal -->
             <div x-show="showModal" x-transition class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                <div class="bg-gray-100 ml-30 w-[90%] md:w-[800px] rounded-md shadow-lg overflow-hidden" @click.away="showModal = false">
+                <div class="bg-gray-100 ml-30 w-[90%] md:w-[800px] max-h-[90vh] rounded-md shadow-lg overflow-hidden" @click.away="showModal = false">
                     
-                    <!-- Loading Spinner -->
-                    <div wire:loading.flex wire:target="showPpmp" class="p-10 flex justify-center items-center">
-                        <svg class="animate-spin h-8 w-8 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                        <span class="ml-2 text-gray-600">Loading...</span>
-                    </div>
-
-                    <!-- Modal Content -->
-                    <div wire:loading.remove wire:target="showPpmp">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-300">
-                            <div>
-                                @if($selectedPpmp)
-                                    <p class="text-sm"><strong>Requested by:</strong> 
-                                        {{ $selectedPpmp->requester->first_name }} {{ $selectedPpmp->requester->last_name }}
-                                    </p>
-                                @endif
-                            </div>
-                            <div>
-                                <p class="text-sm"><strong>Role/Position:</strong> Purchaser</p>
-                            </div>
-                            <button @click="showModal = false; @this.call('closeModal')" class="text-black text-xl font-bold">&times;</button>
+                    <!-- Added wrapper for scroll -->
+                    <div class="overflow-y-auto max-h-[90vh]">
+                        
+                        <!-- Loading Spinner -->
+                        <div wire:loading.flex wire:target="showPpmp" class="p-10 flex justify-center items-center">
+                            <svg class="animate-spin h-8 w-8 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span class="ml-2 text-gray-600">Loading...</span>
                         </div>
 
-                        <!-- Table -->
-                        <div class="overflow-x-auto px-6 py-4">
-                            <table class="min-w-full bg-white text-sm text-left border border-gray-300">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="border px-2 py-1">ITEM NUMBER</th>
-                                        <th class="border px-2 py-1">ITEMS</th>
-                                        <th class="border px-2 py-1">QTY</th>
-                                        <th class="border px-2 py-1">UNIT</th>
-                                        <th class="border px-2 py-1">ESTIMATED UNIT COST</th>
-                                        <th class="border px-2 py-1">ESTIMATED AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <!-- Modal Content -->
+                        <div wire:loading.remove wire:target="showPpmp">
+                            <!-- Header -->
+                            <div class="flex justify-between items-center px-6 py-4 border-b border-gray-300 sticky top-0 bg-gray-100 z-10">
+                                <div>
                                     @if($selectedPpmp)
-                                        @foreach($selectedPpmp->items as $item)
-                                            <tr>
-                                                <td class="border px-2 py-1">{{ $item->id }}</td>
-                                                <td class="border px-2 py-1">{{ $item->description }}</td>
-                                                <td class="border px-2 py-1">{{ $item->qty }}</td>
-                                                <td class="border px-2 py-1">{{ $item->unit }}</td>
-                                                <td class="border px-2 py-1">{{ $item->unit_cost }}</td>
-                                                <td class="border px-2 py-1">{{ $item->total_cost }}</td>
-                                            </tr>
-                                        @endforeach
+                                        <p class="text-sm"><strong>Requested by:</strong> 
+                                            {{ $selectedPpmp->requester->first_name }} {{ $selectedPpmp->requester->last_name }}
+                                        </p>
                                     @endif
-                                </tbody>
-                            </table>
-                        </div>
+                                </div>
+                                <div>
+                                    <p class="text-sm"><strong>Role/Position:</strong> Purchaser</p>
+                                </div>
+                                <button @click="showModal = false; @this.call('closeModal')" class="text-black text-xl font-bold">&times;</button>
+                            </div>
 
-                        <!-- Purpose -->
-                        <div class="px-6 py-4">
-                            <p class="font-semibold">Purpose:</p>
-                            @if($selectedPpmp)
-                                <p class="text-gray-700">{{ $selectedPpmp->project_title }}</p>
-                            @endif
-                        </div>
+                            <!-- Purpose -->
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- Project Title -->
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Project Title</p>
+                                        @if($selectedPpmp)
+                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->project_title }}</p>
+                                        @endif
+                                    </div>
 
-                        <!-- Footer -->
-                        <div class="px-6 py-4 flex justify-between items-center border-t border-gray-300">
-                            <button class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">More details</button>
-                            <div class="space-x-2">
-                                @if($selectedPpmp)
-                                    <button wire:click="approvePpmp({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">Approve</button>
-                                    <button 
-                                        x-on:click="
-                                            $dispatch('open-reject-modal', { id: {{ $selectedPpmp->id }} });
-                                            showModal = false
-                                        "
-                                        class="px-4 py-2 text-sm bg-red-300 text-red-800 rounded hover:bg-red-400">
-                                        Reject
-                                    </button>
+                                    <!-- Budget -->
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Budget</p>
+                                        @if($selectedPpmp)
+                                            <p class="mt-1 text-lg font-semibold">₱{{ number_format($selectedPpmp->abc, 2) }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- Project Type -->
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Project Type</p>
+                                        @if($selectedPpmp)
+                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->project_type }}</p>
+                                        @endif
+                                    </div>
+
+                                    <!-- Implementing Unit -->
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Implementing Unit</p>
+                                        @if($selectedPpmp)
+                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->implementing_unit }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Project Description</p>
+                                        @if($selectedPpmp)
+                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->description }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="overflow-x-auto px-6 py-4">
+                                <table class="min-w-full bg-white text-sm text-left border border-gray-300">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="border px-2 py-1">ITEM NUMBER</th>
+                                            <th class="border px-2 py-1">ITEMS</th>
+                                            <th class="border px-2 py-1">QTY</th>
+                                            <th class="border px-2 py-1">UNIT</th>
+                                            <th class="border px-2 py-1">ESTIMATED UNIT COST</th>
+                                            <th class="border px-2 py-1">ESTIMATED AMOUNT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if($selectedPpmp)
+                                            @foreach($selectedPpmp->items as $item)
+                                                <tr>
+                                                    <td class="border px-2 py-1">{{ $item->id }}</td>
+                                                    <td class="border px-2 py-1">{{ $item->description }}</td>
+                                                    <td class="border px-2 py-1">{{ $item->qty }}</td>
+                                                    <td class="border px-2 py-1">{{ $item->unit }}</td>
+                                                    <td class="border px-2 py-1">{{ $item->unit_cost }}</td>
+                                                    <td class="border px-2 py-1">{{ $item->total_cost }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="px-6 py-4 ">
+                                <p class="text-sm font-medium text-gray-600 mb-2">Attachment</p>
+
+                                @if($selectedPpmp && $selectedPpmp->attachment)
+                                    <div class="flex items-center justify-between bg-white border rounded-md px-4 py-2 hover:shadow-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
+                                                    3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
+                                            </svg>
+                                            <span class="text-blue-600 font-medium">{{ $selectedPpmp->attachment_name }}</span>
+                                        </div>
+                                        <a href="{{ route('ppmp.download', $selectedPpmp->id) }}"
+                                        class="text-sm text-blue-500 hover:underline">
+                                            Download
+                                        </a>
+                                    </div>
+                                @else
+                                    <p class="text-gray-400 italic">No attachment uploaded</p>
                                 @endif
                             </div>
-                        </div>
 
-                    </div>
+                            <!-- Footer -->
+                            <div class="px-6 py-4 flex justify-end items-center border-t border-gray-300 sticky bottom-0 bg-gray-100">
+                                <div class="space-x-2">
+                                    @if($selectedPpmp)
+                                        <button wire:click="approvePpmp({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">Approve</button>
+                                        <button 
+                                            x-on:click="
+                                                $dispatch('open-reject-modal', { id: {{ $selectedPpmp->id }} });
+                                                showModal = false
+                                            "
+                                            class="px-4 py-2 text-sm bg-red-300 text-red-800 rounded hover:bg-red-400">
+                                            Reject
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- scroll wrapper end -->
                 </div>
             </div>
+
 
             <!-- Reject Confirmation Modal -->
             <div x-data="{ showRejectModal: false, ppmpId: null }"

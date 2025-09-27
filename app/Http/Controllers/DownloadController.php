@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Submission;
+use App\Models\Ppmp; // 
 use Illuminate\Support\Facades\Storage;
 
 class DownloadController extends Controller
@@ -93,5 +94,25 @@ class DownloadController extends Controller
             ]
         );
     }
+
+    public function downloadPpmpAttachment($ppmpId)
+    {
+        // 1. Find the PPMP record
+        $ppmp = Ppmp::findOrFail($ppmpId);
+
+        // 2. Check if there is an attachment
+        if (!$ppmp->attachment) {
+            // 🔴 Add this check to avoid 500 error if no attachment exists
+            abort(404, 'No attachment found');
+        }
+
+        // 3. Return the file for download
+        // ✅ Use the stored original name (attachment_name) as the download name
+        return Storage::disk('public')->download(
+            $ppmp->attachment,          // File path in storage
+            $ppmp->attachment_name      // Original filename stored in DB
+        );
+    }
+
 
 }

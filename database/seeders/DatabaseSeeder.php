@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             SupplierCategorySeeder::class,
             UserSeeder::class,
+            PpmpSeeder::class,
         ]);
     }
 

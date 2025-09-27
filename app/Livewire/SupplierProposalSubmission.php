@@ -184,6 +184,10 @@ class SupplierProposalSubmission extends Component
     // Submit quotation: require all items have unit price (adjust to your rules)
     public function submitQuotation()
     {
+        $this->validate([
+            'remarks' => 'nullable|string',
+            'delivery_days' => 'required|integer|min:1', 
+        ]);
         // require all items to have price
         foreach ($this->submissionItems as $si) {
             $price = $this->unitPrices[$si->id] ?? null;

@@ -83,15 +83,23 @@ class PurchaserProcurementPlanning extends Component
             return; // stop saving
         }
 
+        // Handle attachment upload
+        $storedPath = $this->attachment
+            ? $this->attachment->store('attachments', 'public')
+            : null;
+
+        $originalName = $this->attachment
+            ? $this->attachment->getClientOriginalName()
+            : null;
+
         $ppmp = Ppmp::create([
             'project_title' => $this->project_title,
             'project_type' => $this->project_type,
             'abc' => $this->abc, // already synced with totalBudget
             'implementing_unit' => $this->implementing_unit,
             'description' => $this->description,
-            'attachment' => $this->attachment
-                ? $this->attachment->store('attachments', 'public')
-                : null,
+            'attachment' => $storedPath,
+            'attachment_name' => $originalName,
             'status' => 'pending',
             'requested_by' => Auth::id(),
         ]);
@@ -111,11 +119,15 @@ class PurchaserProcurementPlanning extends Component
     }
 
     
-    public function render()
+   public function render()
     {
         return view('livewire.purchaser-procurement-planning', [
-            'ppmps' => Ppmp::where('requested_by', Auth::id())->latest()->get() 
+            'ppmps' => Ppmp::with('items')   // 👈 eager load items
+                ->where('requested_by', Auth::id())
+                ->latest()
+                ->get()
         ]);
     }
+
    
 }

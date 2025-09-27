@@ -106,6 +106,9 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
 
         Route::get('/view/{submission}/{type}', [\App\Http\Controllers\DownloadController::class, 'view'])
             ->name('submission.view');
+        Route::get('/ppmp/{id}/download', [\App\Http\Controllers\DownloadController::class, 'downloadPpmpAttachment'])
+            ->name('ppmp.download');
+
     });
 
 

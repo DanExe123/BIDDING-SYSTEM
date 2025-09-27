@@ -16,6 +16,7 @@ class Ppmp extends Model
         'status',
         'requested_by',
         'mode_of_procurement',
+        'attachment_name', 
     ];
 
     public function items()

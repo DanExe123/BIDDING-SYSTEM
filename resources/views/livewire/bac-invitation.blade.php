@@ -152,12 +152,19 @@
                         </div>
                     </div>
 
-                    <div>
+                   <div>
                         <label class="block font-medium mb-1">Documents</label>
-                        <input type="text" wire:model="documents" class="w-full border rounded px-3 py-2" />
-                        @error('documents') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
-                        <button type="button" class="mt-2 text-blue-600 text-sm hover:underline">+ Add Document</button>
+                        <input type="file" wire:model="documents" class="w-full border rounded px-3 py-2" />
+
+                        @error('documents')
+                            <span class="text-red-600 text-sm">{{ $message }}</span>
+                        @enderror
+
+                        <div wire:loading wire:target="documents" class="text-blue-600 text-sm mt-1">
+                            Uploading...
+                        </div>
                     </div>
+
 
                     <div class="border-t pt-4">
                         <p class="font-medium mb-2">Notify Suppliers</p>
@@ -191,17 +198,40 @@
                             </button>
 
                             <div x-show="showSpecific" class="mt-2 space-y-2">
-                                @foreach($suppliers as $supplier)
-                                    <label class="flex items-center space-x-2">
-                                        <input 
-                                            type="checkbox" 
-                                            wire:model="selectedSuppliers" 
-                                            value="{{ $supplier->id }}" 
-                                            wire:change="$set('inviteScope', 'specific')" 
-                                        />
-                                        <span>{{ $supplier->first_name }} {{ $supplier->last_name }} ({{ $supplier->supplierCategory->name ?? 'No Category' }})</span>
-                                    </label>
-                                @endforeach
+                                {{-- ✅ Search form with button --}}
+                                <div class="flex space-x-2">
+                                    <input 
+                                        type="text" 
+                                        wire:model="supplierSearch" 
+                                        placeholder="Search suppliers..." 
+                                        class="flex-1 border rounded px-3 py-2"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        wire:click="searchSuppliers" 
+                                        class="bg-blue-600 text-white px-4 py-2 rounded"
+                                    >
+                                        Search
+                                    </button>
+                                </div>
+
+                                <div class="max-h-48 overflow-y-auto border rounded p-2 mt-2">
+                                    @forelse($suppliers as $supplier)
+                                        <label class="flex items-center space-x-2">
+                                            <input 
+                                                type="checkbox" 
+                                                wire:model="selectedSuppliers" 
+                                                value="{{ $supplier->id }}" 
+                                                wire:change="$set('inviteScope', 'specific')" 
+                                            />
+                                            <span>{{ $supplier->first_name }} 
+                                                ({{ $supplier->supplierCategory->name ?? 'No Category' }})
+                                            </span>
+                                        </label>
+                                    @empty
+                                        <p class="text-sm text-gray-500">No suppliers found.</p>
+                                    @endforelse
+                                </div>
                             </div>
 
                             @error('selectedSuppliers') 
@@ -209,7 +239,6 @@
                             @enderror
                         </div>
                     </div>
-
 
                 </div>
 

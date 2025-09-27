@@ -187,9 +187,14 @@
                                 <th class="px-4 py-2 text-left">
                                     {{ optional($selectedPpmp)->mode_of_procurement === 'quotation' ? 'Items' : 'Bid Amount' }}
                                 </th>
-                                <th class="px-4 py-2 text-left">Technical Score</th>
-                                <th class="px-4 py-2 text-left">Financial Score</th>
-                                <th class="px-4 py-2 text-left">Total Score</th>
+
+                                {{-- Show only if bidding --}}
+                                @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
+                                    <th class="px-4 py-2 text-left">Technical Score</th>
+                                    <th class="px-4 py-2 text-left">Financial Score</th>
+                                    <th class="px-4 py-2 text-left">Total Score</th>
+                                @endif
+
                                 <th class="px-4 py-2 text-left">Status</th>
                                 <th class="px-4 py-2 text-left">Action</th>
                             </tr>
@@ -201,33 +206,60 @@
 
                                     {{-- Inline condition --}}
                                     <td class="px-4 py-2">
-                                        @if($selectedPpmp->mode_of_procurement === 'quotation')
-                                            <ul class="list-disc pl-4">
-                                                @foreach($submission->items as $item)
-                                                    <li>
-                                                        {{ $item->procurementItem->description }}
-                                                        - ₱{{ number_format($item->unit_price, 2) }}
-                                                        (x{{ $item->procurementItem->qty }})
-                                                        = ₱{{ number_format($item->total_price, 2) }}
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @else
-                                            ₱{{ number_format($submission->bid_amount, 2) }}
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ $submission->technical_score !== null ? (fmod($submission->technical_score, 1) == 0 ? intval($submission->technical_score) : rtrim(rtrim(number_format($submission->technical_score, 2), '0'), '.')) . '/100' : '-' }}
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ $submission->financial_score !== null ? (fmod($submission->financial_score, 1) == 0 ? intval($submission->financial_score) : rtrim(rtrim(number_format($submission->financial_score, 2), '0'), '.')) . '/100' : '-' }}
-                                    </td>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ $submission->total_score !== null ? (fmod($submission->total_score, 1) == 0 ? intval($submission->total_score) : rtrim(rtrim(number_format($submission->total_score, 2), '0'), '.')) : '-' }}
-                                    </td>
+    @if($selectedPpmp->mode_of_procurement === 'quotation')
+        <table class="w-full border text-xs">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="px-2 py-1 text-left">Description</th>
+                    <th class="px-2 py-1 text-right">Unit Price</th>
+                    <th class="px-2 py-1 text-right">Qty</th>
+                    <th class="px-2 py-1 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($submission->items as $item)
+                    <tr>
+                        <td class="px-2 py-1">{{ $item->procurementItem->description }}</td>
+                        <td class="px-2 py-1 text-right">₱{{ number_format($item->unit_price, 2) }}</td>
+                        <td class="px-2 py-1 text-right">{{ $item->procurementItem->qty }}</td>
+                        <td class="px-2 py-1 text-right">₱{{ number_format($item->total_price, 2) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        ₱{{ number_format($submission->bid_amount, 2) }}
+    @endif
+</td>
 
 
-                                   <td class="px-4 py-2">
+                                    {{-- Show only if bidding --}}
+                                    @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $submission->technical_score !== null 
+                                                ? (fmod($submission->technical_score, 1) == 0 
+                                                    ? intval($submission->technical_score) 
+                                                    : rtrim(rtrim(number_format($submission->technical_score, 2), '0'), '.')) . '/100' 
+                                                : '-' }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $submission->financial_score !== null 
+                                                ? (fmod($submission->financial_score, 1) == 0 
+                                                    ? intval($submission->financial_score) 
+                                                    : rtrim(rtrim(number_format($submission->financial_score, 2), '0'), '.')) . '/100' 
+                                                : '-' }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ $submission->total_score !== null 
+                                                ? (fmod($submission->total_score, 1) == 0 
+                                                    ? intval($submission->total_score) 
+                                                    : rtrim(rtrim(number_format($submission->total_score, 2), '0'), '.')) 
+                                                : '-' }}
+                                        </td>
+                                    @endif
+
+                                    <td class="px-4 py-2">
+                                        {{-- Status logic --}}
                                         @php
                                             $status = $submission->status === 'submitted' 
                                                 ? 'pending' 
@@ -247,7 +279,7 @@
                                     </td>
                                     <td class="px-4 py-2">
                                         <div class="flex items-center space-x-2">
-                                            <!-- View button -->
+                                            <!-- Docs button -->
                                             <button 
                                                 wire:click="viewSubmission({{ $submission->id }})"
                                                 @click="showDocsModal = true"
@@ -266,7 +298,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-4 py-2 text-center text-gray-500">
+                                    {{-- Adjust colspan depending on bidding or not --}}
+                                    <td colspan="{{ optional($selectedPpmp)->mode_of_procurement === 'bidding' ? '7' : '4' }}" 
+                                        class="px-4 py-2 text-center text-gray-500">
                                         No submissions yet.
                                     </td>
                                 </tr>

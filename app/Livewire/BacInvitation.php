@@ -9,10 +9,11 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Models\SupplierCategory;
 use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads; 
 
 class BacInvitation extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $selectedPpmp = null;
 
@@ -27,6 +28,7 @@ class BacInvitation extends Component
 
     public $categories = [];
     public $suppliers = [];
+    public $supplierSearch = '';
 
     protected $paginationTheme = 'tailwind'; 
 
@@ -81,12 +83,22 @@ class BacInvitation extends Component
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
             'selectedSuppliers'   => 'required_if:inviteScope,specific|array',
             'selectedSuppliers.*' => 'exists:users,id',
+            'documents'           => 'nullable|file|max:2048',
         ];
     }
 
     public function saveInvitation()
     {
         $this->validate();
+
+        $path = null;
+        $originalName = null;
+        if ($this->documents) {
+            // save file
+            $path = $this->documents->store('invitations', 'public');
+            // get original name
+            $originalName = $this->documents->getClientOriginalName();
+        }
 
         $invitation = Invitation::create([
             'ppmp_id'             => $this->selectedPpmp->id,
@@ -96,7 +108,8 @@ class BacInvitation extends Component
             'source_of_funds'     => $this->sourceOfFunds,
             'pre_date'            => $this->preDate,
             'submission_deadline' => $this->submissionDeadline,
-             'documents'          => $this->documents ? json_encode($this->documents) : null,
+            'documents'           => $path,
+            'document_name'       => $originalName,
             'invite_scope'        => $this->inviteScope,
             'supplier_category_id'=> $this->supplierCategoryId,
             'created_by'          => Auth::id(),
@@ -123,7 +136,21 @@ class BacInvitation extends Component
         $this->closeModal();
         $this->dispatch('close-modal');
     }
-
+    
+    //supplier search 
+    public function searchSuppliers()
+    {
+        $this->suppliers = User::role('supplier')
+            ->with('supplierCategory')
+            ->when($this->supplierSearch, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('first_name', 'like', '%' . $this->supplierSearch . '%')
+                    ->orWhere('last_name', 'like', '%' . $this->supplierSearch . '%');
+                });
+            })
+            ->get();
+    }
+    
     public function render()
     {
         return view('livewire.bac-invitation', [
@@ -136,4 +163,5 @@ class BacInvitation extends Component
                 ->paginate(10),
         ]);
     }
+    
 }
