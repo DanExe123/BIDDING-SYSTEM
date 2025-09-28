@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ mobileMenuOpen: false }" x-init="$watch('mobileMenuOpen', value => console.log('Mobile menu:', value))">
+<html lang="en" x-data="{ mobileMenuOpen: false }">
 
 <head>
     <meta charset="UTF-8" />
@@ -11,109 +11,177 @@
 
 <body class="bg-white font-sans">
 
-    <!-- Navbar -->
-    <nav class="bg-[#04233D] text-white px-4 py-3 shadow" x-data="{ mobileMenuOpen: false }">
-        <div class="flex items-center justify-between">
-            <!-- Logo and Name -->
-            <div class="flex items-center space-x-2">
-                <img src="icon/bagologo.png" alt="Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full" />
-                <span class="text-base md:text-lg font-bold">KALINAWKITA</span>
-            </div>
-
-            <!-- Hamburger (Mobile) -->
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="sm:hidden text-white text-2xl focus:outline-none">
-                ☰
-            </button>
-
-            <!-- Desktop Menu -->
-            <div class="hidden sm:flex justify-between items-center w-full">
-                <!-- Centered Menu Links -->
-                <ul class="flex-1 flex justify-center gap-6 text-xs sm:text-sm md:text-xs lg:text-base">
-                    <li><a href="#" class="hover:text-yellow-400 px-4">Announcement</a></li>
-                    <li><a href="#" class="hover:text-yellow-400 px-4">Invitation Bids</a></li>
-                    <li><a href="#" class="hover:text-yellow-400 px-4">Awarded Bidders</a></li>
-                </ul>
-
-
-                <!-- Right-Aligned Login -->
-                <div class="flex items-center space-x-4">
-                    @guest
-                        <a href="{{ route('register') }}" class="hover:text-yellow-400">Register</a>
-
-                        <a href="{{ route('login') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">
-                            <span class="flex items-center gap-2 text-white group-hover:text-yellow-400">Login</span>
-                        </a>
-                    @else
-                        @php $user = Auth::user(); @endphp
-
-                        @if($user->hasRole('Super_Admin'))
-                            <a href="{{ route('superadmin-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
-                        @elseif($user->hasRole('BAC_Secretary'))
-                            <a href="{{ route('bac-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
-                        @elseif($user->hasRole('Supplier'))
-                            <a href="{{ route('supplier-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
-                        @elseif($user->hasRole('Purchaser'))
-                            <a href="{{ route('purchaser-dashboard') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
-                        @else
-                            <a href="{{ route('home') }}" class="group border border-white px-3 py-1 rounded-md relative z-20">Dashboard</a>
-                        @endif
-
-                        <form method="POST" action="{{ route('logout') }}" class="ml-2">
-                            @csrf
-                            <button type="submit" class="text-white group-hover:text-yellow-400 border border-white px-3 py-1 rounded-md">
-                                Logout
-                            </button>
-                        </form>
-                    @endguest
+    <!-- Top Blue Bar -->
+    <div class="bg-[#1540D2] text-white text-sm py-10 relative">
+        <div class="max-w-screen-lg mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <img src="icon/bagologo.png" alt="Logo" class="w-6 h-6 md:w-8 md:h-8" />
+                <div>
+                    <p class="font-bold text-sm md:text-base">KALINAW</p>
                 </div>
-
+            </div>
+            <div class="flex items-center gap-4" x-data="clock()" x-init="start()">
+                <span x-text="time" class="hidden sm:inline"></span>
             </div>
 
-            <!-- Mobile Menu -->
-            <div x-show="mobileMenuOpen" x-transition class="sm:hidden mt-3 space-y-2 text-sm px-2">
-                <a href="#" class="block hover:text-yellow-400">Announcement</a>
-                <a href="#" class="block hover:text-yellow-400">Invitation Bids</a>
-                <a href="#" class="block hover:text-yellow-400">Awarded Bidders</a>
-                <a href="#" class="block hover:text-yellow-400">Register</a>
-                <a href="#" class="block hover:text-yellow-400 border px-3 py-1 rounded-md w-fit">Login</a>
-            </div>
+        </div>
+    </div>
+
+   <!-- Navbar Overlay -->
+   <nav class="absolute top-[80px] left-1/2 transform -translate-x-1/2 z-50 w-[80%] max-w-screen-lg">
+    <ul class="flex justify-between items-center text-sm font-medium text-black bg-white shadow-md px-6 rounded-md py-4 w-full">
+        <!-- Left group -->
+        <div class="flex gap-6">
+            <li><a href="#" class="hover:text-blue-600">Home</a></li>
+            <li><a href="#" class="hover:text-blue-600">Information</a></li>
+        </div>
+    
+        <!-- Right group -->
+        <div class="flex gap-6 items-center">
+            @guest
+                <li>
+                    <a href="{{ route('register') }}" class="hover:text-blue-600">Register</a>
+                </li>
+                <li>
+                    <a href="{{ route('login') }}" 
+                       class="group border border-blue-600 px-3 py-1 rounded-md relative z-20 text-blue-600 hover:text-white hover:bg-blue-600 transition">
+                        Login
+                    </a>
+                </li>
+            @else
+                @php $user = Auth::user(); @endphp
+        
+                <li>
+                    @if($user->hasRole('Super_Admin'))
+                        <a href="{{ route('superadmin-dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                    @elseif($user->hasRole('BAC_Secretary'))
+                        <a href="{{ route('bac-dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                    @elseif($user->hasRole('Supplier'))
+                        <a href="{{ route('supplier-dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                    @elseif($user->hasRole('Purchaser'))
+                        <a href="{{ route('purchaser-dashboard') }}" class="hover:text-blue-600">Dashboard</a>
+                    @else
+                        <a href="{{ route('home') }}" class="hover:text-blue-600">Dashboard</a>
+                    @endif
+                </li>
+        
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" 
+                                class="text-blue-600 border border-blue-600 px-3 py-1 rounded-md hover:bg-blue-600 hover:text-white transition">
+                            Logout
+                        </button>
+                    </form>
+                </li>
+            @endguest
+        </div>
+        
+    </ul>
+    
     </nav>
 
-    <!-- Hero Section -->
-    <section
-        class="w-full h-64 sm:h-72 md:h-96 lg:h-[32rem] bg-blue-500 flex items-center justify-center overflow-hidden">
-        <img src="icon/bg-1.png" alt="Header Graphic" class="w-full h-auto object-contain mt-0 lg:mt-[212px]" />
-    </section>
+            <!-- Hero Section -->
+            <section 
+            x-data="{
+                current: 0,
+                images: [
+                    '/icon/bago123.jpg',
+                    '/icon/welcome2.jpg'
+                ]
+            }" 
+            x-init="setInterval(() => { current = (current + 1) % images.length }, 3000)"
+            class="relative h-[700px] overflow-hidden">
 
+            <!-- Background Images -->
+            <template x-for="(image, index) in images" :key="index">
+                <div x-show="current === index" 
+                    x-transition:enter="transition-opacity ease-in-out duration-1000"
+                    x-transition:enter-start="opacity-0" 
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition-opacity ease-in-out duration-1000" 
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0" 
+                    class="absolute inset-0 w-full h-full bg-cover bg-center"
+                    :style="`background-image: url('${image}'); background-size: cover; background-position: center;`">
+                </div>
+            </template>
+             <!-- Overlay -->
+             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-blue-500/70"></div>
+                <div class="relative z-10 flex flex-col justify-center items-start max-w-screen-xl mx-auto h-full px-6">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-white uppercase">BAGO CITY</h1>
+                    <p class="text-lg md:text-xl text-gray-200 mt-2">Home of Historical and Natural Treasures</p>
+                    <a href="#"
+                        class="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-2 text-white rounded shadow font-semibold">
+                        MORE
+                    </a>
+                </div>
+            </section>
 
-    <!-- Container Section (relative for absolute children positioning) -->
-    <section class="relative w-full">
-        <!-- Top Background -->
-        <div class="w-full bg-[#476575] h-32 sm:h-40 md:h-48 lg:h-56"></div>
-
-        <!-- Bottom Background -->
-        <div class="w-full bg-[#648DA5] h-[200px]"></div>
-
-        <!-- Card Container (absolutely centered on split line) -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full px-6">
-            <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
-                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
-                <div class="h-32 md:h-40 bg-white shadow-md rounded"></div>
-            </div>
+    <!-- Floating Cards Section -->
+<section class="relative z-20 -mt-20 mb-10">
+    <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6">
+        
+        <!-- Card 1 -->
+        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+            <x-phosphor.icons::regular.rocket-launch class="w-8 h-8 text-blue-600 mb-3" />
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Faster Requests</h3>
+            <p class="text-gray-600 text-sm">
+                Purchase requests move quickly from submission to approval with less paperwork.
+            </p>
         </div>
-    </section>
 
+        <!-- Card 2 -->
+        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+            <x-phosphor.icons::regular.handshake class="w-8 h-8 text-green-600 mb-3" />
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Fair Supplier Selection</h3>
+            <p class="text-gray-600 text-sm">
+                The system uses decision support tools to help choose the best supplier based on price and quality.
+            </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+            <x-phosphor.icons::regular.chart-bar class="w-8 h-8 text-purple-600 mb-3" />
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Clear Monitoring</h3>
+            <p class="text-gray-600 text-sm">
+                Track purchase requests and awards easily through the system.
+            </p>
+        </div>
+
+    </div>
+</section>
 
 
 
     <!-- Footer -->
-    <footer class="bg-[#0F0C2D] py-6 px-2 flex justify-start">
-        <div class="flex justify-start">
+    <footer class="bg-[#0F0C2D] py-6 px-4">
+        <div class="max-w-screen-xl mx-auto flex items-center gap-3 text-white">
             <img src="icon/bagologo.png" alt="City Seal" class="h-12 sm:h-14 md:h-16" />
+            <p class="text-xs sm:text-sm">© City Government of Bago</p>
         </div>
     </footer>
+    <script>
+        function clock() {
+            return {
+                time: '',
+                start() {
+                    this.update()
+                    setInterval(() => this.update(), 1000)
+                },
+                update() {
+                    const options = { 
+                        timeZone: "Asia/Manila", 
+                        hour: "2-digit", 
+                        minute: "2-digit", 
+                        hour12: true 
+                    }
+                    const formatter = new Intl.DateTimeFormat("en-US", options)
+                    this.time = `GMT+8 • ${formatter.format(new Date())}`
+                }
+            }
+        }
+    </script>
 
 </body>
-
 </html>

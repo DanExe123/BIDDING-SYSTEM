@@ -36,8 +36,20 @@ new class extends Component {
         $this->dispatch('password-updated');
     }
 }; ?>
+    <div class="flex min-h-screen" x-cloak>
+        <!-- Sidebar -->
+        @include('partials.user-sidebar')
 
-<section class="w-full">
+        <!-- Main content area (topbar + page content) -->
+        <div class="flex-1 flex flex-col bg-white min-h-screen">
+            <!-- Topbar -->
+            <header class="bg-white h-16 flex items-center justify-between px-6 shadow">
+                <h1 class="text-xl font-semibold">Dashboard</h1>
+                <!-- Right Section -->
+                <div class="flex items-center gap-4"> 
+            </header>
+
+    <section class="w-full px-10 py-2">
     @include('partials.settings-heading')
 
     <x-settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">

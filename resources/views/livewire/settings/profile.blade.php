@@ -7,7 +7,8 @@ use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 
 new class extends Component {
-    public string $name = '';
+    public string $first_name = '';
+    public string $last_name = '';
     public string $email = '';
 
     /**
@@ -15,8 +16,11 @@ new class extends Component {
      */
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $user = Auth::user();
+
+        $this->first_name = $user->first_name ?? '';
+        $this->last_name  = $user->last_name ?? '';
+        $this->email      = $user->email ?? '';
     }
 
     /**
@@ -27,9 +31,9 @@ new class extends Component {
         $user = Auth::user();
 
         $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-
-            'email' => [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name'  => ['required', 'string', 'max:255'],
+            'email'      => [
                 'required',
                 'string',
                 'lowercase',
@@ -47,7 +51,7 @@ new class extends Component {
 
         $user->save();
 
-        $this->dispatch('profile-updated', name: $user->name);
+        $this->dispatch('profile-updated', name: $user->first_name . ' ' . $user->last_name);
     }
 
     /**
@@ -59,7 +63,6 @@ new class extends Component {
 
         if ($user->hasVerifiedEmail()) {
             $this->redirectIntended(default: route('dashboard', absolute: false));
-
             return;
         }
 
@@ -67,19 +70,33 @@ new class extends Component {
 
         Session::flash('status', 'verification-link-sent');
     }
-}; ?>
+};
+?>
+<div class="flex min-h-screen" x-cloak>
+    <!-- Sidebar -->
+    @include('partials.user-sidebar')
 
-<section class="w-full">
+    <!-- Main content area (topbar + page content) -->
+    <div class="flex-1 flex flex-col bg-white min-h-screen">
+        <!-- Topbar -->
+        <header class="bg-white h-16 flex items-center justify-between px-6 shadow">
+            <h1 class="text-xl font-semibold">Dashboard</h1>
+            <!-- Right Section -->
+            <div class="flex items-center gap-4"> 
+        </header>
+
+<section class="w-full px-10 py-2">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
+    <x-settings.layout :heading="__('Profile')" :subheading="__('Update your account details')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+            <flux:input wire:model="first_name" :label="__('First Name')" type="text" required autofocus autocomplete="given-name" />
+            <flux:input wire:model="last_name" :label="__('Last Name')" type="text" required autocomplete="family-name" />
 
             <div>
                 <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail &&! auth()->user()->hasVerifiedEmail())
+                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
                     <div>
                         <flux:text class="mt-4">
                             {{ __('Your email address is unverified.') }}
@@ -100,7 +117,7 @@ new class extends Component {
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
+                    <flux:button class="!bg-[#062B4A]" type="submit" class="w-full">{{ __('Save') }}</flux:button>
                 </div>
 
                 <x-action-message class="me-3" on="profile-updated">
@@ -112,3 +129,4 @@ new class extends Component {
         <livewire:settings.delete-user-form />
     </x-settings.layout>
 </section>
+    </div>
