@@ -7,11 +7,7 @@
       <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
             <h1 class="text-xl font-semibold">Proposal Submission</h1>
-            <div>
-            <button class="text-gray-500 hover:text-black">
-                <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
-            </button>
-            </div>
+            @livewire('proposal-notification-bell')  
         </header>
             @if (session()->has('message'))
                 <div 
