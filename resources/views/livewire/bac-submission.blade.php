@@ -11,6 +11,7 @@
                         <th class="w-1/5 text-center px-4 py-2">Purpose</th>
                         <th class="w-1/5 text-center px-4 py-2">Procurement Type</th>
                         <th class="w-1/5 text-center px-4 py-2">Response</th>
+                        <th class="w-1/5 text-center px-4 py-2">Deadline</th>
                         <th class="w-1/5 text-center px-4 py-2">Status</th>
                         <th class="w-1/5 text-center px-4 py-2">Actions</th>
                     </tr>
@@ -37,6 +38,13 @@
                                     {{ $totalSubmitted }}/{{ $totalInvited }}
                                 @else
                                     0/0
+                                @endif
+                            </td>
+                            <td class="px-4 py-2 text-center">
+                                @if($ppmp->invitations->isNotEmpty())
+                                    {{ \Carbon\Carbon::parse($ppmp->invitations->last()->submission_deadline)->format('F j, Y') }}
+                                @else
+                                    N/A
                                 @endif
                             </td>
                             <td class="px-4 py-2 text-center">
@@ -316,7 +324,7 @@
                         @if($selectedPpmp)
                             <a href="{{ route('generate.report', $selectedPpmp->id) }}" 
                             class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 inline-flex items-center justify-center">
-                                Generate Report
+                                Generate Report & Select Supplier
                             </a>
                         @endif
                     </div>

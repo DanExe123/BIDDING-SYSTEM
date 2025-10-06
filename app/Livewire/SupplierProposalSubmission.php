@@ -93,15 +93,15 @@ class SupplierProposalSubmission extends Component
 
         // ✅ Security check: block if current supplier isn’t in the invitation
         if (! $invitation->suppliers->contains(Auth::id())) {
-            session()->flash('error', 'You are not invited to this event.');
+            session()->flash('message', 'You are not invited to this event.');
             return;
         }
 
         // ✅ Deadline check: prevent late submissions
-       // if (Carbon::now()->gt(Carbon::parse($invitation->submission_deadline))) {
-       //     session()->flash('error', 'Submission deadline passed.');
-      //      return;
-       // }
+        if (Carbon::now()->gt(Carbon::parse($invitation->submission_deadline))) {
+          session()->flash('message', 'Submission deadline passed.');
+          return;
+        }
 
         // ✅ Set invitation for modal
         $this->selectedInvitation = $invitation;

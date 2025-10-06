@@ -71,9 +71,9 @@
                                             <td class="px-4 py-2">{{ $inv->reference_no }}</td>
                                             <td class="px-4 py-2 text-center">{{ $inv->title ?? $inv->ppmp->project_title }}</td>
                                             <td class="px-4 py-2 text-center">{{ ucfirst($inv->ppmp->mode_of_procurement) }}</td>
-                                            <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($inv->submission_deadline)->toDateString() }}</td>
+                                            <td class="px-4 py-2 text-center">{{ \Carbon\Carbon::parse($inv->submission_deadline)->format('F j, Y') }}</td>
                                             <td class="px-4 py-2 text-center">
-                                               @php
+                                                @php
                                                     $submission = $inv->submissions->where('supplier_id', Auth::id())->first();
                                                 @endphp
 
@@ -97,7 +97,7 @@
 
                                             </td>
                                             <td class="px-4 py-2 text-right">
-                                                <button wire:click="openSubmission({{ $inv->id }})" @click="showModal = true"
+                                                <button wire:click="openSubmission({{ $inv->id }})"
                                                     class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
                                                     open
                                                 </button>

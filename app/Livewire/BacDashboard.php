@@ -191,12 +191,13 @@ class BacDashboard extends Component
             // Merge into recentActivities with other arrays you already have
             // (example assumes you already have $recentPpmps, $recentInvitations, $recentSubmissions)
             // -------------------------
-            $this->recentActivities = $recentPpmps
-                ->merge($recentInvitations)
-                ->merge($recentSubmissions)
-                ->merge($recentAwards)
+            $this->recentActivities = collect($recentPpmps)
+                ->merge(collect($recentInvitations))
+                ->merge(collect($recentSubmissions))
+                ->merge(collect($recentAwards))
                 ->sortByDesc('time')
                 ->values();
+
 
             // Public Bid Notices (latest invitations with PPMP)
             $this->publicBidNotices = Invitation::with('ppmp')

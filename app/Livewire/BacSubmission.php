@@ -121,10 +121,10 @@ class BacSubmission extends Component
         $query = Ppmp::where('status', 'approved')
             ->whereNotNull('mode_of_procurement')
             ->where('mode_of_procurement', '!=', '')
-            ->whereHas('invitations', fn($q) => $q->where('status', 'published'))
+            ->whereHas('invitations', fn($q) => $q->where('status', '!=', 'pending'))
             ->with([
                 'items',
-                'invitations' => fn($q) => $q->where('status', 'published')
+                'invitations' => fn($q) => $q->where('status', '!=', 'pending')
                     ->with([
                         'suppliers',
                         'submissions' => fn($q) => $q->where('status', '!=', 'draft')

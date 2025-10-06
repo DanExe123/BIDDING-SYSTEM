@@ -10,7 +10,6 @@ use App\Models\InvitationSupplier;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-
 class SupplierDashboard extends Component
 {
     public $announcements = [];
@@ -54,10 +53,14 @@ class SupplierDashboard extends Component
                 'time'    => $inv->created_at,
                 'route'   => route('supplier-invitations'), // 👈 default route for invitations
             ];
-        });
+        })
+        ->values()      // reindex
+        ->toBase();     // convert Eloquent\Collection -> Support\Collection (fixes Livewire dehydrate issue)
+
 
         // ✅ Submissions (awarded / not awarded)
-        $submissions = Submission::with('invitation.ppmp')
+        // renamed to $submissionAnnouncements to avoid clobbering later $submissions variable
+        $submissionAnnouncements = Submission::with('invitation.ppmp')
             ->where('supplier_id', $supplierId)
             ->latest()
             ->get()
@@ -86,13 +89,17 @@ class SupplierDashboard extends Component
                     'route'   => $route,
                 ] : null;
             })
-            ->filter(); // remove nulls
+            ->filter()     // remove nulls
+            ->values()
+            ->toBase();    // convert to Support\Collection
+
 
         // ✅ Merge both
         $this->announcements = $invitationAnnouncements
-            ->concat($submissions)
+            ->concat($submissionAnnouncements)
             ->sortByDesc('time')
-            ->values();
+            ->values()
+            ->toBase();
 
 
         // Time bounds
@@ -113,7 +120,10 @@ class SupplierDashboard extends Component
                     'message' => "You submitted a bid for \"{$project}\"",
                     'time' => $sub->created_at instanceof Carbon ? $sub->created_at : Carbon::parse($sub->created_at),
                 ]);
-            });
+            })
+            ->values()
+            ->toBase(); // toBase() -> Support\Collection of items (each item can be a Support\Collection)
+
 
         // Responses on pivot within last 24 hours (fit on 24hrs only, exclude pending)
         // (cover cases where responded_at may be null but record updated)
@@ -146,7 +156,9 @@ class SupplierDashboard extends Component
                     'message' => $responseText,
                     'time' => $time instanceof Carbon ? $time : Carbon::parse($time),
                 ]);
-            });
+            })
+            ->values()
+            ->toBase();
 
 
         // Merge (concat) and sort by time desc, keep Carbon instances for diffForHumans()
@@ -155,48 +167,47 @@ class SupplierDashboard extends Component
             ->sortByDesc('time')
             ->take(10)
             ->values()
-            ->all(); // .all() returns array of collections (ok for Blade)
+            ->toBase(); // convert to Support\Collection so Livewire won't treat it as Eloquent\Collection
 
 
-       // ✅ Active procurements for this supplier (not awarded to anyone)
-// ✅ Active procurements for supplier (only accepted invites, not pending)
-$activeProcurements = Ppmp::with([
-        'invitations' => function ($q) use ($supplierId) {
-            $q->whereHas('suppliers', function ($sq) use ($supplierId) {
-                $sq->where('users.id', $supplierId)
-                   ->where('invitation_supplier.response', 'accepted'); // ✅ only accepted
-            })->with(['submissions' => function ($s) use ($supplierId) {
-                $s->where('supplier_id', $supplierId);
-            }]);
-        }
-    ])
-    ->where('status', 'approved') // ✅ only approved PPMP
-    ->whereHas('invitations.suppliers', function ($q) use ($supplierId) {
-        $q->where('users.id', $supplierId)
-          ->where('invitation_supplier.response', 'accepted'); // ✅ only accepted
-    })
-    ->whereDoesntHave('invitations.submissions', function ($q) {
-        $q->whereRaw('LOWER(submissions.status) = ?', ['awarded']); // ✅ exclude already awarded
-    })
-    ->latest()
-    ->get()
-    ->map(function ($ppmp) {
-        return [
-            'project' => $ppmp->project_title,
-            'abc'     => $ppmp->abc,
-            'mode'    => $ppmp->mode_of_procurement,
-            'time'    => $ppmp->created_at,
-            // 👇 new: route to supplier proposal submission
-            'route'   => route('supplier-proposal-submission'),
-            // extra info
-            'invitations_count' => $ppmp->invitations->count(),
-        ];
-    });
+        // ✅ Active procurements for supplier (only accepted invites, not pending)
+        $activeProcurements = Ppmp::with([
+                'invitations' => function ($q) use ($supplierId) {
+                    $q->whereHas('suppliers', function ($sq) use ($supplierId) {
+                        $sq->where('users.id', $supplierId)
+                        ->where('invitation_supplier.response', 'accepted'); // ✅ only accepted
+                    })->with(['submissions' => function ($s) use ($supplierId) {
+                        $s->where('supplier_id', $supplierId);
+                    }]);
+                }
+            ])
+            ->where('status', 'approved') // ✅ only approved PPMP
+            ->whereHas('invitations.suppliers', function ($q) use ($supplierId) {
+                $q->where('users.id', $supplierId)
+                ->where('invitation_supplier.response', 'accepted'); // ✅ only accepted
+            })
+            ->whereDoesntHave('invitations.submissions', function ($q) {
+                $q->whereRaw('LOWER(submissions.status) = ?', ['awarded']); // ✅ exclude already awarded
+            })
+            ->latest()
+            ->get()
+            ->map(function ($ppmp) {
+                return [
+                    'project' => $ppmp->project_title,
+                    'abc'     => $ppmp->abc,
+                    'mode'    => $ppmp->mode_of_procurement,
+                    'time'    => $ppmp->created_at,
+                    // 👇 new: route to supplier proposal submission
+                    'route'   => route('supplier-proposal-submission'),
+                    // extra info
+                    'invitations_count' => $ppmp->invitations->count(),
+                ];
+            })
+            ->values()
+            ->toBase(); // convert Eloquent\Collection-of-arrays -> Support\Collection
 
-// assign to component property so Blade can render it
-$this->activeProcurements = $activeProcurements;
-
-
+        // assign to component property so Blade can render it
+        $this->activeProcurements = $activeProcurements;
     }
 
     public function render()

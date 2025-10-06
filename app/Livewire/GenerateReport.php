@@ -15,9 +15,13 @@ class GenerateReport extends Component
     // modal form props
     public $award_date;
     public $remarks;
+    public $awardedSubmission; // ✅ holds awarded submission if any
+
+
 
     // computed winner (kept in render but also available to Blade)
     public $winner;
+    public $selectedSubmissionId; // BAC's manual choice
 
     public function mount($ppmpId)
     {
@@ -28,12 +32,12 @@ class GenerateReport extends Component
                 ->with(['supplier', 'items'])
         ])->findOrFail($ppmpId);
 
-
         $this->ppmp = $ppmp;
+
         // flatten submissions (collection)
         $this->submissions = $ppmp->invitations->flatMap->submissions;
 
-         $this->award_date = now()->toDateString();
+        $this->award_date = now()->toDateString();
     }
 
     private function computeWinner()
@@ -56,6 +60,7 @@ class GenerateReport extends Component
                     if ($aBid == $bBid) {
                         $aDays = $a->delivery_days ?? PHP_INT_MAX;
                         $bDays = $b->delivery_days ?? PHP_INT_MAX;
+
                         return $aDays <=> $bDays; // earlier delivery wins if tie on score & bid
                     }
 
@@ -73,6 +78,7 @@ class GenerateReport extends Component
                 if ($aTotal == $bTotal) {
                     $aDays = $a->delivery_days ?? PHP_INT_MAX;
                     $bDays = $b->delivery_days ?? PHP_INT_MAX;
+
                     return $aDays <=> $bDays; // earlier delivery wins
                 }
 
@@ -80,44 +86,9 @@ class GenerateReport extends Component
             });
         }
 
-
         $this->winner = $sorted->first();
         return $this->winner;
     }
-
-
-    public function issueAward($submissionId)
-    {
-        // validate modal inputs (award_date required)
-        $this->validate([
-            'award_date' => 'required|date',
-            'remarks'    => 'nullable|string|max:1000',
-        ]);
-
-        $submission = Submission::findOrFail($submissionId);
-
-        // Optional safety: ensure submission belongs to this PPMP
-        $invitation = $submission->invitation;
-        if (! $invitation || $invitation->ppmp_id != $this->ppmpId) {
-            session()->flash('error', 'Invalid submission for this report.');
-            return;
-        }
-
-        // mark awarded and save remarks/award_date if your schema supports it
-        $submission->status = 'awarded';
-        // if you have columns for awarded_at / award_date, set them:
-        $submission->award_date  = $this->award_date;
-        // store remarks into submission->remarks if desired
-        $submission->remarks = $this->remarks;
-        $submission->save();
-
-        session()->flash('message', 'Award issued successfully to ' . $submission->supplier->first_name);
-
-        // redirect to BAC procurement workflow page — replace route name if different
-        return redirect()->route('bac-procurement-workflow');
-    }
-
-    
 
     public function render()
     {
@@ -128,10 +99,13 @@ class GenerateReport extends Component
         $this->submissions = $this->ppmp->invitations->flatMap->submissions;
         $this->computeWinner();
 
+         $this->awardedSubmission = $this->submissions->firstWhere('status', 'awarded');
+
         return view('livewire.generate-report', [
             'submissions' => $this->submissions,
-            'ppmp' => $this->ppmp,
-            'winner' => $this->winner,
+            'ppmp'        => $this->ppmp,
+            'winner'      => $this->winner,
+            'awardedSubmission' => $this->awardedSubmission,
         ]);
     }
 }
