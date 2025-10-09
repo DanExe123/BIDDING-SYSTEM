@@ -45,6 +45,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/user-help', function () {
+    return view('user-help');
+})->name('user-help');
+
 
 Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin', SuperadminDashboard::class)->name('superadmin-dashboard'); 
