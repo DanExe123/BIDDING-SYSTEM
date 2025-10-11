@@ -75,6 +75,7 @@ class PurchaserProcurementPlanning extends Component
             'items.*.qty' => 'required|integer|min:1',
             'items.*.unit' => 'required|string|max:50',
             'items.*.unitCost' => 'required|numeric|min:0',
+            'attachment' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
         // 🚨 Prevent over-budget

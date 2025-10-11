@@ -32,7 +32,7 @@
                 <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-blue-400 p-6 rounded-2xl w-60 h-60 hover:scale-105 transition-transform duration-300">
                     <x-phosphor.icons::regular.user class="w-10 h-10 text-blue-500 mb-3" />
                     <div class="text-3xl font-extrabold text-blue-700">{{ $adminCount }}</div>
-                    <p class="text-sm font-semibold text-blue-500 mt-1">Admin</p>
+                    <p class="text-sm font-semibold text-blue-500 mt-1">Bac Secretary</p>
                 </div>
 
                 <!-- Purchaser -->

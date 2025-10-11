@@ -60,7 +60,7 @@
                         <div class="flex justify-center items-center w-full">
                             <div class="bg-white rounded-md shadow-md border border-gray-300 w-full">
                                 <div class="rounded-md shadow-lg p-4">
-                                    <h2 class="text-gray-800 py-2 font-bold">PR</h2>
+                                    <h2 class="text-gray-800 py-2 font-bold">Purchase Request</h2>
 
                                     <div class="px-6 py-4 space-y-4 text-sm text-gray-700">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,12 +201,13 @@
                 <!-- LIST VIEW -->
                 <div x-show="view === 'list'" class="mt-6" x-data="{ openModal: false, selectedPr: null }">
                     <div class="bg-white border border-gray-300 rounded-md shadow p-6">
-                        <h2 class="text-lg font-bold mb-4">List of PR Entries</h2>
+                        <h2 class="text-lg font-bold mb-4">Purchase Request Entries</h2>
                         <table class="w-full table-auto border-collapse text-sm">
                             <thead>
                                 <tr class="bg-[#062B4A] text-white text-left">
                                     <th class="p-2 border">PR #</th>
                                     <th class="p-2 border">Purpose</th>
+                                    <th class="p-2 border">Created At</th>
                                     <th class="p-2 border">Status</th>
                                     <th class="p-2 border">Action</th>
                                 </tr>
@@ -215,7 +216,10 @@
                                 @forelse ($ppmps as $ppmp)
                                     <tr>
                                         <td class="p-2 border">{{ $ppmp->id }}</td>
-                                        <td class="p-2 border">{{ $ppmp->project_type }}</td>
+                                        <td class="p-2 border">{{ $ppmp->project_title }}</td>
+                                        <td class="p-2 border text-center">
+                                            {{ $ppmp->created_at->format('M d, Y h:i A') }} <!-- ✅ Added -->
+                                        </td>
                                         <td class="p-2 border text-center
                                             {{ $ppmp->status === 'approved' ? 'text-green-400' : '' }}
                                             {{ $ppmp->status === 'rejected' ? 'text-pink-400' : '' }}

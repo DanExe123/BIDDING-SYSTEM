@@ -61,7 +61,7 @@ class UserSeeder extends Seeder
 
         foreach ($categories as $category) {
             for ($i = 1; $i <= 3; $i++) {
-                $supplierName = "{$category->name} Supplies {$i}";
+                $supplierName = "{$category->name} {$i}";
 
                 $supplier = User::firstOrCreate(
                     [

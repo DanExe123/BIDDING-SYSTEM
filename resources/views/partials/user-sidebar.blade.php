@@ -119,7 +119,7 @@
                 <a wire:navigate href="{{ route('purchaser-bid-monitoring') }}"
                     class="{{ request()->routeIs('purchaser-bid-monitoring') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.chart-line class="w-5 h-5" />
-                    Bid Monitoring
+                    Purchase Request
                 </a>
 
                 {{--    <a wire:navigate href="{{ route('inspection-report') }}"
