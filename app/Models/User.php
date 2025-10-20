@@ -27,6 +27,10 @@ class User extends Authenticatable
         'email',
         'password',
         'supplier_category_id',
+        'business_permit',
+        'account_status',
+        'bpl_file_name',
+        'remarks',
     ];
 
 

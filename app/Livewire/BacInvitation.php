@@ -36,7 +36,7 @@ class BacInvitation extends Component
     {
         // load categories and suppliers (not paginated)
         $this->categories = SupplierCategory::all();
-        $this->suppliers = User::role('supplier')->with('supplierCategory')->get();
+        $this->suppliers = User::role('supplier')->where('account_status', 'verified')->with('supplierCategory')->get();
     }
 
     
@@ -121,6 +121,7 @@ class BacInvitation extends Component
             case 'category':
                 $suppliers = User::role('supplier')
                     ->where('supplier_category_id', $this->supplierCategoryId)
+                    ->where('account_status', 'verified')
                     ->pluck('id');
                 break;
             case 'specific':
@@ -141,6 +142,7 @@ class BacInvitation extends Component
     public function searchSuppliers()
     {
         $this->suppliers = User::role('supplier')
+            ->where('account_status', 'verified')
             ->with('supplierCategory')
             ->when($this->supplierSearch, function ($query) {
                 $query->where(function ($q) {

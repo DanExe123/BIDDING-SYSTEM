@@ -50,6 +50,7 @@ class UserSeeder extends Seeder
                     'username'       => $data['username'],
                     'password'       => bcrypt('password'),
                     'is_read'        => false, // 
+                    'account_status' => 'verified',
                 ]
             );
 
@@ -75,6 +76,7 @@ class UserSeeder extends Seeder
                         'password'              => bcrypt('password'),
                         'supplier_category_id'  => $category->id,
                         'is_read'               => false,
+                        'account_status' => 'verified',
                     ]
                 );
 
