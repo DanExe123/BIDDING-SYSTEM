@@ -4,11 +4,16 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\InvitationSupplier;
+use App\Models\AnnouncementsModal;
 
 class SupplierNotificationBell extends Component
 {
-    public $notifications = [];
+    public $notifications;
     public $unreadCount = 0;
+
+    // Modal
+    public $showAnnouncementModal = false;
+    public $selectedAnnouncement = null;
 
     public function mount()
     {
@@ -19,33 +24,36 @@ class SupplierNotificationBell extends Component
     {
         $supplierId = auth()->id();
 
-        // ✅ Fetch recent invitation + proposal records
-        $records = InvitationSupplier::with('invitation.ppmp')
+        // 🔹 Supplier invitations
+        $invitations = InvitationSupplier::with('invitation.ppmp')
             ->where('supplier_id', $supplierId)
             ->latest()
             ->take(20)
             ->get();
 
-        // 🔄 Map unified notifications
-        $this->notifications = $records->map(function ($item) {
-            $isAccepted = $item->response === 'accepted';
-            $title = $item->invitation?->ppmp?->project_title ?? 'Untitled Project';
+        $invitations->each(function($item){
+            $item->type = $item->response === 'accepted' ? 'accepted' : 'invitation';
+        });
 
-            return [
-                'id' => $item->id,
-                'type' => $isAccepted ? 'accepted' : 'invitation',
-                'title' => $title,
-                'reference_no' => $item->invitation?->reference_no ?? null,
-                'status' => ucfirst($item->response ?? 'Pending'),
-                'created_at' => $item->created_at->diffForHumans(),
-                'is_read' => (bool) $item->is_read,
-            ];
-        })->toArray();
+        // 🔹 Announcements
+        $announcements = AnnouncementsModal::latest()
+            ->take(20)
+            ->get()
+            ->map(function ($a) {
+                $a->type = 'announcement';
+                return $a;
+            });
 
-        // 🔔 Count unread
-        $this->unreadCount = $records->where('is_read', false)->count();
+        // 🔹 Merge all
+        $all = $invitations->merge($announcements)->sortByDesc('created_at');
+
+        $this->notifications = $all;
+
+        // 🔹 Count unread
+        $this->unreadCount = $all->where('is_read', false)->count();
     }
 
+    // Mark all as read
     public function markAsRead()
     {
         $supplierId = auth()->id();
@@ -54,8 +62,35 @@ class SupplierNotificationBell extends Component
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        $this->unreadCount = 0;
+        AnnouncementsModal::where('is_read', false)->update(['is_read' => true]);
+
         $this->loadNotifications();
+    }
+
+    // Mark single notification as read
+    public function markSingleAsRead($type, $id)
+    {
+        if ($type === 'announcement') {
+            AnnouncementsModal::where('id', $id)->update(['is_read' => true]);
+            $this->showAnnouncement($id);
+        } else {
+            InvitationSupplier::where('id', $id)->update(['is_read' => true]);
+        }
+
+        $this->loadNotifications();
+    }
+
+    // Show announcement modal
+    public function showAnnouncement($id)
+    {
+        $this->selectedAnnouncement = AnnouncementsModal::find($id);
+        $this->showAnnouncementModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showAnnouncementModal = false;
+        $this->selectedAnnouncement = null;
     }
 
     public function render()

@@ -34,20 +34,39 @@
         <ul class="max-h-80 overflow-y-auto divide-y">
             @forelse($notifications as $notif)
                 @php
-                    $isRead = $notif['is_read'] ?? false; // safe default
+                    $isRead = $notif['is_read'] ?? false;
                 @endphp
 
-                <li class="px-4 py-3 hover:bg-gray-100 flex items-center gap-3 rounded-md transition">
+                <li 
+                    class="px-4 py-3 flex items-start gap-3 rounded-md transition 
+                    {{ !$isRead ? 'bg-gray-100 shadow-sm border-l-4 border-blue-500' : '' }}"
+                    @if($notif['type'] === 'announcement')
+                        @click="$wire.markSingleAsRead('announcement', {{ $notif['id'] }})"
+                    @endif
+                >
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        <x-dynamic-component 
-                            :component="'phosphor.icons::regular.' . $notif['icon']" 
-                            class="w-5 h-5 {{ $notif['color'] }}" 
-                        />
+                        @if($notif['type'] === 'announcement')
+                            <x-phosphor.icons::regular.megaphone class="w-5 h-5 text-red-500" />
+                        @else
+                            <x-dynamic-component 
+                                :component="'phosphor.icons::regular.' . $notif['icon']" 
+                                class="w-5 h-5 {{ $notif['color'] }}" 
+                            />
+                        @endif
                     </div>
 
-                    <p class="text-sm text-gray-700 leading-snug">
-                        New {{ $notif['role'] }}: <strong>{{ $notif['name'] }}</strong>
-                    </p>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-700 flex items-center justify-between">
+                            @if($notif['type'] === 'announcement')
+                                You have successfully posted an announcement.
+                            @else
+                                New {{ $notif['role'] }}: <strong>{{ $notif['name'] }}</strong>
+                            @endif
+                            @if(!$isRead)
+                                <span class="ml-2 inline-block bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded">NEW</span>
+                            @endif
+                        </p>
+                    </div>
                 </li>
             @empty
                 <li class="px-4 py-3 text-center text-sm text-gray-500">

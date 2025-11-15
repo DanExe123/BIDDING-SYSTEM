@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Livewire\Loginform;
+use App\Livewire\AnnouncementPage;
 
 /// super admin //
 use App\Livewire\SuperadminDashboard;
@@ -50,12 +51,17 @@ Route::get('/user-help', function () {
 })->name('user-help');
 
 
+
 Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin', SuperadminDashboard::class)->name('superadmin-dashboard'); 
     Route::get('/superadmin-audittrails', SuperadminAudittrails::class)->name('superadmin-audittrails'); 
     Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)->name('superadmin-user-management'); 
     Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
     Route::get('/superadmin-EditAccount/{user}', SuperadminEditAccount::class)->name('superadmin-edit-account');
+    Route::get('/announcements', AnnouncementPage::class)->name('announcement-page');
+    
+    
+    
 });
   
 Route::middleware(['auth', 'role:Supplier'])->group(function () {

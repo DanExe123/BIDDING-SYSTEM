@@ -4,11 +4,17 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Ppmp;
+use App\Models\AnnouncementsModal;
 
 class PurchaserNotificationBell extends Component
 {
     public $ppmpNotifications = [];
     public $ppmpUnreadCount = 0;
+    public $notifications = [];
+
+    // Modal
+    public $showAnnouncementModal = false;
+    public $selectedAnnouncement = null;
 
     public function mount()
     {
@@ -17,33 +23,67 @@ class PurchaserNotificationBell extends Component
 
     public function loadCounts()
     {
-        // Get recent PPMPs (all) for display
-        $ppmps = Ppmp::with('requester')
+        /* PPMP Notifications */
+        $ppmp = Ppmp::with('requester')
             ->latest()
-            ->take(10) // optionally limit to recent 10
-            ->get();
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'type' => 'ppmp',
+                    'title' => $p->project_title,
+                    'message' => 'Requested by ' . ($p->requester ? $p->requester->first_name . ' ' . $p->requester->last_name : 'Unknown'),
+                    'date' => $p->created_at,
+                    'is_read' => (bool) $p->is_read,
+                ];
+            });
 
-        // Map for dropdown
-        $this->ppmpNotifications = $ppmps->map(fn($p) => [
-            'title' => $p->project_title,
-            'requested_by' => $p->requester ? $p->requester->first_name . ' ' . $p->requester->last_name : 'Unknown',
-            'is_read' => (bool) $p->is_read,
-        ])->toArray();
+        /* Announcement Notifications */
+        $announcements = AnnouncementsModal::latest()
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'type' => 'announcement',
+                    'title' => $a->title,
+                    'message' => $a->description,
+                    'date' => $a->created_at,
+                    'is_read' => (bool) $a->is_read,
+                ];
+            });
 
-        // Count unread for badge
-        $this->ppmpUnreadCount = $ppmps->where('is_read', false)->count();
+        /* Merge & Sort */
+        $all = $ppmp->merge($announcements)->sortByDesc('date')->values();
+
+        $this->notifications = $all->take(20);
+        $this->ppmpNotifications = $ppmp->take(20)->toArray();
+        $this->ppmpUnreadCount = $ppmp->where('is_read', false)->count() + $announcements->where('is_read', false)->count();
     }
 
-    public function markAsRead()
+    // Mark single notification as read
+    public function markSingleAsRead($type, $id)
     {
-        // Mark all as read
-        Ppmp::where('is_read', false)->update(['is_read' => true]);
+        if ($type === 'ppmp') {
+            Ppmp::where('id', $id)->update(['is_read' => true]);
+        } else {
+            AnnouncementsModal::where('id', $id)->update(['is_read' => true]);
+            $this->showAnnouncement($id); // open modal for announcement
+        }
 
-        // Update unread count
-        $this->ppmpUnreadCount = 0;
-
-        // Reload notifications (keep them visible)
         $this->loadCounts();
+    }
+
+    // Load selected announcement for modal
+    public function showAnnouncement($id)
+    {
+        $this->selectedAnnouncement = AnnouncementsModal::find($id);
+        $this->showAnnouncementModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showAnnouncementModal = false;
+        $this->selectedAnnouncement = null;
     }
 
     public function render()

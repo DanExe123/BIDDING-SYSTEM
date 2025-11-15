@@ -1,4 +1,4 @@
-<div class="flex min-h-screen">
+<div class="flex min-h-screen" x-cloak>
     <!-- Sidebar -->
     @include('partials.user-sidebar')
   

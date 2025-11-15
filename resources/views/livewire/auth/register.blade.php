@@ -72,7 +72,32 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
  ?>
 
+
 <!-- Register Card -->
+<div class="fixed inset-0 flex items-center justify-center w-screen h-screen overflow-hidden"
+    x-data="{
+        current: 0,
+        images: [
+            '/icon/bago123.jpg',
+            '/icon/Public_Plaza_in_Bago_City.jpg'
+        ]
+    }"
+    x-init="setInterval(() => { current = (current + 1) % images.length }, 3000)"
+>
+
+    <!-- Background Images -->
+    <template x-for="(image, index) in images" :key="index">
+        <div x-show="current === index" x-transition:enter="transition-opacity ease-in-out duration-1000"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-in-out duration-1000" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" class="absolute inset-0 w-full h-full bg-cover bg-center"
+            :style="`background-image: url('${image}'); background-size: cover; background-position: center;`">
+        </div>
+    </template>
+
+    <!-- Dark Overlay -->
+    <div class="absolute inset-0 bg-black/40"></div>
+    
     <div class="relative z-10 bg-white shadow-lg p-8 w-full max-w-md rounded-2xl border border-gray-300 mx-4">
     <div class="flex flex-col space-y-6">
 
@@ -206,4 +231,5 @@ new #[Layout('components.layouts.auth')] class extends Component {
             </flux:link>
         </p>
     </div>
+</div>
 </div>
