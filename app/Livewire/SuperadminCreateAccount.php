@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Hash;
 class SuperadminCreateAccount extends Component
 {
     public $first_name;
-    public $last_name;
-    public $middle_initial;
     public $username;
     public $email;
     public $password;
@@ -25,8 +23,6 @@ class SuperadminCreateAccount extends Component
     {
         $this->validate([
             'first_name'       => 'required|string|max:255',
-            'last_name'        => 'required|string|max:255',
-            'username'         => 'required|string|max:255|unique:users,username',
             'email'            => 'required|email|unique:users,email',
             'password'         => 'required|string|min:6',
             'confirm_password' => 'required|same:password',
@@ -43,9 +39,6 @@ class SuperadminCreateAccount extends Component
 
         $user = User::create([
             'first_name'     => $this->first_name,
-            'last_name'      => $this->last_name,
-            'middle_initial' => $this->middle_initial,
-            'username'       => $this->username,
             'email'          => $this->email,
             'password'       => Hash::make($this->password),
             'supplier_category_id' => $isSupplier ? $this->supplier_category_id : null,
@@ -57,8 +50,8 @@ class SuperadminCreateAccount extends Component
 
         // Reset form fields
         $this->reset([
-            'first_name', 'last_name', 'middle_initial',
-            'username', 'email', 'password', 'confirm_password', 'account_type', 'supplier_category_id'
+            'first_name',
+            'email', 'password', 'confirm_password', 'account_type', 'supplier_category_id'
         ]);
 
         // Redirect to user management page

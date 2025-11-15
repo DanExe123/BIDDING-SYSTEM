@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('source_of_funds')->nullable();
             $table->date('pre_date')->nullable();
             $table->date('submission_deadline')->nullable();
-            $table->string('documents')->nullable();
-            $table->string('document_name')->nullable(); 
+            $table->longText('documents')->nullable();      // store JSON array of file paths
+            $table->longText('document_names')->nullable();
             $table->string('invite_scope'); // all | category | specific
             $table->unsignedBigInteger('supplier_category_id')->nullable();
             //  $table->enum('procurement_type', ['bidding', 'quotation']); // new: type of procurement

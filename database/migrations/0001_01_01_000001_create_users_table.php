@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->string('middle_initial')->nullable();
-            $table->string('username')->unique();
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('business_permit')->nullable();
-            $table->enum('account_status', ['pending', 'verified', 'rejected'])->default('pending');
+            $table->enum('account_status', ['pending', 'verified', 'archive', 'deactivate', 'rejected'])->default('pending');
             $table->string('bpl_file_name')->nullable();
             $table->text('remarks')->nullable();
+            $table->string('contact_no', 11)->unique()->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

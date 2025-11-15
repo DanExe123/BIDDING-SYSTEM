@@ -15,11 +15,18 @@ class Invitation extends Model
         'pre_date',
         'submission_deadline',
         'documents',
-        'document_name',
+        'document_names',
         'invite_scope',
         'supplier_category_id',
         'status',
         'created_by',
+    ];
+
+    protected $casts = [
+        'documents'      => 'array',
+        'document_names' => 'array',
+        'pre_date'       => 'date',
+        'submission_deadline' => 'date',
     ];
 
     public function ppmp()

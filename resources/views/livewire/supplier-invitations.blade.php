@@ -50,7 +50,7 @@
                 <div x-data="{ showModal: false }" x-on:close-invitation-modal.window="showModal = false"  class="relative" >
                     <!-- Table -->
                     <div class="border border-gray-300 m-4 rounded-md overflow-hidden bg-white">
-                        <table wire:poll.500ms class="min-w-full text-sm border-collapse">
+                        <table wire:poll class="min-w-full text-sm border-collapse">
                             <thead class="bg-blue-200 border-b border-gray-300">
                                 <tr>
                                     <th class="px-4 py-2 w-1/4 text-left font-semibold">Reference No</th>
@@ -162,6 +162,49 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Attachments Section -->
+                            @if($selectedInvitation && $selectedInvitation->documents && count(json_decode($selectedInvitation->documents, true)) > 0)
+                                @php
+                                    $docs = json_decode($selectedInvitation->documents, true);
+                                    $names = json_decode($selectedInvitation->document_names, true);
+                                @endphp
+
+                                <div class="px-6 py-4 border-t border-gray-300">
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Attachments</p>
+
+                                    @foreach($docs as $index => $file)
+                                        <div class="flex items-center justify-between bg-white border rounded-md px-4 py-2 hover:shadow-sm mb-2">
+                                            <div class="flex items-center space-x-2">
+                                                <!-- File Icon -->
+                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
+                                                        3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
+                                                </svg>
+
+                                                <!-- Original File Name -->
+                                                <a href="{{ Storage::url($file) }}" target="_blank" 
+                                                    class="text-blue-600 font-medium truncate max-w-[200px] hover:underline">
+                                                    {{ $names[$index] ?? 'Attachment ' . ($index + 1) }}
+                                                </a>
+                                            </div>
+
+                                            <!-- Download Link -->
+                                            <a href="{{ Storage::url($file) }}" target="_blank"
+                                            download="{{ $names[$index] ?? 'file' }}"
+                                            class="text-sm text-blue-500 hover:underline">
+                                                Download
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="px-6 py-4 border-t border-gray-300">
+                                    <p class="text-gray-400 italic">No attachments uploaded</p>
+                                </div>
+                            @endif
 
                             <!-- PPMP Items -->
                             <div class="p-6 space-y-4">

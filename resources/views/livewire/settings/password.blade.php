@@ -44,7 +44,7 @@ new class extends Component {
         <div class="flex-1 flex flex-col bg-white min-h-screen">
             <!-- Topbar -->
             <header class="bg-white h-16 flex items-center justify-between px-6 shadow">
-                <h1 class="text-xl font-semibold">Dashboard</h1>
+                <h1 class="text-xl font-semibold">Settings</h1>
                 <!-- Right Section -->
                 <div class="flex items-center gap-4"> 
             </header>
@@ -78,7 +78,7 @@ new class extends Component {
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Save') }}</flux:button>
+                    <flux:button type="submit" class="w-full">{{ __('Save') }}</flux:button>
                 </div>
 
                 <x-action-message class="me-3" on="password-updated">

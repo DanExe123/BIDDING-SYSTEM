@@ -9,7 +9,7 @@
             <div class="flex items-center gap-2 px-4 py-2">
                 <a href="{{ route('superadmin-user-management') }}" class="text-xl font-semibold hover:underline">
                     User Management
-                </a>
+                 </a>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-5 h-5 text-gray-600">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
@@ -30,12 +30,10 @@
 
                 <!-- Row 1: Names (3 columns) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <x-input label="First Name" placeholder="First Name" wire:model="first_name"
+                    <x-input label="Name" placeholder="Name" wire:model="first_name"
                         class="!border !border-gray-400 rounded-lg" />
-                    <x-input label="Last Name" placeholder="Last Name" wire:model="last_name"
-                        class="!border !border-gray-400 rounded-lg" />
-                    <x-input label="Middle Initial" placeholder="M" wire:model="middle_initial"
-                        class="!border !border-gray-400 rounded-lg" />
+                    <x-input label="Email" placeholder="Enter Email" wire:model="email"
+                            class="!border !border-gray-400 rounded-lg" />
                 </div>
 
                 <!-- Row 2: Account Type (2 columns) -->
@@ -85,39 +83,6 @@
                         @enderror
                     </div>
                 </div>
-
-                <!-- Row 3 & 4: Other Fields (2 columns each) -->
-                <div x-data="{
-                        firstName: @entangle('first_name'),
-                        lastName: @entangle('last_name'),
-                        get username() {
-                            if (this.firstName && this.lastName) {
-                                return (this.firstName + '.' + this.lastName).toLowerCase().replace(/\s+/g, '');
-                            }
-                            return '';
-                        }
-                    }" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    
-                    <!-- Username (auto-generated, readonly) -->
-                    <div>
-                        <x-input 
-                            label="Username" 
-                            x-bind:value="username" 
-                            x-effect="$wire.username = username" 
-                            readonly
-                            class="!border !border-gray-400 rounded-lg bg-gray-100 font-semibold" 
-                        />
-
-                    </div>
-
-                    <!-- Email (manual input now) -->
-                    <div>
-                        <x-input label="Email" placeholder="Enter Email" wire:model="email"
-                            class="!border !border-gray-400 rounded-lg" />
-                    </div>
-                </div>
-
-
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <x-input label="Password" placeholder="Password" wire:model="password" type="password"

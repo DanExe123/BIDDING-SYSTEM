@@ -19,6 +19,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
     public string $password_confirmation = '';
     public ?int $supplier_category_id = null;
+    public string $contact_no = '';
 
     public $categories = [];
     public $business_permit; // 👈 file upload property
@@ -32,11 +33,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
     {
         $validated = $this->validate([
             'first_name' => ['required', 'string', 'max:255'],
-            'last_name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'supplier_category_id' => ['required', 'exists:supplier_categories,id'],
             'business_permit' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'contact_no' => ['required', 'digits:11', 'unique:users,contact_no'], 
         ]);
 
         // Hash password
@@ -49,7 +50,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $validated['bpl_file_name'] = $this->business_permit->getClientOriginalName(); // 👈 save original filename
 
         // Default account status
-        $validated['account_status'] = 'pending';
+        $validated['account_status']    = 'pending';
 
         // Create the user
         $user = User::create($validated);
@@ -67,7 +68,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         } 
     }
 };
-
 
 
  ?>
@@ -110,27 +110,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <!-- Register Form -->
         <form wire:submit="register" class="flex flex-col space-y-5">
-            
-            <!-- Two Columns: First & Last Name -->
-            <div class="grid grid-cols-2 gap-4">
-                <flux:input
-                    wire:model="first_name"
-                    :label="__('First Name')"
-                    type="text"
-                    required
-                    autofocus
-                    autocomplete="given-name"
-                    :placeholder="__('First name')"
-                />
-                <flux:input
-                    wire:model="last_name"
-                    :label="__('Last Name')"
-                    type="text"
-                    required
-                    autocomplete="family-name"
-                    :placeholder="__('Last name')"
-                />
-            </div>
+            <flux:input
+                wire:model="first_name"
+                :label="__('Company Name')"
+                type="text"
+                required
+                autofocus
+                autocomplete="given-name"
+                :placeholder="__('Company name')"
+            />
 
             <!-- Email -->
             <flux:input
@@ -140,6 +128,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 required
                 autocomplete="email"
                 placeholder="email@example.com"
+            />
+
+            <flux:input
+                wire:model="contact_no"
+                :label="__('Contact Number')"
+                type="number"  
+                required
+                :placeholder="__('e.g. 09171234567')"
             />
 
             <!-- Supplier Category -->

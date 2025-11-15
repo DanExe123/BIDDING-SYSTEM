@@ -172,14 +172,37 @@
                                         </div>
 
                                         {{-- Attachments --}}
-                                        <div class="border-dashed border-gray-300 border-2 p-2 rounded-md mt-6">
-                                            <label class="block font-medium mb-1">Attachments</label>
-                                            <input type="file" wire:model="attachment"
-                                                class="w-full border rounded px-3 py-2" />
-                                            @error('attachment')
-                                                <span class="text-red-500">{{ $message }}</span>
+                                        <div class="border-dashed border-gray-300 border-2 p-4 rounded-md mt-6">
+                                            <label class="block font-medium mb-2">Attachments</label>
+
+                                            <!-- File Input -->
+                                            <input type="file" wire:model="attachments" multiple
+                                                class="w-full border rounded px-3 py-2 mb-3" />
+
+                                            <!-- Validation Errors -->
+                                            @error('attachments.*')
+                                                <span class="text-red-500 text-sm">{{ $message }}</span>
                                             @enderror
+
+                                            <!-- Selected Files List -->
+                                            @if($attachments && count($attachments) > 0)
+                                                <ul class="mt-2 space-y-1 text-sm text-gray-700 w-1/2 mx-auto">
+                                                    @foreach($attachments as $index => $file)
+                                                        <li class="flex items-center justify-between bg-gray-100 px-2 py-1 rounded">
+                                                            <span class="truncate">{{ $file->getClientOriginalName() }}</span>
+                                                            <button type="button"
+                                                                wire:click="removeAttachment({{ $index }})"
+                                                                class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded">
+                                                                &times;
+                                                            </button>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+
                                         </div>
+
+
                                     </div>
 
                                     {{-- Submit --}}
@@ -196,8 +219,6 @@
                     </form>
                 </div>
 
-
-                <!-- List View -->
                 <!-- LIST VIEW -->
                 <div x-show="view === 'list'" class="mt-6" x-data="{ openModal: false, selectedPr: null }">
                     <div class="bg-white border border-gray-300 rounded-md shadow p-6">
@@ -340,28 +361,37 @@
 
                                 <!-- Attachment -->
                                 <div>
-                                    <p class="text-sm font-medium text-gray-600 mb-2">Attachment</p>
-                                    <template x-if="selectedPr.attachment">
-                                        <div class="flex items-center justify-between bg-white border rounded-md px-4 py-2 hover:shadow-sm">
-                                            <div class="flex items-center space-x-2">
-                                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
-                                                        3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
-                                                </svg>
-                                                <span class="text-blue-600 font-medium" x-text="selectedPr.attachment_name"></span>
-                                            </div>
-                                            <a :href="'/ppmp/download/' + selectedPr.id"
-                                            class="text-sm text-blue-500 hover:underline">
-                                            Download
-                                            </a>
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Attachments</p>
+
+                                    <template x-if="selectedPr.attachments && selectedPr.attachments.length > 0">
+                                        <div class="space-y-2">
+                                            <template x-for="(file, index) in selectedPr.attachments" :key="index">
+                                                <div class="flex items-center justify-between bg-white border rounded-md px-4 py-2 hover:shadow-sm">
+                                                    <div class="flex items-center space-x-2">
+                                                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
+                                                                3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
+                                                        </svg>
+                                                        <a :href="`/storage/${file}`" target="_blank"
+                                                            class="text-blue-600 font-medium truncate max-w-[200px] hover:underline"
+                                                            x-text="selectedPr.attachment_names[index]"></a>
+                                                    </div>
+                                                    <a :href="`/storage/${file}`" target="_blank"
+                                                        class="text-sm text-blue-500 hover:underline">
+                                                        Download
+                                                    </a>
+                                                </div>
+                                            </template>
                                         </div>
                                     </template>
-                                    <template x-if="!selectedPr.attachment">
-                                        <p class="text-gray-400 italic">No attachment uploaded</p>
+
+                                    <template x-if="!selectedPr.attachments || selectedPr.attachments.length === 0">
+                                        <p class="text-gray-400 italic">No attachments uploaded</p>
                                     </template>
                                 </div>
+
 
                                 <!-- Remarks -->
                                 <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg">

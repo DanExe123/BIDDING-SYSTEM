@@ -31,9 +31,8 @@
 
             <!-- Row 1: Names -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <x-input label="First Name" placeholder="First Name" wire:model="first_name" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Last Name" placeholder="Last Name" wire:model="last_name" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Middle Initial" placeholder="M" wire:model="middle_initial" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Name" placeholder="Name" wire:model="first_name" class="!border !border-gray-400 rounded-lg" />
+                <x-input label="Email" wire:model="email" class="!border !border-gray-400 rounded-lg" />
             </div>
 
             <!-- Row 2: Account Type & Supplier Category -->
@@ -71,12 +70,6 @@
                     @error('supplier_category_id') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
                 </div>
 
-            </div>
-
-            <!-- Row 3: Username, Email, Role -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <x-input label="Username" wire:model="username" class="!border !border-gray-400 rounded-lg" />
-                <x-input label="Email" wire:model="email" class="!border !border-gray-400 rounded-lg" />
             </div>
 
             <!-- Row 4: Passwords -->

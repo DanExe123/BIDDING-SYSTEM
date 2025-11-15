@@ -60,7 +60,46 @@
                                 </p>
                             </div>
                         </div>
+                       
+                        <div class="px-6 py-4">
+                            <p class="text-sm font-medium text-gray-600 mb-2">Attachments</p>
 
+                            @if($invitation && $invitation->documents && count(json_decode($invitation->documents, true)) > 0)
+                                @php
+                                    $docs = json_decode($invitation->documents, true);
+                                    $names = json_decode($invitation->document_names, true);
+                                @endphp
+
+                                @foreach($docs as $index => $file)
+                                    <div class="flex items-center justify-between bg-white border rounded-md px-4 py-2 hover:shadow-sm mb-2">
+                                        <div class="flex items-center space-x-2">
+                                            <!-- File Icon -->
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
+                                                    3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
+                                            </svg>
+
+                                            <!-- File Name -->
+                                            <a href="{{ Storage::url($file) }}" target="_blank" 
+                                                class="text-blue-600 font-medium truncate max-w-[200px] hover:underline">
+                                                {{ $names[$index] ?? 'Attachment ' . ($index + 1) }}
+                                            </a>
+                                        </div>
+
+                                        <!-- Download Link -->
+                                        <a href="{{ Storage::url($file) }}" target="_blank"
+                                        download="{{ $names[$index] ?? 'file' }}"
+                                        class="text-sm text-blue-500 hover:underline">
+                                            Download
+                                        </a>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-gray-400 italic">No attachments uploaded</p>
+                            @endif
+                        </div>
 
                         <h3 class="font-semibold mb-2">Invited Suppliers</h3>
                         <table class="w-full border text-sm">

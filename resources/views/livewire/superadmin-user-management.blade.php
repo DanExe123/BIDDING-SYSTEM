@@ -108,33 +108,73 @@
                                     <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs
                                         @if($user->account_status === 'verified') bg-green-100 text-green-800
                                         @elseif($user->account_status === 'rejected') bg-red-100 text-red-800
+                                        @elseif($user->account_status === 'archive') bg-gray-200 text-gray-800
+                                        @elseif($user->account_status === 'deactivate') bg-red-100 text-red-800
                                         @else bg-yellow-100 text-yellow-800 @endif">
+
                                         <div class="w-2.5 h-2.5 rounded-full
                                             @if($user->account_status === 'verified') bg-green-700
-                                            @elseif($user->account_status === 'rejected') bg-red-700
-                                            @else bg-yellow-600 @endif"></div>
+                                            @elseif($user->account_status === 'archived') bg-gray-600
+                                            @elseif($user->account_status === 'deactivate') bg-red-600
+                                            @else bg-yellow-600 @endif">
+                                        </div>
+
                                         {{ ucfirst($user->account_status ?? 'Pending') }}
                                     </span>
                                 </td>
 
-                                <td class="px-4 py-2 border space-x-1">
-                                    <button class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Activate</button>
-                                    <button class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Deactivate</button>
-                                    <button class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Archive</button>
-                                    <a href="{{ route('superadmin-edit-account', ['user' => $user->id]) }}"
-                                        class="inline-block bg-blue-500 text-white px-2 py-1 rounded text-xs text-center">
-                                        Edit
-                                    </a>
-
-                                    {{-- ✅ Verify Supplier button (only for suppliers that are pending or rejected) --}}
-                                    @if($user->roles->first()->name === 'Supplier' && in_array($user->account_status, ['pending', 'rejected']))
-                                        <button 
-                                            wire:click="openVerificationModal({{ $user->id }})"
-                                            class="bg-green-700 text-white px-2 py-1 rounded text-xs hover:bg-green-800">
-                                            Verify Supplier
+                                <td class="px-4 py-2 border text-center relative">
+                                    <!-- Dropdown Trigger -->
+                                    <div x-data="{ open: false }" class="relative inline-block text-left">
+                                        <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100">
+                                            <!-- Vertical 3 Dots SVG -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M9 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm0 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                            </svg>
                                         </button>
-                                    @endif
+
+                                        <!-- Dropdown Menu -->
+                                        <div 
+                                            x-show="open" 
+                                            @click.away="open = false"
+                                            x-transition
+                                            class="absolute right-0 z-20 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg"
+                                        >
+                                            <div class="py-1 flex flex-col text-xs">
+                                               <button 
+                                                    wire:click="updateAccountStatus({{ $user->id }}, 'verified')" 
+                                                    class="text-left px-3 py-2 hover:bg-blue-50 text-blue-700
+                                                        @if($user->account_status !== 'deactivate') opacity-50 cursor-not-allowed @endif">
+                                                    Activate
+                                                </button>
+                                                <button 
+                                                    wire:click="updateAccountStatus({{ $user->id }}, 'deactivate')" 
+                                                    class="text-left px-3 py-2 hover:bg-red-50 text-red-700
+                                                        @if($user->account_status !== 'verified') opacity-50 cursor-not-allowed @endif">
+                                                    Deactivate
+                                                </button>
+                                                <button 
+                                                    wire:click="updateAccountStatus({{ $user->id }}, 'archive')" 
+                                                    class="text-left px-3 py-2 hover:bg-yellow-50 text-yellow-800">
+                                                    Archive
+                                                </button>
+                                                <a href="{{ route('superadmin-edit-account', ['user' => $user->id]) }}" 
+                                                    class="block px-3 py-2 hover:bg-blue-500 hover:text-white text-blue-600">
+                                                    Edit
+                                                </a>
+
+                                                @if($user->roles->first()->name === 'Supplier' && in_array($user->account_status, ['pending', 'rejected']))
+                                                    <button 
+                                                        wire:click="openVerificationModal({{ $user->id }})"
+                                                        class="text-left px-3 py-2 hover:bg-green-600 hover:text-white text-green-700">
+                                                        Verify Supplier
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
+
                             </tr>
                         @endforeach
                     </tbody>
@@ -181,9 +221,11 @@
                                         <div class="flex items-center justify-between bg-gray-50 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 transition">
                                             <div class="flex items-center gap-3">
                                                 <span class="text-xl">📄</span>
-                                                <span class="text-sm text-gray-800 font-medium truncate max-w-[200px]">
-                                                    {{ $selectedSupplier->bpl_file_name }}
-                                                </span>
+                                                <a href="{{ Storage::url($selectedSupplier->business_permit) }}"
+                                                    target="_blank"
+                                                    class="text-sm text-gray-800 font-medium truncate max-w-[200px] underline hover:text-blue-600">
+                                                        {{ $selectedSupplier->bpl_file_name }}
+                                                </a>
                                             </div>
 
                                             <a href="{{ Storage::url($selectedSupplier->business_permit) }}"

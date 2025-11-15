@@ -21,9 +21,6 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'first_name',
-        'last_name',
-        'middle_initial',
-        'username',
         'email',
         'password',
         'supplier_category_id',
@@ -31,6 +28,7 @@ class User extends Authenticatable
         'account_status',
         'bpl_file_name',
         'remarks',
+        'contact_no',
     ];
 
 

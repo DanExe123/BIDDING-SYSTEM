@@ -12,8 +12,8 @@ class SuperadminEditAccount extends Component
 {
     public User $user;
 
-    public $first_name, $last_name, $middle_initial, $email, $username;
-    public $account_type, $password, $confirm_password, $supplier_category_id;
+    public $first_name, $email,
+           $account_type, $password, $confirm_password, $supplier_category_id;
     public $categories;
 
     public function mount(User $user)
@@ -22,10 +22,7 @@ class SuperadminEditAccount extends Component
 
         // Load user data into form fields
         $this->first_name = $user->first_name;
-        $this->last_name = $user->last_name;
-        $this->middle_initial = $user->middle_initial;
         $this->email = $user->email;
-        $this->username = $user->username;
         $this->account_type = $user->roles->pluck('name')->first();
         $this->supplier_category_id = $user->supplier_category_id;
 
@@ -43,8 +40,6 @@ class SuperadminEditAccount extends Component
         // Validate fields
         $this->validate([
             'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $this->user->id,
             'email' => 'required|email|unique:users,email,' . $this->user->id,
             'account_type' => 'required|string',
             'supplier_category_id' => $this->account_type === 'Supplier' 
@@ -55,10 +50,7 @@ class SuperadminEditAccount extends Component
         // Update user details
         $this->user->update([
             'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'middle_initial' => $this->middle_initial,
             'email' => $this->email,
-            'username' => $this->username,
             'supplier_category_id' => $this->account_type === 'Supplier' ? $this->supplier_category_id : null,
         ]);
 

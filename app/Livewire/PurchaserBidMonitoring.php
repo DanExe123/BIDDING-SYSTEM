@@ -12,10 +12,12 @@ class PurchaserBidMonitoring extends Component
 
     public function mount()
     {
-        $this->ppmps = Ppmp::where('requested_by', Auth::id()) // Fetch only their own PPMPs
+        $this->ppmps = Ppmp::with('items') // load the related items
+            ->where('requested_by', Auth::id())
             ->latest()
             ->get();
     }
+
     public function render()
     {
         return view('livewire.purchaser-bid-monitoring');

@@ -17,7 +17,8 @@ class PurchaserProcurementPlanning extends Component
     public $abc;
     public $implementing_unit;
     public $description;
-    public $attachment;
+    public $attachments = []; // array for multiple files
+
     public $items = [];
 
     public function mount()
@@ -62,6 +63,16 @@ class PurchaserProcurementPlanning extends Component
         $this->abc = $this->totalBudget;
     }
 
+    public function removeAttachment($index)
+    {
+        // Remove the selected file
+        unset($this->attachments[$index]);
+
+        // Re-index the array so Livewire updates properly
+        $this->attachments = array_values($this->attachments);
+    }
+
+
     public function save()
     {
         $this->validate([
@@ -75,32 +86,32 @@ class PurchaserProcurementPlanning extends Component
             'items.*.qty' => 'required|integer|min:1',
             'items.*.unit' => 'required|string|max:50',
             'items.*.unitCost' => 'required|numeric|min:0',
-            'attachment' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'attachments' => 'required|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
         ]);
 
-        // 🚨 Prevent over-budget
+        //prevent over budget
         if ($this->totalBudget > 150000) {
             $this->addError('abc', 'Approved Budget must not exceed ₱150,000.');
-            return; // stop saving
+            return;
         }
 
-        // Handle attachment upload
-        $storedPath = $this->attachment
-            ? $this->attachment->store('attachments', 'public')
-            : null;
+        $storedPaths = [];
+        $originalNames = [];
 
-        $originalName = $this->attachment
-            ? $this->attachment->getClientOriginalName()
-            : null;
+        foreach ($this->attachments as $file) {
+            $storedPaths[] = $file->store('attachments', 'public');
+            $originalNames[] = $file->getClientOriginalName();
+        }
 
         $ppmp = Ppmp::create([
             'project_title' => $this->project_title,
             'project_type' => $this->project_type,
-            'abc' => $this->abc, // already synced with totalBudget
+            'abc' => $this->abc,
             'implementing_unit' => $this->implementing_unit,
             'description' => $this->description,
-            'attachment' => $storedPath,
-            'attachment_name' => $originalName,
+            'attachments' => $storedPaths,
+            'attachment_names' => $originalNames,
             'status' => 'pending',
             'requested_by' => Auth::id(),
         ]);
@@ -116,9 +127,9 @@ class PurchaserProcurementPlanning extends Component
         }
 
         session()->flash('message', 'PPMP created successfully.');
-        $this->reset(); // Clear form
-    }
 
+        $this->reset(['project_title','project_type','abc','implementing_unit','description','attachments','items']);
+    }
     
    public function render()
     {

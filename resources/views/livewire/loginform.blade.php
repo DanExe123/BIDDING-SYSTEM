@@ -1,12 +1,21 @@
-<!-- Background Slideshow Wrapper -->
 <div x-data="{
-    current: 0,
-    images: [
-        '/icon/bago123.jpg',
-        '/icon/Public_Plaza_in_Bago_City.jpg'
-    ]
-}" x-init="setInterval(() => { current = (current + 1) % images.length }, 3000)"
+        current: 0,
+        images: [
+            '/icon/bago123.jpg',
+            '/icon/Public_Plaza_in_Bago_City.jpg'
+        ]
+    }"
+    x-init="setInterval(() => { current = (current + 1) % images.length }, 3000)"
     class="relative flex items-center justify-center h-screen w-screen overflow-hidden">
+
+    <!-- TOP-LEFT BACK BUTTON LAYER -->
+    <div class="absolute inset-0 pointer-events-none z-50">
+        <a href="{{ route('home') }}"
+           class="pointer-events-auto absolute top-4 left-4 flex items-center gap-1 text-white font-semibold underline drop-shadow-lg">
+            ← Back
+        </a>
+    </div>
+
 
     <!-- Background Images -->
     <template x-for="(image, index) in images" :key="index">
@@ -24,6 +33,7 @@
     <!-- Login Card -->
     <div class="relative z-10 bg-white shadow-lg p-8 w-full max-w-md rounded-2xl border border-gray-300 mx-4">
         <div class="flex flex-col gap-6">
+            
 
             <!-- Session Status -->
             <x-auth-session-status class="text-center" :status="session('status')" />

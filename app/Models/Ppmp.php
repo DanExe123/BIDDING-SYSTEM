@@ -6,17 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ppmp extends Model
 {
+    protected $casts = [
+        'attachments' => 'array',
+        'attachment_names' => 'array',
+    ];
+
     protected $fillable = [
         'project_title',
         'project_type',
         'abc',
         'implementing_unit',
         'description',
-        'attachment',
+        'attachments', 
+        'attachment_names',
         'status',
         'requested_by',
         'mode_of_procurement',
-        'attachment_name', 
     ];
 
     public function items()

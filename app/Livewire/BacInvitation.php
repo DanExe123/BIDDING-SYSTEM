@@ -19,7 +19,8 @@ class BacInvitation extends Component
 
     // form fields
     public $title, $referenceNo, $approvedBudget, $sourceOfFunds;
-    public $preDate, $submissionDeadline, $documents;
+    public $preDate, $submissionDeadline;
+    public $documents = [];
 
     // supplier invite scope
     public $inviteScope = null; // all | category | specific
@@ -31,6 +32,12 @@ class BacInvitation extends Component
     public $supplierSearch = '';
 
     protected $paginationTheme = 'tailwind'; 
+
+    public function removeDocument($index)
+    {
+        unset($this->documents[$index]);
+        $this->documents = array_values($this->documents); // reindex array
+    }
 
     public function mount()
     {
@@ -83,7 +90,7 @@ class BacInvitation extends Component
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
             'selectedSuppliers'   => 'required_if:inviteScope,specific|array',
             'selectedSuppliers.*' => 'exists:users,id',
-            'documents'           => 'nullable|file|max:2048',
+            'documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }
 
@@ -91,13 +98,14 @@ class BacInvitation extends Component
     {
         $this->validate();
 
-        $path = null;
-        $originalName = null;
+        $paths = [];
+        $names = []; // <-- this is your array
+
         if ($this->documents) {
-            // save file
-            $path = $this->documents->store('invitations', 'public');
-            // get original name
-            $originalName = $this->documents->getClientOriginalName();
+            foreach ($this->documents as $file) {
+                $paths[] = $file->store('invitations', 'public');       // save file path
+                $names[] = $file->getClientOriginalName();              // save original name
+            }
         }
 
         $invitation = Invitation::create([
@@ -108,8 +116,8 @@ class BacInvitation extends Component
             'source_of_funds'     => $this->sourceOfFunds,
             'pre_date'            => $this->preDate,
             'submission_deadline' => $this->submissionDeadline,
-            'documents'           => $path,
-            'document_name'       => $originalName,
+            'documents'           => json_encode($paths), // store paths array
+            'document_names'        => json_encode($names), // <-- use $names here
             'invite_scope'        => $this->inviteScope,
             'supplier_category_id'=> $this->supplierCategoryId,
             'created_by'          => Auth::id(),

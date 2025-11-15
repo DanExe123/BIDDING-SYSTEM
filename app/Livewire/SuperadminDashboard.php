@@ -10,8 +10,9 @@ class SuperadminDashboard extends Component
 {
     public $adminCount;
     public $purchaserCount;
-    public $supplierCount;
-    public $unreadCount = 0; 
+    public $verifiedSupplierCount;
+    public $pendingSupplierCount;
+    public $unreadCount; 
     public $notifications = [];
     public $announcements = []; 
 
@@ -31,63 +32,44 @@ class SuperadminDashboard extends Component
             $q->where('name', 'Purchaser')
         )->get();
 
-        $suppliers = User::whereHas('roles', fn($q) => 
+        //  Only verified suppliers
+        $verifiedSuppliers = User::whereHas('roles', fn($q) => 
             $q->where('name', 'Supplier')
-        )->get();
+        )->where('account_status', 'verified')->get();
+
+        //  Pending suppliers (not yet verified)
+        $pendingSuppliers = User::whereHas('roles', fn($q) => 
+            $q->where('name', 'Supplier')
+        )->where('account_status', '!=', 'verified')->get();
 
         $this->adminCount = $admins->count();
         $this->purchaserCount = $purchasers->count();
-        $this->supplierCount = $suppliers->count();
+        $this->verifiedSupplierCount = $verifiedSuppliers->count();
+        $this->pendingSupplierCount = $pendingSuppliers->count();
 
-        // 🔹 Build notification list (users)
-        $userNotifications = $admins->map(fn($u) => [
-            'id' => $u->id,
-            'name' => $u->first_name . ' ' . $u->last_name,
-            'role' => 'BAC Secretary',
-            'icon' => 'users',
-            'color' => 'text-blue-500',
-            'type' => 'user',
-            'is_read' => (bool) $u->is_read,
-        ])->merge(
-            $purchasers->map(fn($u) => [
-                'id' => $u->id,
-                'name' => $u->first_name . ' ' . $u->last_name,
+        // 🔹 Optional notifications
+        $this->notifications = collect()
+            ->merge($admins->map(fn($u) => [
+                'name' => "{$u->first_name} {$u->last_name}",
+                'role' => 'BAC Secretary',
+                'icon' => 'users',
+                'color' => 'text-blue-500'
+            ]))
+            ->merge($purchasers->map(fn($u) => [
+                'name' => "{$u->first_name} {$u->last_name}",
                 'role' => 'Purchaser',
                 'icon' => 'shopping-cart',
-                'color' => 'text-green-500',
-                'type' => 'user',
-                'is_read' => (bool) $u->is_read,
-            ])
-        )->merge(
-            $suppliers->map(fn($u) => [
-                'id' => $u->id,
-                'name' => $u->first_name . ' ' . $u->last_name,
-                'role' => 'Supplier',
+                'color' => 'text-green-500'
+            ]))
+            ->merge($verifiedSuppliers->map(fn($u) => [
+                'name' => "{$u->first_name} {$u->last_name}",
+                'role' => 'Verified Supplier',
                 'icon' => 'factory',
-                'color' => 'text-purple-500',
-                'type' => 'user',
-                'is_read' => (bool) $u->is_read,
-            ])
-        );
-
-        // 🔹 Announcement notifications
-        $announcementNotifications = AnnouncementsModal::orderBy('date', 'desc')->get()->map(fn($a) => [
-            'id' => $a->id,
-            'title' => $a->title,
-            'message' => $a->description,
-            'date' => $a->date,
-            'type' => 'announcement',
-            'is_read' => (bool) $a->is_read,
-        ]);
-
-        // 🔹 Merge users + announcements & sort by date descending
-        $this->notifications = $userNotifications->merge($announcementNotifications)
-            ->sortByDesc(fn($n) => $n['date'] ?? now())
-            ->values()
+                'color' => 'text-yellow-500'
+            ]))
             ->toArray();
 
-        // 🔹 Count unread for badge
-        $this->unreadCount = collect($this->notifications)->where('is_read', false)->count();
+        $this->unreadCount = User::where('is_read', false)->count();
     }
 
     public function markAsRead()

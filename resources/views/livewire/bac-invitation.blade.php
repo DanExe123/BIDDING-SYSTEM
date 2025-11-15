@@ -152,9 +152,9 @@
                         </div>
                     </div>
 
-                   <div>
+                    <div>
                         <label class="block font-medium mb-1">Documents</label>
-                        <input type="file" wire:model="documents" class="w-full border rounded px-3 py-2" />
+                        <input type="file" wire:model="documents" multiple class="w-full border rounded px-3 py-2" />
 
                         @error('documents')
                             <span class="text-red-600 text-sm">{{ $message }}</span>
@@ -163,8 +163,30 @@
                         <div wire:loading wire:target="documents" class="text-blue-600 text-sm mt-1">
                             Uploading...
                         </div>
-                    </div>
 
+                        <!-- File preview container -->
+                        <div class="mt-3 space-y-2">
+                            @if($documents)
+                                @foreach($documents as $index => $doc)
+                                    <div class="flex items-center justify-between bg-gray-100 border rounded px-4 py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828L18 9.828V15a3 3 0 01-3 3H6a3 
+                                                    3 0 01-3-3V6a3 3 0 013-3h9a3 3 0 013 3v.172z"/>
+                                            </svg>
+                                            <span class="text-gray-800 text-sm truncate max-w-[200px]">
+                                                {{ $doc->getClientOriginalName() }}
+                                            </span>
+                                        </div>
+                                        <button type="button" wire:click="removeDocument({{ $index }})"
+                                            class="text-red-600 font-bold hover:text-red-800">&times;</button>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
 
                     <div class="border-t pt-4">
                         <p class="font-medium mb-2">Notify Suppliers</p>

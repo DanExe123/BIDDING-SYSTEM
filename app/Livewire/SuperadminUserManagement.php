@@ -40,6 +40,21 @@ class SuperadminUserManagement extends Component
         $this->userToDelete = null;
     }
 
+    public function updateAccountStatus($userId, $status)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            session()->flash('message', 'User not found.');
+            return;
+        }
+
+        $user->account_status = $status;
+        $user->save();
+
+        session()->flash('message', "Account status updated to {$status}.");
+    }
+
     public function openVerificationModal($userId)
     {
         $this->selectedSupplier = User::with('roles')->findOrFail($userId);

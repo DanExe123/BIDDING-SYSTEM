@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
                 'first_name' => 'Super',
                 'last_name' => 'Admin',
                 'middle_initial' => null,
-                'username' => 'superadmin',
                 'email' => 'superadmin@example.com',
                 'role' => 'Super_Admin'
             ],
@@ -26,7 +25,6 @@ class UserSeeder extends Seeder
                 'first_name' => 'BAC',
                 'last_name' => 'Secretary',
                 'middle_initial' => null,
-                'username' => 'bacsec',
                 'email' => 'bacsec@example.com',
                 'role' => 'BAC_Secretary'
             ],
@@ -34,7 +32,6 @@ class UserSeeder extends Seeder
                 'first_name' => 'Purchaser',
                 'last_name' => 'User',
                 'middle_initial' => null,
-                'username' => 'purchaser',
                 'email' => 'purchaser@example.com',
                 'role' => 'Purchaser'
             ],
@@ -47,7 +44,6 @@ class UserSeeder extends Seeder
                     'first_name'     => $data['first_name'],
                     'last_name'      => $data['last_name'],
                     'middle_initial' => $data['middle_initial'],
-                    'username'       => $data['username'],
                     'password'       => bcrypt('password'),
                     'is_read'        => false, // 
                     'account_status' => 'verified',
@@ -72,10 +68,10 @@ class UserSeeder extends Seeder
                         'first_name'            => $supplierName,
                         'last_name'             => null,
                         'middle_initial'        => null,
-                        'username'              => strtolower(str_replace(' ', '_', $category->name)) . "_supplier{$i}",
                         'password'              => bcrypt('password'),
                         'supplier_category_id'  => $category->id,
                         'is_read'               => false,
+                        'contact_no'            => '0917' . str_pad($category->id * 10 + $i, 7, '0', STR_PAD_LEFT), 
                         'account_status' => 'verified',
                     ]
                 );
