@@ -32,12 +32,10 @@ class SuperadminDashboard extends Component
             $q->where('name', 'Purchaser')
         )->get();
 
-        //  Only verified suppliers
         $verifiedSuppliers = User::whereHas('roles', fn($q) => 
             $q->where('name', 'Supplier')
         )->where('account_status', 'verified')->get();
 
-        //  Pending suppliers (not yet verified)
         $pendingSuppliers = User::whereHas('roles', fn($q) => 
             $q->where('name', 'Supplier')
         )->where('account_status', '!=', 'verified')->get();
@@ -47,34 +45,70 @@ class SuperadminDashboard extends Component
         $this->verifiedSupplierCount = $verifiedSuppliers->count();
         $this->pendingSupplierCount = $pendingSuppliers->count();
 
-        // 🔹 Optional notifications
-        $this->notifications = collect()
+        // 🔹 USER NOTIFICATIONS (Fixed: added id, type, is_read, date)
+        $userNotifications = collect()
             ->merge($admins->map(fn($u) => [
+                'id' => $u->id,
+                'type' => 'user',
+                'is_read' => (bool) $u->is_read,
+                'date' => $u->updated_at,
+
                 'name' => "{$u->first_name} {$u->last_name}",
                 'role' => 'BAC Secretary',
                 'icon' => 'users',
                 'color' => 'text-blue-500'
             ]))
             ->merge($purchasers->map(fn($u) => [
+                'id' => $u->id,
+                'type' => 'user',
+                'is_read' => (bool) $u->is_read,
+                'date' => $u->updated_at,
+
                 'name' => "{$u->first_name} {$u->last_name}",
                 'role' => 'Purchaser',
                 'icon' => 'shopping-cart',
                 'color' => 'text-green-500'
             ]))
             ->merge($verifiedSuppliers->map(fn($u) => [
+                'id' => $u->id,
+                'type' => 'user',
+                'is_read' => (bool) $u->is_read,
+                'date' => $u->updated_at,
+
                 'name' => "{$u->first_name} {$u->last_name}",
                 'role' => 'Verified Supplier',
                 'icon' => 'factory',
                 'color' => 'text-yellow-500'
-            ]))
+            ]));
+
+        // 🔹 ANNOUNCEMENT NOTIFICATIONS (Fixed: added type, is_read)
+        $announcementNotifications = AnnouncementsModal::orderBy('date', 'desc')
+            ->get()
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'type' => 'announcement',
+                'is_read' => (bool) $a->is_read,
+                'date' => $a->date,
+
+                'title' => $a->title,
+                'message' => $a->description
+            ]);
+
+        // 🔹 MERGE & SORT
+        $this->notifications = $userNotifications
+            ->merge($announcementNotifications)
+            ->sortByDesc(fn($n) => $n['date'])
+            ->values()
             ->toArray();
 
-        $this->unreadCount = User::where('is_read', false)->count();
+        // 🔹 Count unread items
+        $this->unreadCount = collect($this->notifications)
+            ->where('is_read', false)
+            ->count();
     }
 
     public function markAsRead()
     {
-        // Mark all users and announcements as read
         User::where('is_read', false)->update(['is_read' => true]);
         AnnouncementsModal::where('is_read', false)->update(['is_read' => true]);
 
@@ -87,7 +121,6 @@ class SuperadminDashboard extends Component
         $this->announcements = AnnouncementsModal::orderBy('date', 'desc')->get();
     }
 
-    // Optional: mark single notification as read
     public function markSingleAsRead($type, $id)
     {
         if ($type === 'user') {

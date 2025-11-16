@@ -25,39 +25,39 @@
 
             <!-- Page content -->
             <main class="p-6 space-y-6 flex-1">
-               <!-- Summary Cards -->
-                <h2 class="text-start text-lg font-bold text-blue-900 mb-4">Welcome SuperAdmin!!</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mt-10">
+                <!-- Summary Cards -->
+                 <h2 class="text-start text-lg font-bold text-blue-900 mb-4">Welcome SuperAdmin!!</h2>
+                <div class="flex flex-wrap justify-center items-center gap-6 mt-10">
                     <!-- Admin -->
-                    <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-blue-400 p-4 rounded-2xl h-40 hover:scale-105 transition-transform duration-300">
+                    <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-blue-400 p-6 rounded-2xl w-60 h-60 hover:scale-105 transition-transform duration-300">
                         <x-phosphor.icons::regular.user class="w-10 h-10 text-blue-500 mb-2" />
                         <div class="text-2xl font-extrabold text-blue-700">{{ $adminCount }}</div>
                         <p class="text-sm font-semibold text-blue-500 mt-1">Bac Secretary</p>
                     </div>
 
                     <!-- Purchaser -->
-                    <div class="flex flex-col justify-center items-center bg-white border-l-4 border-green-400 p-4 rounded-2xl shadow-lg h-40 hover:scale-105 transition-transform duration-300">
+                    <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-green-400 p-6 rounded-2xl w-60 h-60 hover:scale-105 transition-transform duration-300">
                         <x-phosphor.icons::regular.shopping-cart class="w-10 h-10 text-green-500 mb-2" />
                         <div class="text-2xl font-extrabold text-green-700">{{ $purchaserCount }}</div>
                         <p class="text-sm font-semibold text-green-500 mt-1">Purchaser</p>
                     </div>
 
                     <!-- Verified Supplier -->
-                    <div class="flex flex-col justify-center items-center bg-white border-l-4 border-yellow-400 p-4 rounded-2xl shadow-lg h-40 hover:scale-105 transition-transform duration-300">
+                    <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-yellow-400 p-6 rounded-2xl w-60 h-60 hover:scale-105 transition-transform duration-300">
                         <x-phosphor.icons::regular.package class="w-10 h-10 text-yellow-500 mb-2" />
                         <div class="text-2xl font-extrabold text-yellow-700">{{ $verifiedSupplierCount }}</div>
                         <p class="text-sm font-semibold text-yellow-500 mt-1">Verified Supplier</p>
                     </div>
 
                     <!-- Pending Supplier -->
-                    <div class="flex flex-col justify-center items-center bg-white border-l-4 border-orange-400 p-4 rounded-2xl shadow-lg h-40 hover:scale-105 transition-transform duration-300">
+                    <div class="flex flex-col justify-center items-center bg-white border-l-4 shadow-lg border-l-orange-400 p-6 rounded-2xl w-60 h-60 hover:scale-105 transition-transform duration-300">
                         <x-phosphor.icons::regular.package class="w-10 h-10 text-orange-500 mb-2" />
                         <div class="text-2xl font-extrabold text-orange-700">{{ $pendingSupplierCount }}</div>
                         <p class="text-sm font-semibold text-orange-500 mt-1">Pending Supplier</p>
                     </div>
-                </div>
+                {{-- </div>
 
-                <!-- Purchaser -->
+                {{-- <!-- Purchaser -->
                 <div class="flex flex-col justify-center items-center bg-white border-l-4 border-green-400 p-6 rounded-2xl shadow-lg w-60 h-60 hover:scale-105 transition-transform duration-300">
                     <x-phosphor.icons::regular.shopping-cart class="w-10 h-10 text-green-500 mb-3" />
                     <div class="text-3xl font-extrabold text-green-700">{{ $purchaserCount }}</div>
@@ -69,7 +69,7 @@
                     <x-phosphor.icons::regular.package class="w-10 h-10 text-yellow-500 mb-3" />
                     <div class="text-3xl font-extrabold text-yellow-700">{{ $supplierCount }}</div>
                     <p class="text-sm font-semibold text-yellow-500 mt-1">Supplier</p>
-                </div>
+                </div> --}} 
             </div>
 
 
