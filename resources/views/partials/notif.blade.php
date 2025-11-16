@@ -40,12 +40,12 @@
                 <li 
                     class="px-4 py-3 flex items-start gap-3 rounded-md transition 
                     {{ !$isRead ? 'bg-gray-100 shadow-sm border-l-4 border-blue-500' : '' }}"
-                    @if($notif['type'] === 'announcement')
+                    @if(($notif['type'] ?? null) === 'announcement')
                         @click="$wire.markSingleAsRead('announcement', {{ $notif['id'] }})"
                     @endif
                 >
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        @if($notif['type'] === 'announcement')
+                        @if(($notif['type'] ?? null) === 'announcement')
                             <x-phosphor.icons::regular.megaphone class="w-5 h-5 text-red-500" />
                         @else
                             <x-dynamic-component 
@@ -57,7 +57,7 @@
 
                     <div class="flex-1">
                         <p class="text-sm text-gray-700 flex items-center justify-between">
-                            @if($notif['type'] === 'announcement')
+                            @if(($notif['type'] ?? null) === 'announcement')
                                 You have successfully posted an announcement.
                             @else
                                 New {{ $notif['role'] }}: <strong>{{ $notif['name'] }}</strong>

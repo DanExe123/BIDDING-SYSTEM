@@ -21,7 +21,8 @@
             <div class="absolute inset-0 bg-black/50" @click="open = false"></div>
 
             <!-- dialog -->
-            <div class="relative bg-white w-[90%] md:w-[800px] rounded-lg shadow p-6">
+            <div class="relative bg-white w-[90%] md:w-[800px] rounded-lg shadow p-6 
+                max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center border-b pb-2 mb-4">
                     <h2 class="text-lg font-semibold">Invitation Details</h2>
                     <button class="text-gray-500 hover:text-black text-2xl" @click="open = false">&times;</button>
