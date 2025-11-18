@@ -48,28 +48,31 @@ class GenerateReport extends Component
         }
 
         if ($this->ppmp->mode_of_procurement === 'bidding') {
-            // bidding: highest total_score wins
-            $sorted = $this->submissions->sort(function ($a, $b) {
-                $aScore = $a->total_score ?? 0;
-                $bScore = $b->total_score ?? 0;
+            // Step 1: find max and min bids across all submissions
+        $maxBid = $this->submissions->max(fn($s) => $s->bid_amount ?? 0) ?: 1;
+        $minBid = $this->submissions->min(fn($s) => $s->bid_amount ?? 0) ?: 1;
+        $maxDays = $this->submissions->max(fn($s) => $s->delivery_days ?? 0) ?: 1;
 
-                if ($aScore == $bScore) {
-                    $aBid = $a->bid_amount ?? PHP_INT_MAX;
-                    $bBid = $b->bid_amount ?? PHP_INT_MAX;
+        // Step 2: compute weighted score for each submission
+        foreach ($this->submissions as $s) {
+            $score = $s->total_score ?? 0;
+            
+            // Lower bid → higher score (0-100)
+            $bidScore = 100 * ($maxBid - ($s->bid_amount ?? $maxBid)) / ($maxBid - $minBid ?: 1);
+            
+            // Lower delivery_days → higher score (0-100)
+            $daysScore = 100 * (1 - ($s->delivery_days ?? $maxDays) / $maxDays);
 
-                    if ($aBid == $bBid) {
-                        $aDays = $a->delivery_days ?? PHP_INT_MAX;
-                        $bDays = $b->delivery_days ?? PHP_INT_MAX;
+            // Weighted total: 40% total_score, 40% bid, 20% delivery_days
+            $s->weighted_total = $score * 0.4 + $bidScore * 0.4 + $daysScore * 0.2;
+        }
 
-                        return $aDays <=> $bDays; // earlier delivery wins if tie on score & bid
-                    }
+        // Step 3: sort descending, highest weighted_total wins
+        $sorted = $this->submissions->sortByDesc('weighted_total');
+        $this->winner = $sorted->first();
 
-                    return $aBid <=> $bBid; // lower bid wins if tie on score
-                }
-
-                return $bScore <=> $aScore; // higher score wins
-            });
-        } else {
+        }
+        else {
             // quotation: lower total price wins, tie-break with delivery days
             $sorted = $this->submissions->sort(function ($a, $b) {
                 $aTotal = $a->items->sum(fn($i) => ($i->unit_price ?? 0) * ($i->qty ?? 1));
@@ -99,7 +102,7 @@ class GenerateReport extends Component
         $this->submissions = $this->ppmp->invitations->flatMap->submissions;
         $this->computeWinner();
 
-         $this->awardedSubmission = $this->submissions->firstWhere('status', 'awarded');
+        $this->awardedSubmission = $this->submissions->firstWhere('status', 'awarded');
 
         return view('livewire.generate-report', [
             'submissions' => $this->submissions,
