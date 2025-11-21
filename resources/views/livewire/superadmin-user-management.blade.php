@@ -155,8 +155,15 @@
                                                 </button>
                                                 <button 
                                                     wire:click="updateAccountStatus({{ $user->id }}, 'archive')" 
-                                                    class="text-left px-3 py-2 hover:bg-yellow-50 text-yellow-800">
+                                                    class="text-left px-3 py-2 hover:bg-yellow-50 text-yellow-800
+                                                    @if($user->account_status !== 'verified') opacity-50 cursor-not-allowed @endif">
                                                     Archive
+                                                </button>
+                                                 <button 
+                                                    wire:click="updateAccountStatus({{ $user->id }}, 'verified')" 
+                                                    class="text-left px-3 py-2 hover:bg-blue-50 text-blue-800
+                                                    @if($user->account_status !== 'archive') opacity-50 cursor-not-allowed @endif">
+                                                    Unarchive
                                                 </button>
                                                 <a href="{{ route('superadmin-edit-account', ['user' => $user->id]) }}" 
                                                     class="block px-3 py-2 hover:bg-blue-500 hover:text-white text-blue-600">

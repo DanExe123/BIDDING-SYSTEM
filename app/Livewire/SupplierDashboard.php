@@ -15,6 +15,8 @@ class SupplierDashboard extends Component
     public $announcements = [];
     public $recentActivities = [];
     public $activeProcurements = [];
+    public $invitationCount = 0;
+
 
     public function mount()
     {
@@ -35,6 +37,9 @@ class SupplierDashboard extends Component
             ->latest()
             ->take(5)
             ->get();
+
+        $this->invitationCount = $invitations->count();
+
 
         // ✅ Announcements from invitations
         $invitationAnnouncements = $invitations->map(function ($inv) {

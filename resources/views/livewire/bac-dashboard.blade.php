@@ -129,42 +129,59 @@
             </div>
 
             <!-- Line Chart: Monthly Active Procurements -->
-        <div id="activeProcurementsChart" class="h-64"></div>
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">
+                    Procurment Trend Analysis
+                </h2>
 
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-        <script>
+                <div id="activeProcurementsChart" class="h-64"></div>
+            </div>
+
+
+            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+            <script>
             document.addEventListener('DOMContentLoaded', function () {
+
+                var biddingData = @json($biddingData);
+                var quotationData = @json($quotationData);
+
                 var options = {
                     chart: {
                         type: 'line',
                         height: 300
                     },
-                    series: [{
-                        name: 'Active Procurements',
-                        // Sample data for front-end only
-                        data: [5, 8, 4, 10, 7, 12, 9, 15, 11, 13, 7, 10]
-                    }],
+                    series: [
+                        {
+                            name: 'Bidding',
+                            data: biddingData
+                        },
+                        {
+                            name: 'Quotation',
+                            data: quotationData
+                        }
+                    ],
                     xaxis: {
-                        // Sample months
-                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                        categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
                     },
-                    stroke: { 
-                        curve: 'smooth', 
-                        width: 3 
+                    stroke: {
+                        curve: 'smooth',
+                        width: 3
                     },
-                    colors: ['#22c55e'],
-                    dataLabels: {
-                        enabled: false
-                    },
+                    colors: ['#1d4ed8', '#22c55e'], // blue for bidding, green for quotation
                     tooltip: {
                         enabled: true
                     }
                 };
 
-                var chart = new ApexCharts(document.querySelector("#activeProcurementsChart"), options);
+                var chart = new ApexCharts(
+                    document.querySelector("#activeProcurementsChart"),
+                    options
+                );
+
                 chart.render();
             });
-        </script>
+            </script>
+
 
             
       

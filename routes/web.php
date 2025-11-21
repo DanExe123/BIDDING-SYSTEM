@@ -110,6 +110,14 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::get('/ppmp/{id}/award-quotation', [\App\Http\Controllers\AwardController::class, 'generateQuotationAward'])
         ->name('award.quotation.pdf');
 
+    Route::get('/award/{id}/print', [\App\Http\Controllers\AwardController::class, 'printAward'])
+        ->name('print.pdf');
+    Route::get('/ppmp/{id}/print', [\App\Http\Controllers\AwardController::class, 'printQuotationAward'])
+        ->name('print.quotation.pdf');  
+   
+    
+
+
 
     //fileview&download
     Route::middleware(['auth'])->group(function () {

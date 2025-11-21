@@ -29,6 +29,8 @@ class BacDashboard extends Component
 
     public $recentActivities = [];
     public $publicBidNotices;
+    public $biddingData = [];
+public $quotationData = [];
 
     public function mount()
     {
@@ -208,6 +210,26 @@ class BacDashboard extends Component
                 ->latest()
                 ->take(5)
                 ->get();
+
+
+                // 12 months
+    $months = collect(range(1, 12));
+
+    // BIDDING
+    $this->biddingData = $months->map(function($m) {
+        return Ppmp::where('status', 'approved')
+            ->where('mode_of_procurement', 'bidding')
+            ->whereMonth('created_at', $m)
+            ->count();
+    })->toArray();
+
+    // QUOTATION
+    $this->quotationData = $months->map(function($m) {
+        return Ppmp::where('status', 'approved')
+            ->where('mode_of_procurement', 'quotation')
+            ->whereMonth('created_at', $m)
+            ->count();
+    })->toArray();
     }
 
     public function render()

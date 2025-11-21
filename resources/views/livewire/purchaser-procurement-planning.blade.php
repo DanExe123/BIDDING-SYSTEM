@@ -133,9 +133,40 @@
                                                                     class="w-full border rounded px-2 py-1" />
                                                             </td>
                                                             <td class="border p-2">
-                                                                <input type="text"
-                                                                    wire:model.defer="items.{{ $index }}.unit"
-                                                                    class="w-full border rounded px-2 py-1" />
+                                                                <select wire:model.defer="items.{{ $index }}.unit"
+                                                                        class="w-full border rounded px-2 py-1">
+                                                                    <option value="">-- Select Unit --</option>
+
+                                                                    <option value="pc">pc (piece)</option>
+                                                                    <option value="pcs">pcs (pieces)</option>
+                                                                    <option value="unit">unit</option>
+                                                                    <option value="lot">lot</option>
+                                                                    <option value="box">box</option>
+                                                                    <option value="set">set</option>
+                                                                    <option value="pack">pack</option>
+                                                                    <option value="bottle">bottle</option>
+                                                                    <option value="roll">roll</option>
+                                                                    <option value="tube">tube</option>
+                                                                    <option value="pair">pair</option>
+                                                                    <option value="ream">ream</option>
+                                                                    <option value="kg">kg (kilogram)</option>
+                                                                    <option value="g">g (gram)</option>
+                                                                    <option value="l">l (liter)</option>
+                                                                    <option value="ml">ml (milliliter)</option>
+                                                                    <option value="meter">meter</option>
+                                                                    <option value="m">m (meter)</option>
+                                                                    <option value="ft">ft (feet)</option>
+                                                                    <option value="gal">gal (gallon)</option>
+                                                                    <option value="carton">carton</option>
+                                                                    <option value="bundle">bundle</option>
+                                                                    <option value="dozen">dozen</option>
+                                                                    <option value="can">can</option>
+                                                                    <option value="jar">jar</option>
+                                                                    <option value="sack">sack</option>
+                                                                    <option value="bag">bag</option>
+                                                                    <option value="pail">pail</option>
+                                                                    <option value="drum">drum</option>
+                                                                </select>
                                                             </td>
                                                             <td class="border p-2">
                                                                 <input type="number" step="0.01"

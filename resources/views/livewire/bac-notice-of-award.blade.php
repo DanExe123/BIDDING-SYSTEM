@@ -222,28 +222,44 @@
                                 <!-- File Download -->
                                 <div class="p-6">
                                     <p class="text-sm font-semibold text-gray-700 mb-2">Award Document:</p>
-                                    <div class="flex items-center justify-between border border-gray-200 rounded-md px-4 py-2">
+                                    <div class="flex items-center border border-gray-200 rounded-md px-4 py-2">
                                         @if($selectedPpmp->mode_of_procurement === 'bidding')
                                             <span class="text-sm text-gray-600">
                                                 Notice_Of_Award_{{ $invitation?->reference_no ?? 'N/A' }}.pdf
                                             </span>
-                                            <a href="{{ route('award.pdf', $selectedPpmp->id) }}"
-                                            target="_blank"
-                                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
+                                            <div class="ml-auto flex gap-2">
+                                                <a href="{{ route('award.pdf', $selectedPpmp->id) }}"
+                                                target="_blank"
+                                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
                                                 📥 Download
-                                            </a>
+                                                </a>
+
+                                                <a href="{{ route('print.pdf', $selectedPpmp->id) }}"
+                                                target="_blank"
+                                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                                                🖨️ Print
+                                                </a>
+                                            </div>
                                         @endif
 
                                         @if($selectedPpmp->mode_of_procurement === 'quotation')
                                             <span class="text-sm text-gray-600">
                                                 Notice_Of_Award_{{ $invitation?->reference_no ?? 'N/A' }}.pdf
                                             </span>
-                                            <a href="{{ route('award.quotation.pdf', $selectedPpmp->id) }}" 
-                                            target="_blank"
-                                            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
+                                            <div class="ml-auto flex gap-2">
+                                                <a href="{{ route('award.quotation.pdf', $selectedPpmp->id) }}" 
+                                                target="_blank"
+                                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
                                                 📥 Download
-                                            </a>
-                                         @endif
+                                                </a>
+
+                                                <a href="{{ route('print.quotation.pdf', $selectedPpmp->id) }}"
+                                                target="_blank"
+                                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
+                                                🖨️ Print
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
 
                                 </div>
