@@ -127,7 +127,47 @@
               </div>
 
             </div>
-          
+
+            <!-- Line Chart: Monthly Active Procurements -->
+        <div id="activeProcurementsChart" class="h-64"></div>
+
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var options = {
+                    chart: {
+                        type: 'line',
+                        height: 300
+                    },
+                    series: [{
+                        name: 'Active Procurements',
+                        // Sample data for front-end only
+                        data: [5, 8, 4, 10, 7, 12, 9, 15, 11, 13, 7, 10]
+                    }],
+                    xaxis: {
+                        // Sample months
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    },
+                    stroke: { 
+                        curve: 'smooth', 
+                        width: 3 
+                    },
+                    colors: ['#22c55e'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                };
+
+                var chart = new ApexCharts(document.querySelector("#activeProcurementsChart"), options);
+                chart.render();
+            });
+        </script>
+
+            
+      
             <!-- Recent Activities and Bid Notices -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Recent Activities -->
