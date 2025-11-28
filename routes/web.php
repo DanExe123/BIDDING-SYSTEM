@@ -59,6 +59,9 @@ Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
     Route::get('/superadmin-EditAccount/{user}', SuperadminEditAccount::class)->name('superadmin-edit-account');
     Route::get('/announcements', AnnouncementPage::class)->name('announcement-page');
+    Route::get('/announcement-page/{editId?}', AnnouncementPage::class)
+    ->name('announcement-page');
+
     
     
     

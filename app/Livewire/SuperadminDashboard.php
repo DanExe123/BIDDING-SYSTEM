@@ -15,6 +15,16 @@ class SuperadminDashboard extends Component
     public $unreadCount; 
     public $notifications = [];
     public $announcements = []; 
+    public $editId = null;
+    public $deleteId = null;
+    public $title = '';
+    public $description = '';
+    public $date = '';
+    public $showEditModal = false;
+    public $toast = null;
+
+    protected $listeners = ['deleteAnnouncement'];
+
 
     public function mount()
     {
@@ -131,6 +141,61 @@ class SuperadminDashboard extends Component
 
         $this->loadCounts();
     }
+
+    public function editAnnouncement($id)
+    {
+        $announcement = AnnouncementsModal::findOrFail($id);
+
+        $this->editId = $announcement->id;
+        $this->title = $announcement->title;
+        $this->description = $announcement->description;
+        $this->date = $announcement->date;
+
+        $this->showEditModal = true;
+    }
+
+    public function updateAnnouncement()
+    {
+        $this->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'date' => 'required|date'
+        ]);
+
+        AnnouncementsModal::find($this->editId)->update([
+            'title' => $this->title,
+            'description' => $this->description,
+            'date' => $this->date,
+        ]);
+
+        $this->showEditModal = false;
+        $this->loadAnnouncements();
+
+        session()->flash('message', 'Announcement updated successfully!');
+    }
+        // -----------------------------------------------------
+        public function deleteAnnouncement($id)
+        {
+            $announcement = AnnouncementsModal::find($id);
+    
+            if ($announcement) {
+                $announcement->delete();
+                $this->loadAnnouncements(); // refresh table
+    
+                $this->toast = [
+                    'type' => 'success',
+                    'message' => 'Announcement deleted successfully!'
+                ];
+            } else {
+                $this->toast = [
+                    'type' => 'error',
+                    'message' => 'Announcement not found!'
+                ];
+                return redirect()->route('superadmin-dashboard');
+            }
+        }
+
+        
 
     public function render()
     {
