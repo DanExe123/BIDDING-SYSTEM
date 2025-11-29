@@ -71,12 +71,6 @@
 
             </div>
 
-            <div class="flex justify-start">
-                <button
-                    class="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-semibold">Show
-                    Archive Accounts</button>
-            </div>
-
             <!-- Account Sections (temporary data for front use only) -->
             <div wire:poll class="overflow-x-auto">
                 <table class="min-w-full text-sm border border-gray-300">
