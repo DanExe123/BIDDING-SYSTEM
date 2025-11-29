@@ -128,63 +128,95 @@
 
             </div>
 
-            <!-- Line Chart: Monthly Active Procurements -->
             <div class="bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                    Procurment Trend Analysis
-                </h2>
+              <h2 class="text-lg font-semibold text-gray-700 mb-4">
+                  Procurement Trend Analysis
+              </h2>
 
-                <div id="activeProcurementsChart" class="h-64"></div>
-            </div>
+              <!-- Filters -->
+              <div class="flex items-center gap-4 mb-4">
+                  <select id="chartFilter" class="border px-3 py-2 rounded">
+                      <option value="month">Per Month</option>
+                      <option value="year">Per Year</option>
+                  </select>
 
+                  <select id="selectedYear" class="border px-3 py-2 rounded">
+                      @foreach($allYears as $year)
+                          <option value="{{ $year }}">{{ $year }}</option>
+                      @endforeach
+                  </select>
+              </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-            <script>
-            document.addEventListener('DOMContentLoaded', function () {
+              <!-- Chart -->
+              <div id="activeProcurementsChart" class="h-64"></div>
+          </div>
 
-                var biddingData = @json($biddingData);
-                var quotationData = @json($quotationData);
+          <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+          <script>
+          document.addEventListener('DOMContentLoaded', function () {
 
-                var options = {
-                    chart: {
-                        type: 'line',
-                        height: 300
-                    },
-                    series: [
-                        {
-                            name: 'Bidding',
-                            data: biddingData
-                        },
-                        {
-                            name: 'Quotation',
-                            data: quotationData
-                        }
-                    ],
-                    xaxis: {
-                        categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                    },
-                    stroke: {
-                        curve: 'smooth',
-                        width: 3
-                    },
-                    colors: ['#1d4ed8', '#22c55e'], // blue for bidding, green for quotation
-                    tooltip: {
-                        enabled: true
-                    }
-                };
+              const rawBiddingData = @json($biddingDataByYear);
+              const rawQuotationData = @json($quotationDataByYear);
+              const allYears = @json($allYears);
 
-                var chart = new ApexCharts(
-                    document.querySelector("#activeProcurementsChart"),
-                    options
-                );
+              const chartFilter = document.getElementById('chartFilter');
+              const selectedYear = document.getElementById('selectedYear');
 
-                chart.render();
-            });
-            </script>
+              function toggleYearDropdown() {
+                  selectedYear.style.display = chartFilter.value === 'month' ? 'inline-block' : 'none';
+              }
+              toggleYearDropdown();
 
+              chartFilter.addEventListener('change', () => {
+                  toggleYearDropdown();
+                  updateChart();
+              });
+              selectedYear.addEventListener('change', updateChart);
 
-            
-      
+              let chart = new ApexCharts(document.querySelector("#activeProcurementsChart"), {
+                  chart: { type: 'line', height: 300 },
+                  series: [],
+                  xaxis: { categories: [] },
+                  stroke: { curve: 'smooth', width: 3 },
+                  colors: ['#1d4ed8','#22c55e'],
+                  tooltip: { enabled: true }
+              });
+              chart.render();
+
+              function updateChart() {
+                  let categories = [];
+                  let biddingData = [];
+                  let quotationData = [];
+
+                  if(chartFilter.value === 'month') {
+                      const year = selectedYear.value;
+                      categories = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+                          .map((m,i)=>`${m} ${year}`);
+
+                      biddingData = rawBiddingData[year] || Array(12).fill(0);
+                      quotationData = rawQuotationData[year] || Array(12).fill(0);
+
+                  } else { // year view
+                      categories = allYears;
+
+                      biddingData = categories.map(y => rawBiddingData[y].reduce((a,b)=>a+b,0));
+                      quotationData = categories.map(y => rawQuotationData[y].reduce((a,b)=>a+b,0));
+                  }
+
+                  chart.updateOptions({
+                      xaxis: { categories },
+                      series: [
+                          { name: 'Bidding', data: biddingData },
+                          { name: 'Quotation', data: quotationData }
+                      ]
+                  });
+              }
+
+              // Initial render
+              updateChart();
+          });
+          </script>
+ 
             <!-- Recent Activities and Bid Notices -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Recent Activities -->

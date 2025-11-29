@@ -15,10 +15,10 @@ class SupplierCategorySeeder extends Seeder
     {
         $categories = [
             'Construction Supplies',
-            'Office Equipment',
-            'IT Hardware',
-            'Catering Services',
-            'Transportation',
+            'Office Supplies and Equipment',
+            'Medical Supplies',
+            'Laboratory Supplies',
+            'Food Services',
         ];
 
         foreach ($categories as $category) {

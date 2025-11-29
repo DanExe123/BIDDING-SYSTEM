@@ -23,14 +23,12 @@ class SupplierInvitations extends Component
             ->get();
     }
 
-
     public function getSupplierResponseAttribute()
     {
         $userId = auth()->id();
         return $this->suppliers
             ->firstWhere('id', $userId)?->pivot?->response ?? 'pending';
     }
-
 
     public function selectInvitation($invitationId)
     {

@@ -152,13 +152,13 @@
                                     <div>
                                         <label class="text-sm text-gray-600">Pre date</label>
                                         <input type="date" readonly class="w-full border-none bg-transparent px-3 py-2"
-                                            value="{{ $selectedInvitation?->pre_date ?? 'N/A' }}">
+                                             value="{{ $selectedInvitation?->pre_date ? \Carbon\Carbon::parse($selectedInvitation->pre_date)->format('Y-m-d') : '' }}">
                                     </div>
 
                                     <div>
                                         <label class="text-sm text-gray-600">Deadline</label>
                                         <input type="date" readonly class="w-full border-none bg-transparent px-3 py-2"
-                                            value="{{ $selectedInvitation?->submission_deadline ?? 'N/A' }}">
+                                             value="{{ $selectedInvitation?->submission_deadline ? \Carbon\Carbon::parse($selectedInvitation->submission_deadline)->format('Y-m-d') : '' }}">
                                     </div>
                                 </div>
                             </div>

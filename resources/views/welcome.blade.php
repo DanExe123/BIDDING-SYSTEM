@@ -32,8 +32,8 @@
     <ul class="flex justify-between items-center text-sm font-medium text-black bg-white shadow-md px-6 rounded-md py-4 w-full">
         <!-- Left group -->
         <div class="flex gap-6">
-            <li><a href="#" class="hover:text-blue-600">Home</a></li>
-            <li><a href="#" class="hover:text-blue-600">Information</a></li>
+            <li><a href="#home" class="hover:text-blue-600">Home</a></li>
+            <li><a href="#information" class="hover:text-blue-600">Information</a></li>
         </div>
     
         <!-- Right group -->
@@ -82,7 +82,7 @@
     </nav>
 
             <!-- Hero Section -->
-            <section 
+            <section id="home" 
             x-data="{
                 current: 0,
                 images: [
@@ -111,46 +111,42 @@
                 <div class="relative z-10 flex flex-col justify-center items-start max-w-screen-xl mx-auto h-full px-6">
                     <h1 class="text-4xl md:text-6xl font-extrabold text-white uppercase">BAGO CITY</h1>
                     <p class="text-lg md:text-xl text-gray-200 mt-2">Home of Historical and Natural Treasures</p>
-                    <a href="#"
-                        class="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-2 text-white rounded shadow font-semibold">
-                        MORE
-                    </a>
                 </div>
             </section>
 
     <!-- Floating Cards Section -->
-<section class="relative z-20 -mt-20 mb-10">
-    <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6">
-        
-        <!-- Card 1 -->
-        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
-            <x-phosphor.icons::regular.rocket-launch class="w-8 h-8 text-blue-600 mb-3" />
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Faster Requests</h3>
-            <p class="text-gray-600 text-sm">
-                Purchase requests move quickly from submission to approval with less paperwork.
-            </p>
-        </div>
+    <section id="information" class="relative z-20 -mt-20 mb-10">
+        <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6">
+            
+            <!-- Card 1 -->
+            <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+                <x-phosphor.icons::regular.rocket-launch class="w-8 h-8 text-blue-600 mb-3" />
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Faster Requests</h3>
+                <p class="text-gray-600 text-sm">
+                    Purchase requests move quickly from submission to approval with less paperwork.
+                </p>
+            </div>
 
-        <!-- Card 2 -->
-        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
-            <x-phosphor.icons::regular.handshake class="w-8 h-8 text-green-600 mb-3" />
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Fair Supplier Selection</h3>
-            <p class="text-gray-600 text-sm">
-                The system uses decision support tools to help choose the best supplier based on price and quality.
-            </p>
-        </div>
+            <!-- Card 2 -->
+            <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+                <x-phosphor.icons::regular.handshake class="w-8 h-8 text-green-600 mb-3" />
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Fair Supplier Selection</h3>
+                <p class="text-gray-600 text-sm">
+                    The system uses decision support tools to help choose the best supplier based on price and quality.
+                </p>
+            </div>
 
-        <!-- Card 4 -->
-        <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
-            <x-phosphor.icons::regular.chart-bar class="w-8 h-8 text-purple-600 mb-3" />
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Clear Monitoring</h3>
-            <p class="text-gray-600 text-sm">
-                Track purchase requests and awards easily through the system.
-            </p>
-        </div>
+            <!-- Card 4 -->
+            <div class="h-56 bg-white shadow-lg rounded-lg p-6 transform transition duration-500 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+                <x-phosphor.icons::regular.chart-bar class="w-8 h-8 text-purple-600 mb-3" />
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Clear Monitoring</h3>
+                <p class="text-gray-600 text-sm">
+                    Track purchase requests and awards easily through the system.
+                </p>
+            </div>
 
-    </div>
-</section>
+        </div>
+    </section>
 
 
 
@@ -181,6 +177,17 @@
                 }
             }
         }
+
+        // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
     </script>
 </body>
 </html>

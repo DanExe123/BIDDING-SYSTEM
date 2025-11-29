@@ -31,6 +31,9 @@ class BacDashboard extends Component
     public $publicBidNotices;
     public $biddingData = [];
 public $quotationData = [];
+ public $allYears = [];
+    public $biddingDataByYear = [];
+    public $quotationDataByYear = [];
 
     public function mount()
     {
@@ -212,28 +215,51 @@ public $quotationData = [];
                 ->get();
 
 
-                // 12 months
-    $months = collect(range(1, 12));
+         // Get all years with approved PPMPs
+        $this->allYears = Ppmp::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
 
-    // BIDDING
-    $this->biddingData = $months->map(function($m) {
-        return Ppmp::where('status', 'approved')
-            ->where('mode_of_procurement', 'bidding')
-            ->whereMonth('created_at', $m)
-            ->count();
-    })->toArray();
+        if(empty($this->allYears)) {
+            $this->allYears[] = date('Y');
+        }
 
-    // QUOTATION
-    $this->quotationData = $months->map(function($m) {
-        return Ppmp::where('status', 'approved')
-            ->where('mode_of_procurement', 'quotation')
-            ->whereMonth('created_at', $m)
-            ->count();
-    })->toArray();
+        // Prepare data for all years
+        foreach($this->allYears as $year) {
+            $months = range(1,12);
+
+            // Bidding data
+            $this->biddingDataByYear[$year] = [];
+            foreach($months as $m) {
+                $this->biddingDataByYear[$year][] = Ppmp::where('status','approved')
+                    ->where('mode_of_procurement','bidding')
+                    ->whereYear('created_at', $year)
+                    ->whereMonth('created_at', $m)
+                    ->whereHas('invitations', fn($q) => $q->where('status','awarded'))
+                    ->count();
+            }
+
+            // Quotation data
+            $this->quotationDataByYear[$year] = [];
+            foreach($months as $m) {
+                $this->quotationDataByYear[$year][] = Ppmp::where('status','approved')
+                    ->where('mode_of_procurement','quotation')
+                    ->whereYear('created_at', $year)
+                    ->whereMonth('created_at', $m)
+                    ->whereHas('invitations', fn($q) => $q->where('status','awarded'))
+                    ->count();
+            }
+        }
     }
 
     public function render()
     {
-        return view('livewire.bac-dashboard');
+        return view('livewire.bac-dashboard', [
+            'allYears' => $this->allYears,
+            'biddingDataByYear' => $this->biddingDataByYear,
+            'quotationDataByYear' => $this->quotationDataByYear,
+        ]);
     }
 }

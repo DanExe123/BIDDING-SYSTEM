@@ -26,11 +26,12 @@
             @endrole
 
             @role('BAC_Secretary')
-                <a wire:navigate href="{{ route('bac-dashboard') }}"
+                <a href="{{ route('bac-dashboard') }}" 
                     class="{{ request()->routeIs('bac-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 flex items-center gap-2">
-                    <x-phosphor.icons::regular.house class="w-5 h-5" />
+                    <x-phosphor.icons::regular.house class="w-5 h-5" /> 
                     <span class="text-sm whitespace-nowrap">Dashboard</span>
                 </a>
+
 
                 <a wire:navigate href="{{ route('bac-procurement-planning') }}"
                     class="{{ request()->routeIs('bac-procurement-planning') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
@@ -64,7 +65,7 @@
                         <a href="{{ route('bac-procurement-workflow') }}"
                             class="{{ request()->routeIs('bac-procurement-workflow') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                             <x-phosphor.icons::regular.file-text class="w-5 h-5" />
-                            <span class="text-sm whitespace-nowrap">Precurement Workflow</span>
+                            <span class="text-sm whitespace-nowrap">Procurement Workflow</span>
                         </a>
                     </div>
 

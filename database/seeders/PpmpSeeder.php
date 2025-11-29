@@ -95,7 +95,7 @@ class PpmpSeeder extends Seeder
         $referenceNo = $this->generateReferenceNo($ppmpQuotation->id, $ppmpQuotation->mode_of_procurement);
 
         // ✅ Get suppliers specifically for "Office Equipment"
-        $officeCategory = SupplierCategory::where('name', 'Office Equipment')->first();
+        $officeCategory = SupplierCategory::where('name', 'Office Supplies and Equipment')->first();
         $officeSuppliers = User::role('Supplier')
             ->where('supplier_category_id', $officeCategory->id)
             ->take(2)

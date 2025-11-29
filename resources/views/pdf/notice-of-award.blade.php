@@ -110,15 +110,16 @@
 
   <p>Very truly yours,</p>
 
-  <p class="signature-block">
-    <strong style="text-transform: uppercase; text-decoration: underline;">
-      Marina C. Javellana-yao
-    </strong><br>
-    City Mayor
+  <p class="signature-block"> 
+      <br>
+      <span style="text-decoration: underline; display: block; margin-bottom: 8px;">_______________________________</span>
+      <strong>[ Mayor's Name ]</strong><br>
+      <strong style="text-decoration: underline;">City Mayor</strong>
   </p>
 
+
   <div class="conforme-block">
-    Conforme:<br><br>
+    Conforme:<br>
    
     Manager<br>
     {{ $winner->supplier->first_name ?? '' }}<br>

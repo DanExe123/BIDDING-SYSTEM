@@ -47,7 +47,7 @@
                     <!-- Date -->
                     <div>
                         <label class="text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" wire:model="date" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+                        <input type="date" wire:model="date" min="{{ date('Y-m-d') }}"  class="w-full border border-gray-300 rounded-md p-2 mt-1">
                         @error('date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
