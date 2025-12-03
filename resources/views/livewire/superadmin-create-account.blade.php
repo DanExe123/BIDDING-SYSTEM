@@ -50,9 +50,10 @@
                         </button>
                         <ul x-show="open" @click.away="open = false" x-transition
                             class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                            <template x-for="option in options" :key="option">
+                            <template x-for="option in options.filter(role => role !== 'Supplier')" :key="option">
                                 <li @click="selected = option; open = false"
-                                    class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="option">
+                                    class="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                                    x-text="option">
                                 </li>
                             </template>
                         </ul>

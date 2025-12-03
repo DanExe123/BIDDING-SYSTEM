@@ -72,7 +72,35 @@ class PurchaserProcurementPlanning extends Component
         $this->attachments = array_values($this->attachments);
     }
 
+    public function pota()
+    {
+        // Only validate first
+        $validatedData = $this->validate([
+            'project_title' => 'required|string|max:255',
+            'project_type' => 'required|string|max:255',
+            'abc' => 'required|numeric',
+            'implementing_unit' => 'required|string|max:255',
+            'description' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.unit' => 'required|string|max:50',
+            'items.*.unitCost' => 'required|numeric|min:0',
+            'attachments' => 'required|array',
+            'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+        ]);
 
+        // Check total budget
+        if ($this->totalBudget > 150000) {
+            $this->addError('abc', 'Approved Budget must not exceed ₱150,000.');
+            return;
+        }
+
+        // If everything passes, trigger Alpine modal to confirm
+        $this->dispatch('show-ppmp-confirmation');
+    }
+
+    //submit request
     public function save()
     {
         $this->validate([
@@ -136,7 +164,7 @@ class PurchaserProcurementPlanning extends Component
         return view('livewire.purchaser-procurement-planning', [
             'ppmps' => Ppmp::with('items')   // 👈 eager load items
                 ->where('requested_by', Auth::id())
-                ->latest()
+                ->orderBy('created_at', 'asc')
                 ->get()
         ]);
     }

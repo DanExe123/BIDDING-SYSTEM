@@ -47,7 +47,12 @@
                     <h2 class="text-lg font-semibold text-white">Proposal Submission</h2>
                 </div>
 
-                <div x-data="{ showModal: @entangle('showModal') }" class="relative">
+                <div x-data="{ 
+                        showModal: @entangle('showModal'), 
+                        confirmModal: false, 
+                        actionType: '', 
+                        selectedInvitation: @entangle('selectedInvitation') 
+                    }" class="relative">
 
                     <!-- Table -->
                     <div wire:poll class="border border-gray-300 m-4 rounded-md overflow-hidden bg-white">
@@ -141,11 +146,55 @@
                                     </span>
                                 </div>
 
-                            </div>
+                                @if($selectedInvitation->ppmp->mode_of_procurement === 'bidding')
+                                    <div class="space-y-4 p-2 mt-2" x-data="{ open: false }">
+                                        <!-- Instruction Label -->
+                                        <div class="flex items-start space-x-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <x-phosphor.icons::duotone.info class="w-6 h-6 text-blue-600 mt-0.5" />
 
+                                            <p class="text-sm leading-relaxed text-gray-700">
+                                                Suppliers are advised to ensure that all submitted Technical and Financial Documents are 
+                                                complete, accurate, and compliant with the prescribed requirements.  
+                                                Please download and use the standard forms provided below for proper submission.
+
+                                                <span 
+                                                    class="text-blue-600 font-medium cursor-pointer hover:underline"
+                                                    @click="open = !open">
+                                                    Download here
+                                                </span>.
+                                            </p>
+                                        </div>
+
+                                        <!-- Dropdown -->
+                                        <div class="relative">
+                                            <div x-show="open" @click.outside="open = false"
+                                                class="absolute bg-white border border-gray-300 rounded-md shadow-lg w-64 z-50">
+
+                                                <a href="{{ asset('samples/technical_proposal.pdf') }}" download
+                                                    class="flex items-center space-x-2 px-4 py-2 text-sm hover:bg-gray-100 transition">
+                                                    <x-phosphor.icons::regular.file-text class="w-4 h-4 text-gray-600" />
+                                                    <span>Technical Proposal (Standard)</span>
+                                                </a>
+
+                                                <a href="{{ asset('samples/financial_proposal.pdf') }}" download
+                                                    class="flex items-center space-x-2 px-4 py-2 text-sm hover:bg-gray-100 transition">
+                                                    <x-phosphor.icons::regular.file-text class="w-4 h-4 text-gray-600" />
+                                                    <span>Financial Proposal (Standard)</span>
+                                                </a>
+
+                                                <a href="{{ asset('samples/company_profile.pdf') }}" download
+                                                    class="flex items-center space-x-2 px-4 py-2 text-sm hover:bg-gray-100 transition">
+                                                    <x-phosphor.icons::regular.file-text class="w-4 h-4 text-gray-600" />
+                                                    <span>Company Profile Template</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                            </div>
                             <!-- Proposal Form -->
                             <div class="p-6 space-y-4">
-
                                 {{-- QUOTATION (RFQ) --}}
                                 @if($selectedInvitation->ppmp->mode_of_procurement === 'quotation')
                                     <div>
@@ -169,9 +218,13 @@
                                                         <td class="px-3 py-1 border text-right">
                                                             <input type="number" step="0.01" wire:model="unitPrices.{{ $si->id }}"
                                                                 class="w-32 text-right border rounded px-2 py-1" placeholder="Enter price" />
+                                                                  @error('unitPrices.' . $si->id)
+                                                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                                                @enderror
                                                         </td>
                                                         <td class="px-3 py-1 border text-right">
                                                             {{ number_format((float) ($unitPrices[$si->id] ?? 0) * ($si->procurementItem->qty ?? 1), 2) }}
+                                            
                                                         </td>
 
                                                     </tr>
@@ -194,18 +247,29 @@
                                             <!-- Remarks textarea -->
                                             <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Remarks (optional)"></textarea>
 
-                                            <!-- Buttons aligned to the right -->
-                                            <div class="flex justify-end space-x-2">
-                                                <button wire:click="saveQuotationDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
-                                                <button wire:click="submitQuotation" class="px-3 py-1 bg-blue-600 text-white rounded">Submit Quotation</button>
-                                            </div>
+                                            @php
+                                                $hasSubmitted = $selectedInvitation->submissions
+                                                                    ->where('supplier_id', Auth::id())
+                                                                    ->where('status', 'submitted') // only count if status is submitted
+                                                                    ->count() > 0;
+                                            @endphp
+
+                                            @if(! $hasSubmitted)
+                                                    <!-- Buttons aligned to the right -->
+                                                <div class="flex justify-end space-x-2">
+                                                    <button wire:click="saveQuotationDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
+                                                    <button wire:click="prepareConfirm('quotation')" class="px-3 py-1 bg-blue-600 text-white rounded">Submit Quotation</button>
+                                                </div>
+                                            @else
+                                                <p class="text-sm text-gray-600 mt-2">You have already submitted in this invitation.</p>
+                                            @endif
                                         </div>
                                     </div>
 
                                 @else
                                     {{-- BIDDING --}}
                                     <div>
-                                        <h4 class="font-medium mb-4">Required Documents</h4>
+                                        <h4 class="font-medium mb-4">Submission of Required Documents (PDF Format Only)</h4>
 
                                       <div class="space-y-3">
 
@@ -332,27 +396,67 @@
                                             <textarea wire:model="remarks" class="border rounded w-full p-2" placeholder="Any special conditions or clarifications..."></textarea>
                                         </div>
 
-                                        <!-- Actions -->
-                                        <div class="mt-4 flex justify-between items-center">
-                                            <div>
-                                                <div class="flex items-center space-x-2">
-                                                    <input type="checkbox" wire:model="isCertified" class="h-4 w-4">
-                                                    <label class="text-xs text-gray-600">I certify that all information provided is accurate and I agree to the terms of bidding</label>
-                                                </div>
-                                                <!--  Validation error -->
-                                                @error('isCertified') 
-                                                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
-                                                @enderror
-                                            </div>
+                                        @php
+                                            $hasSubmitted = $selectedInvitation->submissions
+                                                                ->where('supplier_id', Auth::id())
+                                                                ->where('status', 'submitted') // only count if status is submitted
+                                                                ->count() > 0;
+                                        @endphp
 
-                                            <div class="space-x-2">
-                                                <button wire:click="saveBiddingDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
-                                                <button wire:click="submitBidding" class="px-3 py-1 bg-green-600 text-white rounded">Submit Bid</button>
+                                        @if(! $hasSubmitted)
+                                            <!-- Actions -->
+                                            <div class="mt-4 flex justify-between items-center">
+                                                <div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="checkbox" wire:model="isCertified" class="h-4 w-4">
+                                                        <label class="text-xs text-gray-600">I certify that all information provided is accurate and I agree to the terms of bidding</label>
+                                                    </div>
+                                                    <!--  Validation error -->
+                                                    @error('isCertified') 
+                                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p> 
+                                                    @enderror
+                                                </div>
+
+                                                <div class="space-x-2">
+                                                    <button wire:click="saveBiddingDraft" class="px-3 py-1 bg-gray-200 rounded">Save Draft</button>
+                                                    <button wire:click="prepareConfirm('bidding')" class="px-3 py-1 bg-green-600 text-white rounded">Submit Bid</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @else
+                                            <p class="text-sm text-gray-600 mt-2">You have already submitted in this invitation.</p>
+                                        @endif
                                     </div>
 
                                 @endif
+                            </div>
+                        </div>
+
+                        <div  x-data="{ confirmModal: false, actionType: '' }" 
+                            x-on:show-confirm-modal.window="actionType = $event.detail.type; confirmModal = true" 
+                            x-show="confirmModal" x-transition
+                            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                            <div class="bg-white rounded-md shadow-lg w-96 p-6" @click.away="confirmModal = false">
+                                <h3 class="text-lg font-semibold mb-4">Confirm Submission</h3>
+                                <p class="text-sm text-gray-700 mb-6">
+                                    Are you sure you want to submit this <span x-text="actionType"></span>? 
+                                    Once submitted, changes cannot be made.
+                                </p>
+                                <div class="flex justify-end space-x-2">
+                                    <button @click="confirmModal = false" 
+                                            class="px-3 py-1 bg-gray-200 rounded">Cancel</button>
+                                    @if($selectedInvitation->ppmp->mode_of_procurement === 'quotation')
+                                        <button @click="confirmModal = false" wire:click="submitQuotation" 
+                                                class="px-3 py-1 bg-green-600 text-white rounded">
+                                            Submit
+                                        </button>
+                                    @elseif($selectedInvitation->ppmp->mode_of_procurement === 'bidding')
+                                        <button @click="confirmModal = false" wire:click="submitBidding" 
+                                                class="px-3 py-1 bg-green-600 text-white rounded">
+                                            Submit 
+                                        </button>
+                                    @endif
+
+                                </div>
                             </div>
                         </div>
                         @endif
@@ -360,9 +464,6 @@
 
                 </div>
             </div>
-
-    
-
           
         </main>
 </div>

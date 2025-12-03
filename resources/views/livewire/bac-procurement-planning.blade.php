@@ -51,8 +51,8 @@
           <!-- Alpine component wrapper -->
           <div x-data="{ showModal: false }" x-on:close-modal.window="showModal = false" class="relative">
             <!-- Request Table -->
-            <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-                <table wire:poll class="min-w-full text-sm">
+            <div wire:poll class="border border-gray-300 m-4 rounded-md overflow-hidden">
+                <table class="min-w-full text-sm">
                     <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                         <tr>
                             <th class="w-1/3 text-left px-4 py-2">Request by:</th>
@@ -249,7 +249,11 @@
                             <div class="px-6 py-4 flex justify-end items-center border-t border-gray-300 sticky bottom-0 bg-gray-100">
                                 <div class="space-x-2">
                                     @if($selectedPpmp)
-                                        <button wire:click="approvePpmp({{ $selectedPpmp->id }})" class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">Approve</button>
+                                        <button  x-on:click="
+                                                $dispatch('open-approve-modal', { id: {{ $selectedPpmp->id }} });
+                                                showModal = false
+                                            " class="px-4 py-2 text-sm bg-green-200 text-green-800 rounded hover:bg-green-300">
+                                            Approve</button>
                                         <button 
                                             x-on:click="
                                                 $dispatch('open-reject-modal', { id: {{ $selectedPpmp->id }} });
@@ -266,6 +270,44 @@
                 </div>
             </div>
 
+            <!-- Approve Confirmation Modal -->
+            <div x-data="{ showApproveModal: false, ppmpId: null }"
+                x-on:open-approve-modal.window="showApproveModal = true; ppmpId = $event.detail.id"
+                x-on:close-approve-modal.window="showApproveModal = false"
+                x-show="showApproveModal"
+                x-transition
+                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+
+                <div class="bg-white w-[90%] md:w-[500px] rounded-md shadow-lg overflow-hidden" @click.away="showApproveModal = false">
+
+                    <!-- Header -->
+                    <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-green-600">Approve Request</h2>
+                        <button @click="showApproveModal = false" class="text-gray-500 text-xl font-bold">&times;</button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-4">
+                        <p class="text-gray-700 text-sm">
+                            Are you sure you want to approve this request? This action cannot be undone.
+                        </p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 flex justify-end space-x-2 border-t">
+                        <button @click="showApproveModal = false"
+                                class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                            Back
+                        </button>
+                        <button wire:click="approvePpmp(ppmpId)"
+                        @click="$dispatch('close-approve-modal')"
+                                class="px-4 py-2 text-sm bg-green-500 text-white rounded hover:bg-green-600">
+                            Confirm Approve
+                        </button>
+                    </div>
+
+                </div>
+            </div>
 
             <!-- Reject Confirmation Modal -->
             <div x-data="{ showRejectModal: false, ppmpId: null }"

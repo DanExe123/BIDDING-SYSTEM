@@ -175,9 +175,8 @@
                                 </div>
 
                                 <!-- Footer -->
-                                <div class="px-6 py-4 flex justify-between items-center border-t border-gray-300">
-                                    <button class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">More details</button>
-
+                                <div class="px-6 py-4 flex justify-end items-center border-t border-gray-300">
+                                   
                                     @if($selectedPpmp)
                                         @if($selectedPpmp->mode_of_procurement)
                                             <!-- Show mode of procurement instead of buttons -->

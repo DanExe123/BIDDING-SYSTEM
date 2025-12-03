@@ -41,6 +41,7 @@ class SuperadminCreateAccount extends Component
             'first_name'     => $this->first_name,
             'email'          => $this->email,
             'password'       => Hash::make($this->password),
+            'account_status' => 'verified',
             'supplier_category_id' => $isSupplier ? $this->supplier_category_id : null,
         ]);
 

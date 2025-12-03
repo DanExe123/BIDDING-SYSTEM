@@ -65,12 +65,8 @@
             <div x-data="{ openModal: false }">
 
                 <!-- Buttons -->
-                <div class="flex justify-between items-center py-4">
-                    <button
-                        class="bg-gray-100 text-black text-sm font-medium rounded-md px-3 py-3 flex items-center space-x-1 hover:scale-105 transition">
-                        <span>Sort</span>
-                        <x-phosphor.icons::bold.caret-down class="w-4 h-4 text-black" />
-                    </button>
+                <div class="flex justify-end items-center py-4">
+                    
 
                     <a wire:navigate href="{{ route('announcement-page') }}"
                         class="bg-green-600 text-white text-sm font-medium rounded-md px-3 py-3 flex items-center space-x-1 hover:scale-105 transition p-5">

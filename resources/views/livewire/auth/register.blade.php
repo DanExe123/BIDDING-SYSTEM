@@ -34,10 +34,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $validated = $this->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
             'supplier_category_id' => ['required', 'exists:supplier_categories,id'],
             'business_permit' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            'contact_no' => ['required', 'digits:11', 'unique:users,contact_no'], 
+            'contact_no' => ['required', 'digits:11', 'unique:users,contact_no'],
+             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()], 
         ]);
 
         // Hash password
@@ -133,10 +133,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:input
                 wire:model="contact_no"
                 :label="__('Contact Number')"
-                type="number"  
+                type="text"
+                maxlength="11"
+                inputmode="numeric"
+                pattern="[0-9]*"
                 required
                 :placeholder="__('e.g. 09171234567')"
             />
+
 
             <!-- Supplier Category -->
             <div 
@@ -190,26 +194,30 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 </div>
             </div>
 
-            <!-- Passwords Side by Side -->
             <div class="grid grid-cols-2 gap-4">
-                <flux:input
-                    wire:model="password"
-                    :label="__('Password')"
-                    type="password"
-                    required
-                    autocomplete="new-password"
-                    :placeholder="__('Password')"
-                />
+                <div class="flex flex-col">
+                    <flux:input
+                        wire:model="password"
+                        :label="__('Password')"
+                        type="password"
+                        required
+                        autocomplete="new-password"
+                        :placeholder="__('Password')"
+                    />
+                </div>
 
-                <flux:input
-                    wire:model="password_confirmation"
-                    :label="__('Confirm password')"
-                    type="password"
-                    required
-                    autocomplete="new-password"
-                    :placeholder="__('Confirm password')"
-                />
+                <div class="flex flex-col">
+                    <flux:input
+                        wire:model="password_confirmation"
+                        :label="__('Confirm password')"
+                        type="password"
+                        required
+                        autocomplete="new-password"
+                        :placeholder="__('Confirm password')"
+                    />
+                </div>
             </div>
+
 
             <!-- Submit -->
             <div class="flex justify-center">

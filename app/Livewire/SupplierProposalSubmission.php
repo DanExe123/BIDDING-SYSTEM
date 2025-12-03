@@ -147,6 +147,45 @@ class SupplierProposalSubmission extends Component
     }
 
 
+    public function prepareConfirm($type)
+    {
+        if ($type === 'quotation') {
+        $this->validateUnitPrices();
+
+        // Check for null unit prices before showing confirm modal
+        foreach ($this->submissionItems as $si) {
+            if ($this->unitPrices[$si->id] === null) {
+                $this->addError('unitPrices.' . $si->id, 'Unit price is required');
+            }
+        }
+        if ($this->getErrorBag()->any()) {
+            return; // stop modal if errors exist
+        }
+        }elseif ($type === 'bidding') {
+            $this->validate([
+                'bid_amount' => [
+                    'required',
+                    'numeric',
+                    'min:0',
+                    function ($attribute, $value, $fail) {
+                        $abc = $this->selectedInvitation->ppmp->abc ?? 0;
+                        if ($value > $abc) {
+                            $fail("The bid amount cannot exceed the ABC (₱" . number_format($abc, 2) . ").");
+                        }
+                    }
+                ],
+                'technicalProposal' => 'required|file|mimes:pdf|max:10240',
+                'financialProposal' => 'required|file|mimes:pdf|max:10240',
+                'companyProfile'    => 'required|file|mimes:pdf|max:10240',
+                'isCertified'       => 'accepted',
+                'delivery_days'     => 'required|integer|min:1',
+            ]);
+        }
+
+        // If validation passes, open the modal
+        $this->dispatch('show-confirm-modal', ['type' => $type]);
+    }
+
     // Save draft for quotation (supplier can save progress)
     public function saveQuotationDraft()
     {
@@ -171,19 +210,22 @@ class SupplierProposalSubmission extends Component
     protected function validateUnitPrices()
     {
         $rules = [
-            'remarks' => 'nullable|string',
-            'delivery_days' => 'required|integer|min:1',
-        ];
+        'remarks' => 'nullable|string',
+        'delivery_days' => 'required|integer|min:1',
+    ];
+
+    foreach ($this->submissionItems as $si) {
+        $rules["unitPrices.{$si->id}"] = 'required|numeric|min:1';
+    }
         
-        foreach ($this->submissionItems as $si) {
-            $rules["unitPrices.{$si->id}"] = 'nullable|numeric|min:0';
-        }
+        
         $this->validate($rules);
     }
 
     // Submit quotation: require all items have unit price (adjust to your rules)
     public function submitQuotation()
     {
+        
         $this->validate([
             'remarks' => 'nullable|string',
             'delivery_days' => 'required|integer|min:1', 
@@ -222,7 +264,7 @@ class SupplierProposalSubmission extends Component
     public function saveBiddingDraft()
     {
         $this->validate([
-            'bid_amount' => 'nullable|numeric|min:0',
+            'bid_amount' => 'nullable|numeric|min:1',
             'technicalProposal' => 'nullable|file|max:10240', // 10MB
             'financialProposal' => 'nullable|file|max:10240',
             'companyProfile' => 'nullable|file|max:10240',

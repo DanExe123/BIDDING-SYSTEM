@@ -36,4 +36,12 @@ class Submission extends Model
     public function items() { 
         return $this->hasMany(SubmissionItem::class); 
     }
+
+    // In SupplierProposalSubmission.php
+public function viewSubmission($submissionId)
+{
+    $this->submission = \App\Models\Submission::with('items.procurementItem', 'supplier', 'invitation.ppmp')
+                        ->find($submissionId);
+}
+
 }

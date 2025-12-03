@@ -29,23 +29,36 @@ class SupplierNotificationBell extends Component
             ->where('supplier_id', $supplierId)
             ->latest()
             ->take(20)
-            ->get();
-
-        $invitations->each(function($item){
-            $item->type = $item->response === 'accepted' ? 'accepted' : 'invitation';
-        });
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'type' => $item->response === 'accepted' ? 'accepted' : 'invitation',
+                    'created_at' => $item->created_at,
+                    'title' => $item->invitation->ppmp->title ?? 'Invitation',
+                    'is_read' => $item->is_read,
+                ];
+            });
 
         // 🔹 Announcements
         $announcements = AnnouncementsModal::latest()
             ->take(20)
             ->get()
-            ->map(function ($a) {
-                $a->type = 'announcement';
-                return $a;
+            ->map(function($a) {
+                return [
+                    'id' => $a->id,
+                    'type' => 'announcement',
+                    'created_at' => $a->created_at,
+                    'title' => $a->title ?? 'Announcement',
+                    'is_read' => $a->is_read,
+                    'content' => $a->content ?? '',
+                ];
             });
 
-        // 🔹 Merge all
-        $all = $invitations->merge($announcements)->sortByDesc('created_at');
+        // 🔹 Merge all as array
+        $all = $invitations->merge($announcements)
+            ->sortByDesc('created_at')
+            ->values(); // reindex
 
         $this->notifications = $all;
 

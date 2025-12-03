@@ -37,14 +37,14 @@
 
         <ul class="max-h-80 overflow-y-auto divide-y">
             @forelse($notifications as $notif)
-                <li class="px-4 py-3 flex items-start gap-3 transition {{ !$notif->is_read ? 'bg-yellow-50' : '' }}"
-                    @click="$wire.markSingleAsRead('{{ $notif->type }}', {{ $notif->id }}); 
-                             @if($notif->type === 'announcement') openModal({{ $notif->id }}) @endif"
+                <li class="px-4 py-3 flex items-start gap-3 transition {{ !$notif['is_read'] ? 'bg-yellow-50' : '' }}"
+                    @click="$wire.markSingleAsRead('{{ $notif['type'] }}', {{ $notif['id'] }}); 
+                            @if($notif['type'] === 'announcement') openModal({{ $notif['id'] }}) @endif"
                 >
                     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        @if($notif->type === 'accepted')
+                        @if($notif['type'] === 'accepted')
                             <x-phosphor.icons::regular.check-circle class="w-5 h-5 text-green-600" />
-                        @elseif($notif->type === 'invitation')
+                        @elseif($notif['type'] === 'invitation')
                             <x-phosphor.icons::regular.file-text class="w-5 h-5 text-indigo-500" />
                         @else
                             <x-phosphor.icons::regular.megaphone class="w-5 h-5 text-red-500" />
@@ -52,28 +52,25 @@
                     </div>
 
                     <div class="flex-1">
-                        <p class="text-sm font-semibold flex items-center justify-between {{ !$notif->is_read ? 'text-gray-900' : 'text-gray-800' }}">
-                            @if($notif->type === 'accepted')
-                                Your proposal for <strong>{{ $notif->title }}</strong> was 
+                        <p class="text-sm font-semibold flex items-center justify-between {{ !$notif['is_read'] ? 'text-gray-900' : 'text-gray-800' }}">
+                            @if($notif['type'] === 'accepted')
+                                Your proposal for <strong>{{ $notif['title'] }}</strong> was 
                                 <strong class="text-green-600">accepted</strong>.
-                            @elseif($notif->type === 'invitation')
-                                New invitation: <strong>{{ $notif->title }}</strong>
+                            @elseif($notif['type'] === 'invitation')
+                                New invitation: <strong>{{ $notif['title'] }}</strong>
                             @else
-                                Announcement: <strong>{{ $notif->title }}</strong>
+                                Announcement: <strong>{{ $notif['title'] }}</strong>
                             @endif
-                            @if(!$notif->is_read)
+                            @if(!$notif['is_read'])
                                 <span class="ml-2 inline-block bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">NEW</span>
                             @endif
                         </p>
                         <span class="text-xs text-gray-500 mt-1">
-                            {{ $notif->created_at ? $notif->created_at->diffForHumans() : '' }}
+                            {{ \Carbon\Carbon::parse($notif['created_at'])->diffForHumans() }}
                         </span>
-                        
-                        @if($notif->type === 'announcement')
-                            <p class="text-xs text-gray-500 mt-1"></p>
-                        @endif
                     </div>
                 </li>
+
             @empty
                 <li class="px-4 py-3 text-center text-sm text-gray-500">
                     No notifications available

@@ -45,12 +45,15 @@
                                             {{ $ppmp->status === 'pending' ? 'text-blue-400' : '' }}">
                                             {{ ucfirst($ppmp->status) }}
                                         </td>
-                                        <td class="p-2 border text-center">
-                                            <button 
-                                                @click="selectedPr = {{ $ppmp->toJson() }}; openModal = true" 
-                                                class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                                                View
-                                            </button>
+                                        <td class="p-2 border">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <button 
+                                                    @click="selectedPr = {{ $ppmp->toJson() }}; openModal = true" 
+                                                    class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                                    View
+                                                </button>
+                                                <livewire:editppmp :id="$ppmp->id" />
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -116,7 +119,7 @@
                                         <p class="mt-1 text-lg font-semibold text-gray-800" x-text="selectedPr.implementing_unit"></p>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-500">ABC (Approved Budget)*</p>
+                                        <p class="text-sm font-medium text-gray-500">Expected Budget*</p>
                                         <p class="mt-1 text-lg font-semibold text-gray-800" x-text="selectedPr.abc"></p>
                                     </div>
                                 </div>
@@ -126,7 +129,6 @@
                                     <table class="min-w-full bg-white text-sm text-left border border-gray-300 rounded-md">
                                         <thead class="bg-gray-100">
                                             <tr>
-                                                <th class="border px-2 py-1">ITEM #</th>
                                                 <th class="border px-2 py-1">ITEM</th>
                                                 <th class="border px-2 py-1">QTY</th>
                                                 <th class="border px-2 py-1">UNIT</th>
@@ -137,7 +139,6 @@
                                         <tbody>
                                             <template x-for="item in selectedPr.items" :key="item.id">
                                                 <tr>
-                                                    <td class="border px-2 py-1" x-text="item.id"></td>
                                                     <td class="border px-2 py-1" x-text="item.description"></td>
                                                     <td class="border px-2 py-1" x-text="item.qty"></td>
                                                     <td class="border px-2 py-1" x-text="item.unit"></td>

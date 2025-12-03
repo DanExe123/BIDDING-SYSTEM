@@ -14,7 +14,7 @@
         this.showAnnouncementModal = false;
         this.selectedAnnouncement = null;
     }
-}" class="relative" wire:poll.2s="loadCounts">
+}" class="relative" wire:poll="loadCounts">
 
 <!-- Bell Button -->
 <button @click="open = !open" class="text-gray-500 hover:text-black relative">

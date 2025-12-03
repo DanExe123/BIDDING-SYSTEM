@@ -6,7 +6,7 @@
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen" x-cloak>
         <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
-            <h1 class="text-xl font-semibold">Procurement Planning</h1>
+            <h1 class="text-xl font-semibold">Purchase Request</h1>
            
          @livewire('purchaser-notification-bell')   
         </header>
@@ -56,12 +56,13 @@
                 </div>
 
                 <div x-show="view === 'create'" x-data>
-                    <form wire:submit.prevent="save" enctype="multipart/form-data" class="mt-6">
-                        <div class="flex justify-center items-center w-full">
+                    <div x-data="{ openConfirm: false }" 
+                    x-on:show-ppmp-confirmation.window="openConfirm = true">
+                        <div class="flex justify-center items-center w-full mt-6">
                             <div class="bg-white rounded-md shadow-md border border-gray-300 w-full">
                                 <div class="rounded-md shadow-lg p-4">
                                     <h2 class="text-gray-800 py-2 font-bold">Purchase Request</h2>
-
+                                    <form wire:submit.prevent="save" enctype="multipart/form-data">
                                     <div class="px-6 py-4 space-y-4 text-sm text-gray-700">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
@@ -75,15 +76,26 @@
                                             </div>
                                             <div>
                                                 <label class="block font-medium mb-1">Project Type*</label>
-                                                <input type="text" wire:model.defer="project_type"
-                                                    placeholder="Education, Infrastructure..."
-                                                    class="w-full border rounded px-3 py-2" />
+
+                                                <select 
+                                                    wire:model.defer="project_type"
+                                                    class="w-full border rounded px-3 py-2 bg-white"
+                                                >
+                                                    <option value="" >Select project type</option>
+                                                    <option value="Health">Health</option>
+                                                    <option value="Construction">Construction</option>
+                                                    <option value="Office">Office</option>
+                                                    <option value="Laboratory">Laboratory</option>
+                                                    <option value="Food">Food</option>
+                                                </select>
+
                                                 @error('project_type')
                                                     <span class="text-red-500">{{ $message }}</span>
                                                 @enderror
                                             </div>
+
                                             <div wire:poll>
-                                                <label class="block font-medium mb-1">ABC (Approved Budget)*</label>
+                                                <label class="block font-medium mb-1">Expected Budget*</label>
                                                 <input type="number" wire:model="abc" readonly
                                                     class="w-full border rounded px-3 py-2 " />
                                                 @error('abc')
@@ -235,19 +247,47 @@
 
 
                                     </div>
-
+                                    </form>
                                     {{-- Submit --}}
                                     <div
                                         class="px-6 py-4 flex justify-end items-center border-t border-gray-300 bg-[#F9FAFB]">
-                                        <button type="submit"
-                                            class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                                            Submit PPMP
+                                        <button wire:click="pota"
+                                            wire:loading.attr="disabled"
+                                            wire:target="pota"
+                                            class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 relative">
+
+                                            <!-- Default Text -->
+                                            <span wire:loading.remove wire:target="pota">Submit Purchase Request</span>
+                                            
+                                            <!-- Loading Spinner/Text -->
+                                            <span wire:loading wire:target="pota">
+                                                <svg class="animate-spin h-4 w-4 inline-block mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                </svg>
+                                                Loading...
+                                            </span>
                                         </button>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    
+
+                    <div x-show="openConfirm" x-cloak class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                            <h3 class="text-lg font-semibold mb-4">Confirm Submission</h3>
+                            <p class="mb-6 text-sm text-gray-700">Are you sure you want to submit this Purchase Request.</p>
+                            <div class="flex justify-end space-x-3">
+                                <button @click="openConfirm = false" type="button"
+                                    class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+                                <button wire:click="save" @click="openConfirm = false"  type="button"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
                 </div>
 
                 <!-- LIST VIEW -->
@@ -279,13 +319,17 @@
                                             {{ $ppmp->status === 'pending' ? 'text-blue-400' : '' }}">
                                             {{ ucfirst($ppmp->status) }}
                                         </td>
-                                        <td class="p-2 border text-center">
-                                            <button 
-                                                @click="selectedPr = {{ $ppmp->toJson() }}; openModal = true" 
-                                                class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-                                                View
-                                            </button>
+                                        <td wire:ignore class="p-2 border">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <button 
+                                                    @click="selectedPr = {{ $ppmp->toJson() }}; openModal = true" 
+                                                    class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                                    View
+                                                </button>
+                                                <livewire:editppmp :id="$ppmp->id" />
+                                            </div>
                                         </td>
+                                        
                                     </tr>
                                 @empty
                                     <tr>
@@ -350,7 +394,7 @@
                                         <p class="mt-1 text-lg font-semibold text-gray-800" x-text="selectedPr.implementing_unit"></p>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-medium text-gray-500">ABC (Approved Budget)*</p>
+                                        <p class="text-sm font-medium text-gray-500">Expected Budget*</p>
                                         <p class="mt-1 text-lg font-semibold text-gray-800" x-text="selectedPr.abc"></p>
                                     </div>
                                 </div>

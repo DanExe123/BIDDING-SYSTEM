@@ -32,10 +32,16 @@
                                 @if($ppmp->invitations->isNotEmpty())
                                     @php
                                         $invitation = $ppmp->invitations->last();
-                                        $totalInvited = $invitation->suppliers->count();
-                                        $totalSubmitted = $invitation->submissions->where('status', '!=', 'draft')->count();
+                                        // left side (KEEP)
+                                        $totalSubmitted = $invitation->submissions
+                                            ->where('status', '!=', 'draft')
+                                            ->count();
+                                        // right side (ACCEPTED ONLY)
+                                        $totalAccepted = $invitation->suppliers
+                                            ->where('pivot.response', 'accepted')
+                                            ->count();
                                     @endphp
-                                    {{ $totalSubmitted }}/{{ $totalInvited }}
+                                    {{ $totalSubmitted }}/{{ $totalAccepted }}
                                 @else
                                     0/0
                                 @endif
@@ -418,7 +424,8 @@
 
                             <h2 class="text-lg font-semibold mb-4">Evaluate {{ $evaluationSubmission->supplier->first_name ?? 'Supplier' }}</h2>
 
-                            <div class="mb-4">
+                            <label class="block text-sm font-medium">Ensure the Technical and Financial Proposals are evaluated using the 100/100 scoring standard.</label>
+                            <div class="mb-4 mt-2">
                                 <label class="block text-sm font-medium">Technical Score</label>
                                 <input type="number" wire:model="technical_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
                                 @error('technical_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror

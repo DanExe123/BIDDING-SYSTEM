@@ -14,7 +14,7 @@ class PurchaserBidMonitoring extends Component
     {
         $this->ppmps = Ppmp::with('items') // load the related items
             ->where('requested_by', Auth::id())
-            ->latest()
+            ->orderBy('created_at', 'asc')
             ->get();
     }
 
