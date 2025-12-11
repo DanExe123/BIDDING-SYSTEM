@@ -41,6 +41,7 @@ use App\Livewire\InspectionReport;
 use App\Livewire\PurchaserNotificationBell;
 use App\Livewire\BacNotificationBell;
 use App\Livewire\SupplierNotificationBell;
+use App\Livewire\AuditTrails;
 
 Route::get('/', function () {
     return view('welcome');
@@ -55,16 +56,17 @@ Route::get('/user-help', function () {
 Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin', SuperadminDashboard::class)->name('superadmin-dashboard'); 
     Route::get('/superadmin-audittrails', SuperadminAudittrails::class)->name('superadmin-audittrails'); 
-    Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)->name('superadmin-user-management'); 
-    Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
-    Route::get('/superadmin-EditAccount/{user}', SuperadminEditAccount::class)->name('superadmin-edit-account');
     Route::get('/announcements', AnnouncementPage::class)->name('announcement-page');
     Route::get('/announcement-page/{editId?}', AnnouncementPage::class)
     ->name('announcement-page');
+    
+});
 
-    
-    
-    
+Route::middleware(['auth', 'role:BAC_Secretary|Super_Admin'])->group(function () {
+
+    Route::get('/superadmin-usermanagement', SuperadminUserManagement::class)->name('superadmin-user-management'); 
+    Route::get('/superadmin-CreateAccount', SuperadminCreateAccount::class)->name('superadmin-create-account'); 
+    Route::get('/superadmin-EditAccount/{user}', SuperadminEditAccount::class)->name('superadmin-edit-account');
 });
   
 Route::middleware(['auth', 'role:Supplier'])->group(function () {
@@ -84,6 +86,10 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
 
     Route::middleware(['auth', 'role:Supplier|BAC_Secretary'])->group(function () {
         Route::get('/notice-of-award', NoticeOfAward::class)->name('notice-of-award'); 
+    });
+
+    Route::middleware(['auth', 'role:Supplier|BAC_Secretary|Purchaser|Super_Admin'])->group(function () {
+        Route::get('/audittrails', Audittrails::class)->name('audittrails');  
     });
 
     Route::middleware(['auth', 'role:Purchaser'])->group(function () {

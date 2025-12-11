@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Ppmp;
 use App\Models\Submission;
+use App\Helpers\LogActivity;
 use Livewire\WithPagination;
 
 class BacSubmission extends Component
@@ -100,7 +101,7 @@ class BacSubmission extends Component
             'financial_score' => 'required|numeric|min:0|max:100',
         ]);
 
-        $this->total_score = ($this->technical_score * 0.7) + ($this->financial_score * 0.3);
+        $this->total_score = ($this->technical_score * 0.5) + ($this->financial_score * 0.5);
 
         $this->evaluationSubmission->update([
             'technical_score' => $this->technical_score,
@@ -108,6 +109,14 @@ class BacSubmission extends Component
             'total_score'     => $this->total_score,
             'status'          => 'under_review', 
         ]);
+
+        // ⭐ Add Activity Log
+        $supplierName = $this->evaluationSubmission->supplier?->first_name ?? 'Unknown Supplier';
+        $referenceNo  = $this->evaluationSubmission->invitation?->reference_no ?? 'N/A';
+
+        LogActivity::add(
+            "evaluated submission of '{$supplierName}' - of Procurement Bidding '{$referenceNo}' with a total score of {$this->total_score}",  
+        );
 
         session()->flash('message', 'Evaluation saved successfully!');
 

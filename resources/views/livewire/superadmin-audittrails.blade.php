@@ -5,7 +5,7 @@
     <!-- Main content area (topbar + page content) -->
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
       <!-- Topbar -->
-      <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
+      <header class="bg-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
         <h1 class="text-xl font-semibold">Audit Trails</h1>
         <div>
           <button class="text-gray-500 hover:text-black">
@@ -27,8 +27,7 @@
               <tr>
                 <th class="px-4 py-2">Date/Time</th>
                 <th class="px-4 py-2">Action</th>
-                <th class="px-4 py-2">Name</th>
-                <th class="px-4 py-2">Email</th>
+               
                 <th class="px-4 py-2">Account Type</th>
                 <th class="px-4 py-2">Location</th>
               </tr>
@@ -40,8 +39,7 @@
                     <td class="px-4 py-2 {{ $log->action === 'Login' ? 'text-green-600' : 'text-red-600' }} font-medium">
                         {{ $log->action }}
                     </td>
-                    <td class="px-4 py-2">{{ $log->user->first_name}} {{ $log->user->last_name}}</td>
-                    <td class="px-4 py-2">{{ $log->user->email}}</td>
+                   
                     <td class="px-4 py-2">
                         {{ Str::of($log->user?->getRoleNames()->first() ?? 'N/A')->replace('_', ' ')->title() }}
                     </td>

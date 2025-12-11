@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Invitation;
 use App\Models\InvitationSupplier;
 use Carbon\Carbon;
+use App\Helpers\LogActivity;
 
 class SupplierInvitations extends Component
 {
@@ -57,6 +58,11 @@ class SupplierInvitations extends Component
 
             // Flash message
             session()->flash('message', "You have successfully {$response}ed the invitation.");
+
+            LogActivity::add(
+                "{$response} the invitation for Procurement titled '{$this->selectedInvitation->title}' (Ref No. {$this->selectedInvitation->reference_no})"
+            );
+
 
             $this->closeModal();
             $this->dispatch('close-invitation-modal');

@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Ppmp;
+use App\Helpers\LogActivity;
+
 
 class BacProcurementPlanning extends Component
 {
@@ -31,6 +33,11 @@ class BacProcurementPlanning extends Component
         $ppmp->status = 'approved';
         $ppmp->save();
 
+        //activity logs
+        LogActivity::add(
+        "approved PPMP Request #{$ppmp->id}", 
+        );
+
         $this->closeModal();
         $this->dispatch('close-modal');
         session()->flash('message', 'PPMP approved successfully.');
@@ -46,6 +53,11 @@ class BacProcurementPlanning extends Component
         $ppmp->status = 'rejected';
         $ppmp->remarks = $this->remarks;
         $ppmp->save();
+
+        //activitylogs
+        LogActivity::add(
+            "rejected PPMP Request #{$ppmp->id} | Remarks: {$this->remarks}",
+        );
 
         $this->remarks = null; 
         $this->dispatch('close-reject-modal');

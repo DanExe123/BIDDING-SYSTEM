@@ -62,7 +62,8 @@ new class extends Component {
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id)
             ],
-            'business_permit' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'], // max 10MB
+            'contact_no' => ['required', 'digits:11', 'unique:users,contact_no'],
+            'contact_no' => ['nullable', 'digits:11', Rule::unique('users','contact_no')->ignore($user->id)],
         ]);
 
         unset($validated['business_permit']);
@@ -138,9 +139,10 @@ new class extends Component {
                     <flux:input wire:model="first_name" :label="__('Name')" type="text" required autofocus autocomplete="given-name" />
                     
                     <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
-                    <flux:input wire:model="contact_no" :label="__('Contact Number')" type="text" readonly :placeholder="__('Your registered contact number')"/>
+                    
 
                     @if($isSupplier)
+                        <flux:input wire:model="contact_no" :label="__('Contact Number')" type="text" readonly :placeholder="__('Your registered contact number')"/>
                         <!-- Business Permit -->
                         <div class="mb-4">
                             <label class="block mb-2 text-sm font-medium text-gray-700">Business Permit</label>

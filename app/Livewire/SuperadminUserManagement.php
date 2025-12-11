@@ -4,10 +4,17 @@ namespace App\Livewire;
 
 use App\Models\User;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 
 class SuperadminUserManagement extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind';
+
+
     public string $roleFilter = 'All';
 
     public $confirmingUserDeletion = false;
@@ -92,20 +99,29 @@ class SuperadminUserManagement extends Component
     }
 
     public function render()
-    {
+{
+    $query = User::with('roles')
+        ->whereHas('roles', function ($q) {
+            $q->where('name', '!=', 'Super_Admin');
+
+            if ($this->roleFilter !== 'All') {
+                $q->where('name', str_replace(' ', '_', $this->roleFilter));
+            }
+        });
+
+    // 🔥 If logged-in user is BAC_Secretary → ONLY show Supplier users
+    if (Auth::user()->roles->first()->name === 'BAC_Secretary') {
         $query = User::with('roles')
             ->whereHas('roles', function ($q) {
-                $q->where('name', '!=', 'Super_Admin');
-
-                if ($this->roleFilter !== 'All') {
-                    $q->where('name', str_replace(' ', '_', $this->roleFilter));
-                }
+                $q->where('name', 'Supplier');
             });
-
-        $users = $query->get();
-
-        return view('livewire.superadmin-user-management', [
-            'users' => $users,
-        ]);
     }
+
+    $users = $query->orderBy('created_at', 'desc')->paginate(11);
+
+    return view('livewire.superadmin-user-management', [
+        'users' => $users,
+    ]);
+}
+
 }

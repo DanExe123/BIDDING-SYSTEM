@@ -9,6 +9,7 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Models\SupplierCategory;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\LogActivity;
 use Livewire\WithFileUploads; 
 
 class BacInvitation extends Component
@@ -140,6 +141,12 @@ class BacInvitation extends Component
         }
 
         $invitation->suppliers()->sync($suppliers);
+
+        //  LOG ACTIVITY
+        LogActivity::add(
+            "created an Invitation for procurement - Reference No:: {$invitation->reference_no}"
+        );
+
 
         session()->flash('message', 'Invitation Published.');
         $this->closeModal();

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Ppmp;
 use App\Models\Submission;
+use App\Helpers\LogActivity;
 
 class AwardModal extends Component
 {
@@ -54,6 +55,14 @@ class AwardModal extends Component
 
         // ✅ get supplier name
         $this->awardedSupplierName = $submission->supplier?->first_name ?? 'Unknown Supplier';
+
+        $supplierName = $submission->supplier?->first_name ?? 'Unknown Supplier';
+        $referenceNo  = $submission->invitation?->reference_no ?? 'N/A';
+
+        // ✅ Log activity
+        LogActivity::add(
+            "awarded submission to '{$supplierName}' - Procurement '{$referenceNo}'",
+        );
 
         // ✅ show success modal
         $this->dispatch('close-award-modal');

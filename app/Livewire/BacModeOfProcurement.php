@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Ppmp;
+use App\Helpers\LogActivity;
 
 class BacModeOfProcurement extends Component
 {
@@ -30,6 +31,10 @@ class BacModeOfProcurement extends Component
         $ppmp->mode_of_procurement = 'bidding';
         $ppmp->save();
 
+        LogActivity::add(
+            "moved Purchase Request No. {$ppmp->id} to Bidding"
+        );
+
         $this->closeModal();
         $this->dispatch('close-modal');
         session()->flash('message', 'PPMP moved to Bidding successfully.');
@@ -40,6 +45,10 @@ class BacModeOfProcurement extends Component
         $ppmp = Ppmp::findOrFail($id);
         $ppmp->mode_of_procurement = 'quotation';
         $ppmp->save();
+
+        LogActivity::add(
+            "moved Purchase Request No. {$ppmp->id} to Quotation"
+        );
 
         $this->closeModal();
         $this->dispatch('close-modal');

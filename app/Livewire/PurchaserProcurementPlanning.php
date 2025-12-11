@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Ppmp;
 use App\Models\ProcurementItem;
+use App\Helpers\LogActivity;
 use Illuminate\Support\Facades\Auth;
 
 class PurchaserProcurementPlanning extends Component
@@ -153,6 +154,11 @@ class PurchaserProcurementPlanning extends Component
                 'total_cost' => $item['qty'] * $item['unitCost'],
             ]);
         }
+
+        LogActivity::add(
+            "Created Procurement (PR No. {$ppmp->id}) - Titled {$this->project_title}"
+        );
+
 
         session()->flash('message', 'PPMP created successfully.');
 

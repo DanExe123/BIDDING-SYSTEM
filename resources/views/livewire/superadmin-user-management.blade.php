@@ -47,6 +47,7 @@
         <!-- Page content -->
         <main class="p-6 space-y-6 flex-1">
 
+            @role('Super_Admin')
             <!-- Filter and Create Account Buttons -->
             <div class="flex justify-between items-center flex-wrap gap-4">
                 <div class="flex items-center gap-2 mb-4">
@@ -70,6 +71,7 @@
                 </div>
 
             </div>
+            @endrole
 
             <!-- Account Sections (temporary data for front use only) -->
             <div wire:poll class="overflow-x-auto">
@@ -80,6 +82,7 @@
                             <th class="text-left px-4 py-2 border text-white">Email</th>
                             <th class="text-left px-4 py-2 border text-white">Account Type</th>
                             <th class="text-left px-4 py-2 border text-white">Status</th>
+                            <th class="text-left px-4 py-2 border text-white">Created At</th>
                             <th class="text-left px-4 py-2 border text-white">Actions</th>
                         </tr>
                     </thead>
@@ -116,6 +119,10 @@
                                         {{ ucfirst($user->account_status ?? 'Pending') }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-2 border text-gray-700">
+                                    {{ $user->created_at ? $user->created_at->format('M d, Y h:i A') : 'N/A' }}
+                                </td>
+
 
                                 <td class="px-4 py-2 border text-center relative">
                                     <!-- Dropdown Trigger -->
@@ -164,13 +171,16 @@
                                                     Edit
                                                 </a>
 
-                                                @if($user->roles->first()->name === 'Supplier' && in_array($user->account_status, ['pending', 'rejected']))
-                                                    <button 
-                                                        wire:click="openVerificationModal({{ $user->id }})"
-                                                        class="text-left px-3 py-2 hover:bg-green-600 hover:text-white text-green-700">
-                                                        Verify Supplier
-                                                    </button>
-                                                @endif
+                                                @role('BAC_Secretary')
+                                                    @if($user->roles->first()->name === 'Supplier' && in_array($user->account_status, ['pending', 'rejected']))
+                                                        <button 
+                                                            wire:click="openVerificationModal({{ $user->id }})"
+                                                            class="text-left px-3 py-2 hover:bg-green-600 hover:text-white text-green-700">
+                                                            Verify Supplier
+                                                        </button>
+                                                    @endif
+                                                @endrole
+
                                             </div>
                                         </div>
                                     </div>
@@ -180,6 +190,11 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                <div class="mt-4">
+                    {{ $users->links() }}
+                </div>
+
 
                 {{-- Verification Modal --}}
                @if($showVerificationModal && $selectedSupplier)

@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 use App\Models\Invitation;
 use App\Models\Submission;
 use App\Models\SubmissionItem;
+use App\Helpers\LogActivity;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -256,6 +257,10 @@ class SupplierProposalSubmission extends Component
 
         session()->flash('message', 'Quotation submitted');
 
+        LogActivity::add(
+            "responded a Request for Quotation in {$this->selectedInvitation->title} (Ref No. {$this->selectedInvitation->reference_no})"
+        );
+
         $this->showModal = false;
         $this->loadInvitations();
     }
@@ -343,6 +348,11 @@ class SupplierProposalSubmission extends Component
         $this->submission->save();
 
         session()->flash('message', 'Bid submitted');
+
+        LogActivity::add(
+            "submitted a bid proposal in {$this->selectedInvitation->title} (Ref No. {$this->selectedInvitation->reference_no})"
+        );
+
         $this->showModal = false;
         $this->loadInvitations();
     }

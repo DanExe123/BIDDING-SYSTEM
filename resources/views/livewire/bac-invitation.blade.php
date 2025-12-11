@@ -141,13 +141,13 @@
                             @error('sourceOfFunds') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="block font-medium mb-1">Pre-Conference Date*</label>
-                            <input type="date" wire:model="preDate" class="w-full border rounded px-3 py-2" />
+                            <label class="block font-medium mb-1">Start Date*</label>
+                            <input type="date" wire:model="preDate" min="{{ date('Y-m-d') }}" class="w-full border rounded px-3 py-2" />
                             @error('preDate') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="block font-medium mb-1">Submission Deadline*</label>
-                            <input type="date" wire:model="submissionDeadline" class="w-full border rounded px-3 py-2" />
+                            <input type="date" wire:model="submissionDeadline" min="{{ date('Y-m-d') }}" class="w-full border rounded px-3 py-2" />
                             @error('submissionDeadline') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                         </div>
                     </div>

@@ -13,7 +13,7 @@
         this.showAnnouncementModal = false;
         this.selectedAnnouncement = null;
     }
-}" class="relative" wire:poll.5s="loadNotifications">
+}" class="relative" wire:poll="loadNotifications">
 
     <!-- 🔔 Bell Button -->
     <button @click="open = !open" class="relative text-gray-600 hover:text-black">

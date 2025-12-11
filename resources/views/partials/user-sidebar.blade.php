@@ -12,12 +12,6 @@
                     Dashboard
                 </a>
 
-                <a wire:navigate href="{{ route('superadmin-user-management') }}"
-                    class="{{ request()->routeIs('superadmin-user-management') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
-                    <x-phosphor.icons::regular.users-three class="w-5 h-5" />
-                    User Management
-                </a>
-
                 <a wire:navigate href="{{ route('superadmin-audittrails') }}"
                     class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.list-magnifying-glass class="w-5 h-5" />
@@ -78,6 +72,14 @@
                 </a>
             @endrole
 
+            @hasanyrole(['Super_Admin', 'BAC_Secretary'])
+                <a wire:navigate href="{{ route('superadmin-user-management') }}"
+                    class="{{ request()->routeIs('superadmin-user-management') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.users-three class="w-5 h-5" />
+                    User Management
+                </a>
+            @endhasanyrole
+
             @role('Supplier')
                 <a wire:navigate href="{{ route('supplier-dashboard') }}"
                     class="{{ request()->routeIs('supplier-dashboard') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} font-normal rounded-full px-4 py-2 flex items-center gap-2">
@@ -134,6 +136,10 @@
 
     </div>
     <div class="px-4 py-4">
+        <a wire:navigate href="{{ route('audittrails') }}" class="hover:bg-[#EFE8A5] hover:text-black rounded-full px-4 py-2 flex items-center gap-2">
+            <x-phosphor.icons::regular.list-magnifying-glass class="w-5 h-5" />
+            Audit Trails
+        </a>  
         <a wire:navigate href="{{ route('user-help') }}" class="hover:bg-[#EFE8A5] hover:text-black rounded-full px-4 py-2 flex items-center gap-2">
             <x-phosphor.icons::regular.info class="w-5 h-5" />
             Help
