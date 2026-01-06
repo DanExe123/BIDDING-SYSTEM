@@ -177,7 +177,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
             <!-- Business Permit -->
             <div class="space-y-1">
-                <label class="block text-sm font-medium text-gray-700">Business Permit / License</label>
+                <label class="block text-sm font-medium text-gray-700">Business Permit / License <br> (Mayor’s Permit or Local Business Permit)</label>
                 <input 
                     type="file" 
                     wire:model="business_permit" 

@@ -33,31 +33,32 @@
 
                 <div wire:loading.remove wire:target="view">
                     @if($invitation)
-                        <div class="mb-4 space-y-1">
+                        <div class="mb-4 space-y-2">
 
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Reference: {{ $invitation->reference_no }}
                             </h2>
-                            <p class="text-sm text-gray-600">
-                                Project: {{ $invitation->ppmp->project_title }}
+                            <p class="text-md text-gray-600">
+                                <Strong>Project:</Strong> {{ $invitation->ppmp->project_title }}
                             </p>
-
-                            {{-- Show Bid Amount only if bidding --}}
-                            @if($invitation->ppmp->mode_of_procurement === 'bidding')
-                                <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mb-2">
-                                    <strong>Budget:</strong> ₱{{ number_format($invitation->ppmp->abc, 2) }}
-                                </div>
-                            @endif
-
-                            <div class="mt-2 mb-2 text-sm text-gray-700 flex space-x-8">
+                            <p class="text-md text-gray-600">
+                                <strong>Requested by:</strong> 
+                                <span class="underline decoration-gray-400 underline-offset-4 font-medium">
+                                    {{ $invitation->ppmp->requester->first_name }} {{ $invitation->ppmp->requester->last_name }} 
+                                </span>
+                            </p>
+                            <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mb-2">
+                                <strong>Budget:</strong> ₱{{ number_format($invitation->ppmp->abc, 2) }}
+                            </div>
+                            <div class="mt-4 mb-2 text-sm text-gray-700 flex space-x-8">
                                 <p>
-                                    <strong>Pre Date:</strong> 
+                                    <strong>Start Date:</strong> 
                                     {{ \Carbon\Carbon::parse($invitation->pre_date)->format('F d, Y') }}
                                 </p>
                                 <p>-</p>
                                 <p>
                                     <strong>Submission Deadline:</strong> 
-                                    {{ \Carbon\Carbon::parse($invitation->submission_deadline)->format('F d, Y') }}
+                                     {{ \Carbon\Carbon::parse($invitation->submission_deadline)->format('F d, Y') }}
                                 </p>
                             </div>
                         </div>

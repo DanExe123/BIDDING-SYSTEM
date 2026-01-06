@@ -51,6 +51,27 @@
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">Mode of procurement</h2>
                 </div>
+
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 md:space-x-2 m-4">
+                    <!-- Search -->
+                    <input type="text" 
+                        wire:model="search" 
+                        placeholder="Search by requester or project" 
+                        class="border rounded px-3 py-2 w-full md:w-1/2">
+
+                    <!-- Status Filter -->
+                    <select 
+                        wire:model="filterMode" 
+                        class="border rounded px-3 py-2 w-full md:w-1/4"
+                    >
+                        <option value="">All</option>
+                        <option value="bidding">Bidding</option>
+                        <option value="quotation">Quotation</option>
+                        <option value="not_selected">Not Selected</option>
+                    </select>
+                </div>
+
+
                 <!-- Alpine component wrapper -->
                 <div x-data="{ showModal: false }" x-on:close-modal.window="showModal = false" class="relative">
                     <!-- Request Table -->
@@ -58,11 +79,11 @@
                         <table wire:poll class="min-w-full text-sm">
                             <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                                 <tr>
-                                    <th class="w-1/4 text-left px-4 py-2">Request by</th>
-                                    <th class="w-1/4 text-center px-4 py-2">Purpose</th>
-                                    <th class="w-1/4 text-center px-4 py-2">Mode of Procurement</th>
-                                    <th class="w-1/8 text-center px-4 py-2">Status</th>
-                                    <th class="w-1/8 text-center px-4 py-2">Actions</th>
+                                    <th class="w-1/5 text-left px-4 py-2">Request by</th>
+                                    <th class="w-1/5 text-center px-4 py-2">Purpose</th>
+                                    <th class="w-1/5 text-center px-4 py-2">Mode of Procurement</th>
+                                    <th class="w-1/5 text-center px-4 py-2">MOP Selected At</th>
+                                    <th class="w-1/5 text-center px-4 py-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -75,24 +96,31 @@
                                             {{ $ppmp->project_title }}
                                         </td>
                                         <td class="px-4 py-2 text-center">
-                                            {{ $ppmp->mode_of_procurement ?? 'Not selected' }}
-                                        </td>
-                                        <td class="px-4 py-2 text-center">
+                                            @php $mode = $ppmp->mode_of_procurement; @endphp
                                             <span class="
-                                                px-2 py-1 rounded-full text-sm
-                                                @if($ppmp->status === 'pending') bg-yellow-100 text-yellow-800 
-                                                @elseif($ppmp->status === 'approved') bg-green-100 text-green-800 
-                                                @elseif($ppmp->status === 'rejected') bg-red-100 text-red-800 
+                                                px-2 py-1 rounded-full text-xs font-semibold
+                                                @if($mode === 'bidding') bg-blue-100 text-blue-800
+                                                @elseif($mode === 'quotation') bg-green-100 text-green-800
+                                                @else bg-gray-200 text-gray-600
                                                 @endif
                                             ">
-                                                {{ ucfirst($ppmp->status) }}
+                                                {{ ucfirst($mode ?? 'Not selected') }}
                                             </span>
+                                        </td>
+                                        <td class="px-4 py-2 text-center">
+                                            @if($mode)
+                                                {{ $ppmp->updated_at->diffInHours() < 24 
+                                                    ? $ppmp->updated_at->diffForHumans() 
+                                                    : $ppmp->updated_at->format('n/j/Y, g:i A') }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="px-4 py-2 text-center">
                                             <button wire:click="showPpmp({{ $ppmp->id }})" 
                                                     x-on:click="showModal = true"
                                                     class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                                                {{ $ppmp->mode_of_procurement ? 'View' : 'Select Mode' }}
+                                                {{ $mode ? 'View' : 'Select Mode' }}
                                             </button>
                                         </td>
                                     </tr>

@@ -12,6 +12,8 @@ class BacModeOfProcurement extends Component
     use WithPagination;
 
     public $selectedPpmp = null;
+    public $search = '';
+    public $filterMode = '';
 
     protected $paginationTheme = 'tailwind'; // Use Tailwind pagination style
 
@@ -57,11 +59,29 @@ class BacModeOfProcurement extends Component
 
     public function render()
     {
+        $ppmps = Ppmp::with('items', 'requester')
+            ->where('status', 'approved') // ✅ only approved
+            ->when($this->search, function($query) {
+                $query->where(function($q) {
+                    $q->whereHas('requester', function($rq) {
+                        $rq->where('first_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('last_name', 'like', '%'.$this->search.'%');
+                    })
+                    ->orWhere('project_title', 'like', '%'.$this->search.'%');
+                });
+            })
+            ->when($this->filterMode, function($query) {
+                if ($this->filterMode === 'not_selected') {
+                    $query->whereNull('mode_of_procurement'); // ✅ null
+                } else {
+                    $query->where('mode_of_procurement', $this->filterMode);
+                }
+            })
+            ->latest()
+            ->paginate(10);
+
         return view('livewire.bac-mode-of-procurement', [
-            'ppmps' => Ppmp::with('items', 'requester')
-                ->where('status', 'approved')
-                ->latest()
-                ->paginate(10), // ✅ paginate instead of get()
+            'ppmps' => $ppmps,
         ]);
     }
 }

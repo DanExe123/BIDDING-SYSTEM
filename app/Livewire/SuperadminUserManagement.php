@@ -25,6 +25,8 @@ class SuperadminUserManagement extends Component
     public $selectedSupplier;
 
     public $rejectionRemarks = ''; // 👈 remarks input
+    public $search = '';
+
 
     public function confirmDelete($userId)
     {
@@ -98,30 +100,55 @@ class SuperadminUserManagement extends Component
         }
     }
 
-    public function render()
+    public function updatingSearch()
 {
-    $query = User::with('roles')
-        ->whereHas('roles', function ($q) {
-            $q->where('name', '!=', 'Super_Admin');
+    $this->resetPage();
+}
 
-            if ($this->roleFilter !== 'All') {
-                $q->where('name', str_replace(' ', '_', $this->roleFilter));
-            }
-        });
 
-    // 🔥 If logged-in user is BAC_Secretary → ONLY show Supplier users
-    if (Auth::user()->roles->first()->name === 'BAC_Secretary') {
+    public function render()
+    {
         $query = User::with('roles')
             ->whereHas('roles', function ($q) {
-                $q->where('name', 'Supplier');
+                $q->where('name', '!=', 'Super_Admin');
+
+                if ($this->roleFilter !== 'All') {
+                    $q->where('name', str_replace(' ', '_', $this->roleFilter));
+                }
             });
+
+            // 🔍 SEARCH — applies to SUPERADMIN by default
+            if ($this->search) {
+                $query->where(function ($q) {
+                    $q->where('first_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            }
+
+        // 🔥 If logged-in user is BAC_Secretary → ONLY show Supplier users
+        if (Auth::user()->roles->first()->name === 'BAC_Secretary') {
+            $query = User::with('roles')
+                ->whereHas('roles', function ($q) {
+                    $q->where('name', 'Supplier');
+                });
+
+            // 👇 ADD SEARCH HERE TOO
+            if ($this->search) {
+                $query->where(function ($q) {
+                    $q->where('first_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            }
+        }
+
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(11);
+
+        return view('livewire.superadmin-user-management', [
+            'users' => $users,
+        ]);
     }
-
-    $users = $query->orderBy('created_at', 'desc')->paginate(11);
-
-    return view('livewire.superadmin-user-management', [
-        'users' => $users,
-    ]);
-}
 
 }

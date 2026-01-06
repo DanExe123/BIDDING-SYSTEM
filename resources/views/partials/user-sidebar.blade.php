@@ -11,12 +11,17 @@
                     <x-phosphor.icons::regular.house class="w-5 h-5" />
                     Dashboard
                 </a>
-
-                <a wire:navigate href="{{ route('superadmin-audittrails') }}"
-                    class="{{ request()->routeIs('superadmin-audittrails') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
-                    <x-phosphor.icons::regular.list-magnifying-glass class="w-5 h-5" />
-                    Audit Trails
+                <a wire:navigate href="{{ route('superadmin-user-management') }}"
+                    class="{{ request()->routeIs('superadmin-user-management') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.users-three class="w-5 h-5" />
+                    User Management
                 </a>
+                <a wire:navigate href="{{ route('superadmin-suppliercategory') }}"
+                    class="{{ request()->routeIs('superadmin-suppliercategory') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.users-three class="w-5 h-5" />
+                    Supplier Category
+                </a>
+
             @endrole
 
             @role('BAC_Secretary')
@@ -70,15 +75,13 @@
                     <x-phosphor.icons::regular.trophy class="w-5 h-5" />
                     <span class="text-sm whitespace-nowrap">Notice of Award</span>
                 </a>
-            @endrole
 
-            @hasanyrole(['Super_Admin', 'BAC_Secretary'])
                 <a wire:navigate href="{{ route('superadmin-user-management') }}"
                     class="{{ request()->routeIs('superadmin-user-management') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.users-three class="w-5 h-5" />
-                    User Management
+                    Supplier Management
                 </a>
-            @endhasanyrole
+            @endrole
 
             @role('Supplier')
                 <a wire:navigate href="{{ route('supplier-dashboard') }}"
@@ -117,6 +120,16 @@
                     class="{{ request()->routeIs('purchaser-procurement-planning') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
                     <x-phosphor.icons::regular.clipboard-text class="w-5 h-5" />
                     Purchase Request
+                </a>
+                <a wire:navigate href="{{ route('purchaser-invitation') }}"
+                    class="{{ request()->routeIs('purchaser-invitation') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.chart-line class="w-5 h-5" />
+                    Monitoring
+                </a>
+                <a wire:navigate href="{{ route('bac-notice-of-award') }}"
+                    class="{{ request()->routeIs('bac-notice-of-award') ? 'bg-[#EFE8A5] text-black' : 'hover:bg-[#EFE8A5] hover:text-black' }} rounded-full px-4 py-2 flex items-center gap-2">
+                    <x-phosphor.icons::regular.trophy class="w-5 h-5" />
+                    <span class="text-sm whitespace-nowrap">Notice of Award</span>
                 </a>
 
                 <a wire:navigate href="{{ route('purchaser-bid-monitoring') }}"

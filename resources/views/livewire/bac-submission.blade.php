@@ -140,20 +140,23 @@
                         <h2 class="text-lg font-semibold text-gray-800">
                             Reference: {{ $selectedPpmp->invitations->last()?->reference_no }}
                         </h2>
-                        <p class="text-sm text-gray-600">
-                            Project: {{ $selectedPpmp->project_title }}
+                        <p class="text-md text-gray-600">
+                            <Strong>Project:</Strong> {{ $selectedPpmp->project_title }}
+                        </p>
+                        <p class="text-md text-gray-600">
+                            <strong>Requested by:</strong>
+                            <span class="underline decoration-gray-400 underline-offset-4 font-medium">
+                                {{ $selectedPpmp->requester->first_name }} {{ $selectedPpmp->requester->last_name }}
+                            </span>
                         </p>
 
-                        {{-- Show Bid Amount only if bidding --}}
-                        @if($selectedPpmp?->mode_of_procurement === 'bidding')
-                            <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mb-2">
-                                <strong>Budget:</strong> ₱{{ number_format($selectedPpmp->abc, 2) }}
-                            </div>
-                        @endif
+                        <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mt-2 mb-2">
+                            <strong>Budget:</strong> ₱{{ number_format($selectedPpmp->abc, 2) }}
+                        </div>
 
-                        <div class="mt-2 mb-2 text-sm text-gray-700 flex space-x-8">
+                        <div class="mt-2 mb-2 text-sm text-gray-700 flex space-x-4">
                             <p>
-                                <strong>Pre Date:</strong> 
+                                <strong>Start Date:</strong> 
                                 {{ \Carbon\Carbon::parse($selectedPpmp->invitations->last()->pre_date)->format('F d, Y') }}
                             </p>
                             <p>-</p>
@@ -193,7 +196,7 @@
 
                 <h2 class="text-lg font-semibold">Supplier Submissions</h2>
 
-                <div x-data="{ showDocsModal: false, showEvalModal: false }" class="relative" x-cloak>
+                <div x-data="{ showDocsModal: false, showEvalModal: false}" class="relative" x-cloak>
                     <table class="min-w-full text-sm border">
                         <thead class="bg-gray-200">
                             <tr>
@@ -201,14 +204,15 @@
                                 <th class="px-4 py-2 text-left">
                                     {{ optional($selectedPpmp)->mode_of_procurement === 'quotation' ? 'Items' : 'Bid Amount' }}
                                 </th>
+                                <th class="px-4 py-2 text-left">Delivery days</th>
 
                                 {{-- Show only if bidding --}}
                                 @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
                                     <th class="px-4 py-2 text-left">Technical Score</th>
                                     <th class="px-4 py-2 text-left">Financial Score</th>
                                     <th class="px-4 py-2 text-left">Total Score</th>
+                                    <th class="px-4 py-2 text-left">Evaluated_at</th>
                                 @endif
-                                <th class="px-4 py-2 text-left">Delivery days</th>
                                 <th class="px-4 py-2 text-left">Status</th>
                                 @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
                                     <th class="px-4 py-2 text-left">Action</th>
@@ -219,7 +223,6 @@
                             @forelse($submissions as $submission)
                                 <tr>
                                     <td class="px-4 py-2">{{ $submission->supplier->first_name ?? 'N/A' }}</td>
-
                                     {{-- Inline condition --}}
                                     <td class="px-4 py-2">
                                         @if($selectedPpmp->mode_of_procurement === 'quotation')
@@ -247,6 +250,7 @@
                                             ₱{{ number_format($submission->bid_amount, 2) }}
                                         @endif
                                     </td>
+                                    <td class="px-4 py-2 text-center">{{ $submission->delivery_days ?? 'N/A' }}</td>
 
                                     {{-- Show only if bidding --}}
                                     @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
@@ -271,8 +275,24 @@
                                                     : rtrim(rtrim(number_format($submission->total_score, 2), '0'), '.')) 
                                                 : '-' }}
                                         </td>
+                                        <td class="px-4 py-2 text-center text-xs text-gray-500">
+                                            @php
+                                                $status = $submission->status === 'submitted' 
+                                                    ? 'pending' 
+                                                    : ($submission->status === 'under_review' ? 'evaluated' : $submission->status);
+                                            @endphp
+
+                                            @if($status === 'evaluated')
+                                                {{ $submission->updated_at->diffInHours() < 24 
+                                                    ? $submission->updated_at->diffForHumans() 
+                                                    : $submission->updated_at->format('n/j/Y, g:i A') }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+
+
                                     @endif
-                                   <td class="px-4 py-2 text-center">{{ $submission->delivery_days ?? 'N/A' }}</td>
 
                                     <td class="px-4 py-2">
                                         {{-- Status logic --}}
@@ -437,26 +457,52 @@
                                 @error('financial_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
 
-                            <div wire:poll.500ms class="mb-4">
-                                <label class="block text-sm font-medium">Total Score</label>
+                            <div class="mb-4 flex items-center justify-between" x-data="{ showTotal: false, loadingTotal: false }">
+                                <button 
+                                    type="button" 
+                                    @click="
+                                        loadingTotal = true; 
+                                        showTotal = false; 
+                                        setTimeout(() => {
+                                            showTotal = true; 
+                                            loadingTotal = false;
+                                        }, 500)
+                                    " 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                    Generate Total Score
+                                </button>
 
-                                <!-- Input (only when not loading) -->
-                                <input type="text" 
-                                    wire:model="total_score" 
-                                    readonly
-                                    wire:loading.remove
-                                    wire:target="technical_score,financial_score"
-                                    class="w-full border rounded px-3 py-2 bg-gray-100">
+                                <div class="w-full mt-2" x-show="loadingTotal">
+                                    <div class="flex justify-center items-center w-full border rounded px-3 py-2 bg-gray-100">
+                                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
 
-                                <!-- Spinner (only when loading) -->
-                                <div wire:loading wire:target="technical_score,financial_score" 
-                                    class="flex justify-center items-center w-full border rounded px-3 py-2 bg-gray-100">
-                                    <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z">
-                                        </path>
-                                    </svg>
+                                <div wire:poll.500ms x-show="showTotal" class="mb-4">
+                                    <label class="block text-sm font-medium">Total Score</label>
+
+                                    <!-- Input (only when not loading) -->
+                                    <input type="text" 
+                                        wire:model="total_score" 
+                                        readonly
+                                        wire:loading.remove
+                                        wire:target="technical_score,financial_score"
+                                        class="w-full border rounded px-3 py-2 bg-gray-100">
+
+                                    <!-- Spinner (only when loading) -->
+                                    <div wire:loading wire:target="technical_score,financial_score" 
+                                        class="flex justify-center items-center w-full border rounded px-3 py-2 bg-gray-100">
+                                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z">
+                                            </path>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
 

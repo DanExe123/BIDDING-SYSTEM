@@ -11,6 +11,8 @@ use App\Livewire\SuperadminUserManagement;
 use App\Livewire\SuperadminCreateAccount;
 use App\Livewire\SuperadminEditAccount;
 use App\Livewire\SuperadminAudittrails;
+use App\Livewire\SuperadminSuppliercategory;
+
 // bac dashboard //
 use App\Livewire\BacDashboard;
 use App\Livewire\BacProcurementPlanning;
@@ -37,11 +39,13 @@ use App\Livewire\SupplierNoticeOfAward;
 use App\Livewire\PurchaserDashboard;
 use App\Livewire\PurchaserProcurementPlanning;
 use App\Livewire\PurchaserBidMonitoring;
+use App\Livewire\PurchaserInvitation;
 use App\Livewire\InspectionReport;
 use App\Livewire\PurchaserNotificationBell;
 use App\Livewire\BacNotificationBell;
 use App\Livewire\SupplierNotificationBell;
 use App\Livewire\AuditTrails;
+use App\Livewire\Settings\ProfileForm;
 
 Route::get('/', function () {
     return view('welcome');
@@ -57,9 +61,8 @@ Route::middleware(['auth', 'role:Super_Admin'])->group(function () {
     Route::get('/superadmin', SuperadminDashboard::class)->name('superadmin-dashboard'); 
     Route::get('/superadmin-audittrails', SuperadminAudittrails::class)->name('superadmin-audittrails'); 
     Route::get('/announcements', AnnouncementPage::class)->name('announcement-page');
-    Route::get('/announcement-page/{editId?}', AnnouncementPage::class)
-    ->name('announcement-page');
-    
+    Route::get('/announcement-page/{editId?}', AnnouncementPage::class)->name('announcement-page');
+    Route::get('/superadmin-suppliercategory', SuperadminSuppliercategory::class)->name('superadmin-suppliercategory'); 
 });
 
 Route::middleware(['auth', 'role:BAC_Secretary|Super_Admin'])->group(function () {
@@ -84,8 +87,8 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
  
 });
 
-    Route::middleware(['auth', 'role:Supplier|BAC_Secretary'])->group(function () {
-        Route::get('/notice-of-award', NoticeOfAward::class)->name('notice-of-award'); 
+    Route::middleware(['auth', 'role:Purchaser|BAC_Secretary'])->group(function () {
+        Route::get('/bac-notice-of-award', BacNoticeOfAward::class)->name('bac-notice-of-award'); 
     });
 
     Route::middleware(['auth', 'role:Supplier|BAC_Secretary|Purchaser|Super_Admin'])->group(function () {
@@ -95,6 +98,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
     Route::middleware(['auth', 'role:Purchaser'])->group(function () {
         Route::get('/purchaser/dashboard', PurchaserDashboard::class)->name('purchaser-dashboard');
         Route::get('/purchaser/procurement-planning', PurchaserProcurementPlanning::class)->name('purchaser-procurement-planning');
+         Route::get('/purchaser/procurement-invitation', PurchaserInvitation::class)->name('purchaser-invitation');
         Route::get('/purchaser/bid-monitoring', PurchaserBidMonitoring::class)->name('purchaser-bid-monitoring');
         Route::get('/purchaser/inspection-report', InspectionReport::class)->name('inspection-report');
         Route::get('/bell', PurchaserNotificationBell::class)->name('purchaser-notification-bell');
@@ -109,7 +113,7 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
         //procurement planning module // 
         Route::get('/bac-mode-of-procurement',BacModeOfProcurement::class)->name('bac-mode-of-procurement');
         Route::get('/bac-procurement-workflow',BacProcurementWorkflow::class)->name('bac-procurement-workflow');
-        Route::get('/bac-notice-of-award', BacNoticeOfAward::class)->name('bac-notice-of-award'); 
+        
         Route::get('/bell', BacNotificationBell::class)->name('bac-notification-bell'); 
     
     });
@@ -145,8 +149,9 @@ Route::middleware(['auth'])->group(function () {
     
 
     Route::redirect('settings', 'settings/profile');
+    Route::get('settings/profile', ProfileForm::class)->name('settings.profile');
 
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
+    //Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });

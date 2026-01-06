@@ -7,7 +7,14 @@
     <div class="flex-1 flex flex-col bg-gray-100 min-h-screen">
         <!-- Topbar -->
         <header class="g-[#EFE8A5] h-16 flex items-center justify-between px-6 shadow">
-            <h1 class="text-xl font-semibold">User Management</h1>
+            <h1 class="text-xl font-semibold">
+                @if(Auth::user()->roles->first()->name === 'BAC_Secretary')
+                    Supplier Management
+                @else
+                    User Management
+                @endif
+            </h1>
+
             <div>
                 <button class="text-gray-500 hover:text-black">
                     <x-phosphor.icons::regular.bell class="w-6 h-6 text-black" />
@@ -47,31 +54,58 @@
         <!-- Page content -->
         <main class="p-6 space-y-6 flex-1">
 
-            @role('Super_Admin')
-            <!-- Filter and Create Account Buttons -->
-            <div class="flex justify-between items-center flex-wrap gap-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <label for="roleFilter" class="text-sm font-medium">Filter by:</label>
-                    <select wire:model="roleFilter" id="roleFilter"
-                        class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option value="All">All</option>
-                        <option value="BAC Secretary">BAC Secretary</option>
-                        <option value="Supplier">Supplier</option>
-                        <option value="Purchaser">Purchaser</option>
-                    </select>
+            
+            <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
+
+                {{-- LEFT: Search + Filter --}}
+                <div class="flex items-center gap-3 flex-wrap">
+
+                    {{-- Search --}}
+                    <input
+                        type="text"
+                        wire:model.debounce.500ms="search"
+                        placeholder="Search name or email..."
+                        class="w-64 px-3 py-2 border border-gray-300 rounded-md text-sm
+                            focus:ring-2 focus:ring-cyan-400 focus:outline-none"
+                    />
+
+                    @role('Super_Admin')
+                    {{-- Role Filter --}}
+                    <div class="flex items-center gap-2">
+                        <label for="roleFilter" class="text-sm font-medium whitespace-nowrap">
+                            Filter by:
+                        </label>
+
+                        <select
+                            wire:model="roleFilter"
+                            id="roleFilter"
+                            class="border border-gray-300 rounded px-2 py-1 text-sm"
+                        >
+                            <option value="All">All</option>
+                            <option value="BAC Secretary">BAC Secretary</option>
+                            <option value="Supplier">Supplier</option>
+                            <option value="Purchaser">Purchaser</option>
+                        </select>
+                    </div>
+                    @endrole
+
                 </div>
 
-                <div class="flex items-center gap-2">
+                @role('Super_Admin')
+                {{-- RIGHT: Create Button --}}
+                <div>
                     <a wire:navigate href="{{ route('superadmin-create-account') }}">
                         <button
-                            class="border border-cyan-700 text-cyan-900 hover:bg-cyan-100 px-4 py-1 rounded text-sm font-semibold">
+                            class="border border-cyan-700 text-cyan-900 hover:bg-cyan-100
+                                px-4 py-1 rounded text-sm font-semibold"
+                        >
                             Create Account
                         </button>
                     </a>
                 </div>
-
+                @endrole
             </div>
-            @endrole
+           
 
             <!-- Account Sections (temporary data for front use only) -->
             <div wire:poll class="overflow-x-auto">

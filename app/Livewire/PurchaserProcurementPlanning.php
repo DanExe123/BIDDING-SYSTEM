@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Ppmp;
 use App\Models\ProcurementItem;
+use App\Models\SupplierCategory;
 use App\Helpers\LogActivity;
 use Illuminate\Support\Facades\Auth;
 
@@ -165,13 +166,14 @@ class PurchaserProcurementPlanning extends Component
         $this->reset(['project_title','project_type','abc','implementing_unit','description','attachments','items']);
     }
     
-   public function render()
+    public function render()
     {
         return view('livewire.purchaser-procurement-planning', [
             'ppmps' => Ppmp::with('items')   // 👈 eager load items
                 ->where('requested_by', Auth::id())
                 ->orderBy('created_at', 'asc')
-                ->get()
+                ->get(),
+            'supplierCategories' => SupplierCategory::all(),
         ]);
     }
 

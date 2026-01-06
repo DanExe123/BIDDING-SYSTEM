@@ -14,6 +14,9 @@ class BacProcurementPlanning extends Component
 
     public $selectedPpmp = null;
     public $remarks;
+    public $search = '';
+    public $filterStatus = '';
+
 
     protected $paginationTheme = 'tailwind'; // optional for Tailwind styles
 
@@ -66,11 +69,35 @@ class BacProcurementPlanning extends Component
 
     public function render()
     {
+        $ppmps = Ppmp::with('items', 'requester')
+            // ✅ Always include only pending and rejected PPMPs
+            //->whereIn('status', ['pending', 'approved', 'rejected'])
+            
+            // ✅ Apply search only to pending/rejected PPMPs
+            ->when($this->search, function($query) {
+                $query->where(function($q) {
+                    $q->whereHas('requester', function($rq) {
+                        // Search by requester first_name or last_name
+                        $rq->where('first_name', 'like', '%'.$this->search.'%')
+                        ->orWhere('last_name', 'like', '%'.$this->search.'%');
+                    })
+                    // Search by project_title (still only pending/rejected)
+                    ->orWhere('project_title', 'like', '%'.$this->search.'%');
+                });
+            })
+            
+            // ✅ Apply status filter only to pending/rejected (ignores any attempt to filter by approved/awarded)
+            ->when($this->filterStatus, function($query) {
+                if (in_array($this->filterStatus, ['pending', 'rejected'])) {
+                    $query->where('status', $this->filterStatus);
+                }
+            })
+            
+            ->latest()
+            ->paginate(10);
+
         return view('livewire.bac-procurement-planning', [
-            'ppmps' => Ppmp::with('items', 'requester')
-                ->where('status', '!=', 'approved')
-                ->latest()
-                ->paginate(10), // ✅ paginate instead of get()
+            'ppmps' => $ppmps,
         ]);
     }
 }

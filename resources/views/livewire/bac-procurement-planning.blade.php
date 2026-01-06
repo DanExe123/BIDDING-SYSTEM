@@ -48,6 +48,27 @@
           <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
             <h2 class="text-lg font-semibold text-white">Request for Approval</h2>
           </div>
+
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 md:space-x-2 m-4">
+                    <!-- Search -->
+                    <input 
+                        type="text" 
+                        wire:model.debounce.500ms="search" 
+                        placeholder="Search by requester or project..." 
+                        class="border rounded px-3 py-2 w-full md:w-1/2"
+                    />
+
+                    <!-- Status Filter -->
+                    <select 
+                        wire:model="filterStatus" 
+                        class="border rounded px-3 py-2 w-full md:w-1/4"
+                    >
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
           <!-- Alpine component wrapper -->
           <div x-data="{ showModal: false }" x-on:close-modal.window="showModal = false" class="relative">
             <!-- Request Table -->
@@ -56,7 +77,9 @@
                     <thead class="bg-blue-200 font-semibold border-b border-gray-300">
                         <tr>
                             <th class="w-1/3 text-left px-4 py-2">Request by:</th>
-                            <th class="w-1/3 text-center px-4 py-2">Purpose:</th>
+                            <th class="w-1/5 text-center px-4 py-2">Purpose:</th>
+                            <th class="w-1/3 text-center px-4 py-2">Requested At:</th>
+                            <th class="w-1/4 text-center px-4 py-2">Responded At:</th>
                             <th class="w-1/3 text-right px-4 py-2">Status:</th>
                             <th class="w-1/3 text-right px-4 py-2">Action</th>
                         </tr>
@@ -70,6 +93,25 @@
                                 <td class="w-1/3 px-4 py-2 text-center">
                                     {{ $ppmp->project_title }}
                                 </td>
+                                <td class="px-4 py-2 text-center whitespace-nowrap">
+                                    @if($ppmp->created_at->diffInHours() < 24)
+                                        {{ $ppmp->created_at->diffForHumans() }}
+                                    @else
+                                        {{ $ppmp->created_at->format('n/j/Y, g:i A') }}
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2 text-center whitespace-nowrap">
+                                    @if(in_array($ppmp->status, ['approved', 'rejected']))
+                                        @if($ppmp->updated_at->diffInHours() < 24)
+                                            {{ $ppmp->updated_at->diffForHumans() }}
+                                        @else
+                                            {{ $ppmp->updated_at->format('n/j/Y, g:i A') }}
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400 italic">—</span>
+                                    @endif
+                                </td>
+
                                 <td class="w-1/3 px-4 py-2 text-right">
                                     <span class="
                                         px-2 py-1 rounded-full text-sm
@@ -245,6 +287,7 @@
                                 @endif
                             </div>
 
+                            @if($selectedPpmp && $selectedPpmp->status !== 'approved')
                             <!-- Footer -->
                             <div class="px-6 py-4 flex justify-end items-center border-t border-gray-300 sticky bottom-0 bg-gray-100">
                                 <div class="space-x-2">
@@ -265,6 +308,7 @@
                                     @endif
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div> <!-- scroll wrapper end -->
                 </div>

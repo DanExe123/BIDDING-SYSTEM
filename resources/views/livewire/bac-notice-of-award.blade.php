@@ -21,6 +21,26 @@
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">Notice Of Award
                 </div>
+                <div class="flex gap-3 px-4 py-3">
+                    <!-- Search -->
+                    <input
+                        type="text"
+                        wire:model.debounce.500ms="search"
+                        placeholder="Search reference, project, supplier"
+                        class="border rounded px-3 py-2 w-72"
+                    />
+
+                    <!-- Mode of Procurement Filter -->
+                    <select
+                        wire:model="modeFilter"
+                        class="border rounded px-3 py-2"
+                    >
+                        <option value="">All Procurement Types</option>
+                        <option value="bidding">Bidding</option>
+                        <option value="quotation">Quotation</option>
+                    </select>
+                </div>
+
                 <div x-data="{ showModal: false }">
                     <!-- Alpine component wrapper -->
                     <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
@@ -30,6 +50,7 @@
                                     <th class="w-1/6 text-left px-4 py-2">Reference No</th>
                                     <th class="w-1/6 text-center px-4 py-2">Purpose</th>
                                     <th class="w-1/6 text-center px-4 py-2">Procurement Type</th>
+                                    <th class="w-1/6 text-center px-4 py-2">Awarded at</th>
                                     <th class="w-1/6 text-center px-4 py-2">Status</th>
                                     <th class="w-1/6 text-center px-4 py-2">Awarded To</th>
                                     <th class="w-1/6 text-center px-4 py-2">Actions</th>
@@ -47,6 +68,14 @@
                                             <td class="px-4 py-2">{{ $invitation->reference_no ?? 'No Ref' }}</td>
                                             <td class="px-4 py-2 text-center">{{ $ppmp->project_title }}</td>
                                             <td class="px-4 py-2 text-center">{{ ucfirst($ppmp->mode_of_procurement) }}</td>
+                                            <td class="px-4 py-2 text-center">
+                                                {{-- Show the updated_at of the awarded submission --}}
+                                                @foreach($awardedSubmissions as $submission)
+                                                    {{ $submission->updated_at->diffInHours() < 24
+                                                        ? $submission->updated_at->diffForHumans()
+                                                        : $submission->updated_at->format('n/j/Y, g:i A') }}
+                                                @endforeach
+                                            </td>
                                             <td class="px-4 py-2 text-center">
                                                 <span class="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
                                                     Awarded
@@ -219,6 +248,7 @@
 
                                 </div>
 
+                                @hasrole('BAC_Secretary')
                                 <!-- File Download -->
                                 <div class="p-6">
                                     <p class="text-sm font-semibold text-gray-700 mb-2">Award Document:</p>
@@ -263,6 +293,7 @@
                                     </div>
 
                                 </div>
+                                @endhasrole
 
                                 <!-- Footer -->
                                 <div class="px-6 py-4 flex justify-end border-t border-gray-200">

@@ -199,6 +199,9 @@
                                 @if($selectedInvitation->ppmp->mode_of_procurement === 'quotation')
                                     <div>
                                         <h4 class="font-medium mb-2">Quotation — Price per Item</h4>
+                                        @php
+                                            $grandTotal = 0;
+                                        @endphp
                                         <table class="min-w-full text-sm border-collapse border border-gray-300">
                                             <thead class="bg-gray-200">
                                                 <tr>
@@ -211,6 +214,12 @@
                                             </thead>
                                             <tbody>
                                                 @foreach($submissionItems as $si)
+                                                    @php
+                                                        $qty = $si->procurementItem->qty ?? 1;
+                                                        $unitPrice = (float) ($unitPrices[$si->id] ?? 0);
+                                                        $lineTotal = $qty * $unitPrice;
+                                                        $grandTotal += $lineTotal;
+                                                    @endphp
                                                     <tr class="border-b border-gray-200">
                                                         <td class="px-3 py-1 border">{{ $si->procurementItem->description ?? 'Item #' . $si->procurement_item_id }}</td>
                                                         <td class="px-3 py-1 border text-right">{{ $si->procurementItem->qty ?? 1 }}</td>
@@ -229,6 +238,17 @@
 
                                                     </tr>
                                                 @endforeach
+
+                                                <tfoot>
+                                                    <tr class="bg-gray-100 font-semibold">
+                                                        <td colspan="4" class="px-3 py-2 border text-right">
+                                                            Grand Total
+                                                        </td>
+                                                        <td class="px-3 py-2 border text-right text-green-700">
+                                                            ₱ {{ number_format($grandTotal, 2) }}
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
                                             </tbody>
                                         </table>
 

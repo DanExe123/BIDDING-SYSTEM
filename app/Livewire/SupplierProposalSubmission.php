@@ -58,7 +58,7 @@ class SupplierProposalSubmission extends Component
         ->with(['ppmp', 'submissions' => function($q) {
             $q->where('supplier_id', Auth::id());
         }])
-        ->orderBy('submission_deadline', 'asc')
+        ->orderBy('created_at', 'desc')
         ->get();
 
     }

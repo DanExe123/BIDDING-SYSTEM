@@ -77,17 +77,13 @@
                                             <div>
                                                 <label class="block font-medium mb-1">Project Type*</label>
 
-                                                <select 
-                                                    wire:model.defer="project_type"
-                                                    class="w-full border rounded px-3 py-2 bg-white"
-                                                >
-                                                    <option value="" >Select project type</option>
-                                                    <option value="Health">Health</option>
-                                                    <option value="Construction">Construction</option>
-                                                    <option value="Office">Office</option>
-                                                    <option value="Laboratory">Laboratory</option>
-                                                    <option value="Food">Food</option>
+                                                <select wire:model.defer="project_type" class="w-full border rounded px-3 py-2 bg-white">
+                                                    <option value="">Select project type</option>
+                                                    @foreach($supplierCategories as $category)
+                                                        <option value="{{ $category->project_type }}">{{ $category->project_type }}</option>
+                                                    @endforeach
                                                 </select>
+
 
                                                 @error('project_type')
                                                     <span class="text-red-500">{{ $message }}</span>

@@ -30,7 +30,10 @@ class BacInvitation extends Component
 
     public $categories = [];
     public $suppliers = [];
+        // ✅ Change property name at top of class:
+public $searchInv = '';  // Changed from $search
     public $supplierSearch = '';
+     public $filterSupplierCategoryId = null; // already bound in Blade
 
     protected $paginationTheme = 'tailwind'; 
 
@@ -38,13 +41,6 @@ class BacInvitation extends Component
     {
         unset($this->documents[$index]);
         $this->documents = array_values($this->documents); // reindex array
-    }
-
-    public function mount()
-    {
-        // load categories and suppliers (not paginated)
-        $this->categories = SupplierCategory::all();
-        $this->suppliers = User::role('supplier')->where('account_status', 'verified')->with('supplierCategory')->get();
     }
 
     
@@ -55,6 +51,21 @@ class BacInvitation extends Component
         $this->title = $this->selectedPpmp->project_title;
         $this->approvedBudget = $this->selectedPpmp->abc;
         $this->sourceOfFunds = $this->selectedPpmp->implementing_unit;
+
+
+         $projectType = $this->selectedPpmp->project_type; // "Construction", "Goods", etc.
+
+        // filter categories by project_type
+        $this->categories = SupplierCategory::where('project_type', $projectType)->get();
+
+        // filter suppliers by category.project_type
+        $this->suppliers = User::role('supplier')
+            ->where('account_status', 'verified')
+            ->whereHas('supplierCategory', function ($q) use ($projectType) {
+                $q->where('project_type', $projectType);
+            })
+            ->with('supplierCategory')
+            ->get();
 
         // check mode_of_procurement
         $mode = $this->selectedPpmp->mode_of_procurement;
@@ -89,7 +100,7 @@ class BacInvitation extends Component
             'submissionDeadline'  => 'required|date|after_or_equal:preDate',
             'inviteScope'         => 'required|in:category,specific',
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
-            'selectedSuppliers'   => 'required_if:inviteScope,specific|array',
+            'selectedSuppliers' => 'required_if:inviteScope,specific|array|max:3',
             'selectedSuppliers.*' => 'exists:users,id',
             'documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
@@ -153,11 +164,27 @@ class BacInvitation extends Component
         $this->dispatch('close-modal');
     }
     
-    //supplier search 
+    public function mount()
+    {
+        // empty; categories/suppliers are loaded when PPMP is selected
+        $this->categories = collect();
+        $this->suppliers  = collect();
+    }
+
     public function searchSuppliers()
     {
+        if (!$this->selectedPpmp) {
+            $this->suppliers = collect();
+            return;
+        }
+
+        $projectType = $this->selectedPpmp->project_type;
+
         $this->suppliers = User::role('supplier')
             ->where('account_status', 'verified')
+            ->whereHas('supplierCategory', function ($q) use ($projectType) {
+                $q->where('project_type', $projectType);
+            })
             ->with('supplierCategory')
             ->when($this->supplierSearch, function ($query) {
                 $query->where(function ($q) {
@@ -165,20 +192,49 @@ class BacInvitation extends Component
                     ->orWhere('last_name', 'like', '%' . $this->supplierSearch . '%');
                 });
             })
+            ->when($this->filterSupplierCategoryId, function ($q) {
+                $q->where('supplier_category_id', $this->filterSupplierCategoryId);
+            })
             ->get();
     }
+
     
+
+    // ✅ Change method name:
+    public function updatedSearchInv()  // Changed from updatedSearch
+    {
+        $this->resetPage();
+    }
+
+    // ✅ Replace your render() method:
     public function render()
     {
+        $query = Ppmp::with(['items', 'invitations'])
+            ->where('status', 'approved')
+            ->whereNotNull('mode_of_procurement')
+            ->where('mode_of_procurement', '!=', '');
+
+        // ✅ ROLE-BASED FILTERING
+        $this->isPurchaser = auth()->user()->hasRole('Purchaser');
+        if ($this->isPurchaser) {
+            $query->where('requested_by', auth()->id());
+        }
+
+        // ✅ SEARCH by project_title OR reference_no using searchInv
+        $query->when($this->searchInv, function($q) {
+            $q->where(function($sub) {
+                $sub->where('project_title', 'like', '%'.$this->searchInv.'%')
+                    ->orWhereHas('invitations', function($inv) {
+                        $inv->where('reference_no', 'like', '%'.$this->searchInv.'%');
+                    });
+            });
+        });
+
         return view('livewire.bac-invitation', [
-            // ✅ paginate ppmps instead of loading all in mount
-            'ppmps' => Ppmp::where('status', 'approved')
-                ->whereNotNull('mode_of_procurement') // exclude null values
-                ->where('mode_of_procurement', '!=', '') // exclude empty string
-                ->with(['items', 'invitations']) 
-                ->orderBy('created_at', 'desc')
-                ->paginate(10),
+            'ppmps' => $query->orderBy('created_at', 'desc')->paginate(10),
+            'isPurchaser' => $this->isPurchaser,
         ]);
     }
+
     
 }
