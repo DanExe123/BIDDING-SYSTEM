@@ -102,7 +102,7 @@ public $searchInv = '';  // Changed from $search
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
             'selectedSuppliers' => 'required_if:inviteScope,specific|array|max:3',
             'selectedSuppliers.*' => 'exists:users,id',
-            'documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+           // 'documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }
 
@@ -113,12 +113,12 @@ public $searchInv = '';  // Changed from $search
         $paths = [];
         $names = []; // <-- this is your array
 
-        if ($this->documents) {
+       /*  if ($this->documents) {
             foreach ($this->documents as $file) {
                 $paths[] = $file->store('invitations', 'public');       // save file path
                 $names[] = $file->getClientOriginalName();              // save original name
             }
-        }
+        }*/
 
         $invitation = Invitation::create([
             'ppmp_id'             => $this->selectedPpmp->id,
@@ -128,8 +128,8 @@ public $searchInv = '';  // Changed from $search
             'source_of_funds'     => $this->sourceOfFunds,
             'pre_date'            => $this->preDate,
             'submission_deadline' => $this->submissionDeadline,
-            'documents'           => json_encode($paths), // store paths array
-            'document_names'        => json_encode($names), // <-- use $names here
+          //  'documents'           => json_encode($paths), // store paths array
+          //  'document_names'        => json_encode($names), // <-- use $names here
             'invite_scope'        => $this->inviteScope,
             'supplier_category_id'=> $this->supplierCategoryId,
             'created_by'          => Auth::id(),

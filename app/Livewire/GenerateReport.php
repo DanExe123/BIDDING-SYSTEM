@@ -64,7 +64,7 @@ class GenerateReport extends Component
             $daysScore = 100 * (1 - ($s->delivery_days ?? $maxDays) / $maxDays);
 
             // Weighted total: 40% total_score, 40% bid, 20% delivery_days
-            $s->weighted_total = $score * 0.4 + $bidScore * 0.4 + $daysScore * 0.2;
+            $s->weighted_total = $score * 0.80 + $bidScore * 0.10 + $daysScore * 0.10;
         }
 
         // Step 3: sort descending, highest weighted_total wins

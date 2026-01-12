@@ -101,7 +101,7 @@ class BacSubmission extends Component
             'financial_score' => 'required|numeric|min:0|max:100',
         ]);
 
-        $this->total_score = ($this->technical_score * 0.5) + ($this->financial_score * 0.5);
+        $this->total_score = ($this->technical_score * 0.7) + ($this->financial_score * 0.3);
 
         $this->evaluationSubmission->update([
             'technical_score' => $this->technical_score,

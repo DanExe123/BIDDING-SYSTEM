@@ -50,7 +50,7 @@
                 <div x-data="{ showModal: false }" x-on:close-invitation-modal.window="showModal = false"  class="relative" >
                     <!-- Table -->
                     <div class="border border-gray-300 m-4 rounded-md overflow-hidden bg-white">
-                        <table wire:poll class="min-w-full text-sm border-collapse">
+                        <table wire:poll class="min-w-full mb-18 text-sm border-collapse">
                             <thead class="bg-blue-200 border-b border-gray-300">
                                 <tr>
                                     <th class="px-4 py-2 w-1/4 text-left font-semibold">Reference No</th>
@@ -62,15 +62,28 @@
                             </thead>
                             <tbody class="text-gray-700">
                                 @foreach($invitations as $invitation)
-                                    <tr class="border-b border-gray-200">
-                                        <td class="px-4 py-2">{{ $invitation->reference_no }}</td>
+                                    @php
+                                        $isRead = $invitation->suppliers()
+                                            ->where('supplier_id', auth()->id())
+                                            ->first()?->pivot?->is_read ?? false;
+                                    @endphp
+                                    <tr class="border-b border-gray-200 {{ !$isRead ? 'bg-blue-50 font-semibold' : '' }}">
+                                        <td class="px-4 py-2">
+                                            @if(!$isRead)
+                                               <span class="inline-flex items-center gap-1 mr-2">
+                                                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">NEW</span>
+                                                </span>
+                                            @endif
+                                            {{ $invitation->reference_no }}
+                                        </td>
                                         <td class="px-4 py-2 text-center">{{ $invitation->title }}</td>
                                         <td class="px-4 py-2 text-center">{{ $invitation->ppmp?->mode_of_procurement }}</td>
-                                        <td class="px-4 py-2 text-center">
+                                        <td class="px-4 py-2 text-center relative">
                                             @php
-                                                $response = $invitation->suppliers()
-                                                    ->where('supplier_id', auth()->id())
-                                                    ->first()?->pivot?->response;
+                                                $supplier = $invitation->suppliers()->where('supplier_id', auth()->id())->first();
+                                                $response = $supplier?->pivot?->response;
+                                                $remarks = $supplier?->pivot?->remarks ?? null;
                                             @endphp
 
                                             @if ($response === 'accepted')
@@ -78,15 +91,47 @@
                                                     {{ ucfirst($response) }}
                                                 </span>
                                             @elseif ($response === 'declined')
-                                                <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-                                                    {{ ucfirst($response) }}
-                                                </span>
+                                                <div x-data="{ open: false }" class="inline-block relative">
+                                                    <!-- Dropdown Button -->
+                                                    <span class="px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full cursor-pointer hover:bg-red-200 transition-colors flex items-center gap-1"
+                                                        @click="open = !open">
+                                                        Declined
+                                                        <svg class="w-3 h-3 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                        </svg>
+                                                    </span>
+
+                                                    <!-- Dropdown Remarks -->
+                                                    <div x-show="open" 
+                                                        x-transition:enter="transition ease-out duration-100"
+                                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                                        x-transition:leave="transition ease-in duration-75"
+                                                        x-transition:leave-start="transform opacity-100 scale-100"
+                                                        x-transition:leave-end="transform opacity-0 scale-95"
+                                                        @click.outside="open = false"
+                                                        class="absolute z-50 mt-2 left-0 w-[200px] bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-left text-xs text-gray-700 max-h-64 overflow-y-auto"
+                                                        x-cloak>
+                                                        <div class="font-semibold text-red-800 mb-2 pb-1 border-b border-red-100 flex items-center gap-2">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            </svg>
+                                                            Decline Remarks
+                                                        </div>
+                                                        @if($remarks)
+                                                            <div class="whitespace-pre-wrap break-words">{{ $remarks }}</div>
+                                                        @else
+                                                            <div class="text-gray-500 italic">No remarks provided</div>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             @else
                                                 <span class="px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">
                                                     Pending
                                                 </span>
                                             @endif
                                         </td>
+
 
                                         <td class="px-4 py-2 text-right">
                                             <button wire:click="selectInvitation({{ $invitation->id }})" @click="showModal = true"
@@ -240,21 +285,70 @@
 
                                 @if($pivotResponse === 'pending')
                                     <div class="flex justify-end space-x-2 mt-4">
-                                        <button wire:click="respondToInvitation('declined')" 
-                                                class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                                        <button wire:click="confirmResponse('declined')" @click="showModal = false"
+                                                class="px-4 py-2 bg-red-500 text-white rounded-md">
                                             Decline
                                         </button>
 
-                                        <button wire:click="respondToInvitation('accepted')" 
-                                                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                                        <button wire:click="confirmResponse('accepted')" @click="showModal = false"
+                                                class="px-4 py-2 bg-green-500 text-white rounded-md">
                                             Accept
                                         </button>
+
                                     </div>
                                 @endif
 
                             </div>
                         </div>
                     </div>
+
+                    <div x-data="{ open: @entangle('confirmModal') }"
+                        x-show="open"
+                        x-transition
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+                        <div class="bg-white w-full max-w-md rounded-md shadow-lg p-6">
+                            <h2 class="text-lg font-semibold mb-4">
+                                Confirm {{ ucfirst($confirmAction) }}
+                            </h2>
+
+                            @if($confirmAction === 'declined')
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Remarks / Feedback <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea wire:model.defer="remarks"
+                                            class="w-full border rounded-md p-2 mt-1"
+                                            rows="3"
+                                            placeholder="Please state reason for rejection"></textarea>
+
+                                    @error('remarks')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @else
+                                <p class="text-gray-600 mb-4">
+                                    Are you sure you want to accept this invitation?
+                                </p>
+                            @endif
+
+                            <div class="flex justify-end space-x-2">
+                                <button @click="open=false"
+                                        class="px-4 py-2 border rounded-md">
+                                    Cancel
+                                </button>
+
+                                <button wire:click="submitResponse"
+                                        class="px-4 py-2 text-white rounded-md
+                                            {{ $confirmAction === 'declined'
+                                                ? 'bg-red-600'
+                                                : 'bg-green-600' }}">
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
         
             </div>

@@ -13,6 +13,8 @@ class InvitationSupplier extends Model
         'supplier_id',
         'response',
         'responded_at',
+        'remarks',
+        'is_read',
     ];
 
     public function invitation()

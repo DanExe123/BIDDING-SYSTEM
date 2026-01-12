@@ -12,6 +12,10 @@ class SupplierInvitations extends Component
 {
     public $invitations = [];
     public $selectedInvitation = null;
+    public $confirmModal = false;
+    public $confirmAction = null; // accepted | declined
+    public $remarks = '';
+
 
     public function mount()
     {
@@ -32,10 +36,23 @@ class SupplierInvitations extends Component
     }
 
     public function selectInvitation($invitationId)
-    {
-        $this->selectedInvitation = Invitation::with('ppmp', 'suppliers')->find($invitationId);
-    }
+{
+    $userId = auth()->id();
+    
+    $this->selectedInvitation = Invitation::with('ppmp', 'suppliers')->find($invitationId);
+    
+    // Mark as read
+    InvitationSupplier::where('invitation_id', $invitationId)
+        ->where('supplier_id', $userId)
+        ->update(['is_read' => true]);
+    
+    // Refresh this row only
+    $invitation = $this->invitations->find($invitationId);
+    $invitation->load('suppliers');
+}
 
+
+    /* 
     public function respondToInvitation($response)
     {
         $userId = auth()->id();
@@ -67,7 +84,50 @@ class SupplierInvitations extends Component
             $this->closeModal();
             $this->dispatch('close-invitation-modal');
         }
+    }*/
+
+    public function submitResponse()
+    {
+        $userId = auth()->id();
+
+        if ($this->confirmAction === 'declined' && empty(trim($this->remarks))) {
+            $this->addError('remarks', 'Remarks are required when declining.');
+            return;
+        }
+
+        InvitationSupplier::updateOrCreate(
+            [
+                'invitation_id' => $this->selectedInvitation->id,
+                'supplier_id'   => $userId,
+            ],
+            [
+                'response'     => $this->confirmAction,
+                'remarks'      => $this->remarks,
+                'responded_at' => now(),
+            ]
+        );
+
+        LogActivity::add(
+            "{$this->confirmAction} the invitation '{$this->selectedInvitation->reference_no}'"
+        );
+
+        session()->flash(
+            'message',
+            "Invitation {$this->confirmAction} successfully."
+        );
+
+        $this->reset(['confirmModal', 'confirmAction', 'remarks', 'selectedInvitation']);
+        $this->dispatch('close-invitation-modal');
     }
+
+
+    public function confirmResponse($action)
+    {
+        $this->confirmAction = $action;
+        $this->remarks = '';
+        $this->confirmModal = true;
+    }
+
 
     public function closeModal()
     {

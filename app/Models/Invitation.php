@@ -46,7 +46,7 @@ class Invitation extends Model
     public function suppliers()
     {
         return $this->belongsToMany(User::class, 'invitation_supplier', 'invitation_id', 'supplier_id')
-                    ->withPivot(['response', 'responded_at'])
+                    ->withPivot(['response', 'responded_at', 'is_read', 'remarks'])
                     ->withTimestamps();
     }
     

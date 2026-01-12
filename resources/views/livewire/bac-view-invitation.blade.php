@@ -109,6 +109,7 @@
                                 <tr class="bg-gray-200">
                                     <th class="px-2 py-1 text-left">Supplier</th>
                                     <th class="px-2 py-1 text-left">Response</th>
+                                    <th class="px-2 py-1 text-left">Feedbacl/Remarks</th>
                                     <th class="px-2 py-1 text-left">Responded At</th>
                                 </tr>
                             </thead>
@@ -147,7 +148,9 @@
                                                 @endif
                                             </span>
                                         </td>
-
+                                        <td class="px-2 py-1">
+                                                {{ $supplier->pivot->remarks ?? '—' }}
+                                        </td>
                                         <td class="px-2 py-1">
                                             @if($submission && $submission->status !== 'draft')
                                                 {{ $submission->submitted_at }}

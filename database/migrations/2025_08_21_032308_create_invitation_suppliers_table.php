@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('invitation_id')->constrained('invitations')->cascadeOnDelete();
             $table->foreignId('supplier_id')->constrained('users')->cascadeOnDelete();
             $table->enum('response', ['pending', 'accepted', 'declined'])->default('pending');
+            $table->text('remarks')->nullable();
             $table->timestamp('responded_at')->nullable();
             $table->timestamps();
         });
