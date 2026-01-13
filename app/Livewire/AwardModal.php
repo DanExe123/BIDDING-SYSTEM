@@ -39,7 +39,7 @@ class AwardModal extends Component
         $this->validate();
 
         // ✅ fetch submission with supplier relation
-        $submission = Submission::with('supplier', 'invitation')->findOrFail($this->selectedSubmissionId);
+        $submission = Submission::with('supplier', 'invitation', 'invitation.ppmp.items')->findOrFail($this->selectedSubmissionId);
 
         // update award fields
         $submission->update([
@@ -63,6 +63,25 @@ class AwardModal extends Component
         LogActivity::add(
             "awarded submission to '{$supplierName}' - Procurement '{$referenceNo}'",
         );
+
+        // -------------- 🔥 CREATE AWARDED ITEMS & SKUs ----------------
+        // loop through PPMP items and create awarded_items
+        foreach ($submission->invitation?->ppmp?->items ?? [] as $item) {
+            \App\Models\AwardedItem::create([
+                'ppmp_id' => $submission->invitation->ppmp?->id, // ✅ correct PPMP ID
+                'procurement_item_id' => $item->id,
+                'invitation_id' => $submission->invitation_id,
+                'supplier_id' => $submission->supplier_id,
+                'sku' => 'SKU-' . date('Y') . '-' . ($submission->invitation->ppmp?->id ?? '0') . '-' . $item->id,
+                'description' => $item->description,
+                'qty' => $item->qty,
+                'unit' => $item->unit,
+                'unit_cost' => $item->unit_cost,
+                'total_cost' => $item->total_cost,
+            ]);
+        }
+
+        // ----------------------------------------------------------------
 
         // ✅ show success modal
         $this->dispatch('close-award-modal');

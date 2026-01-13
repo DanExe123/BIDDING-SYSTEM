@@ -278,24 +278,45 @@
                                 </table>
 
                                 @php
+                                    // Get the currently authenticated supplier ID
                                     $userId = auth()->id();
+
+                                    // Get THIS supplier's response from the pivot table
+                                    // Possible values: pending | accepted | declined
                                     $pivotResponse = $selectedInvitation?->suppliers
                                         ->firstWhere('id', $userId)?->pivot?->response;
+
+                                    // Count how many suppliers have already ACCEPTED this invitation
+                                    // This checks the pivot table response column
+                                    $acceptedCount = $selectedInvitation?->suppliers
+                                        ->where('pivot.response', 'accepted')
+                                        ->count();
+
+                                    // Check if the maximum allowed accepted suppliers (3) is already reached
+                                    // If true → disable Accept button and show info message
+                                    $limitReached = $acceptedCount >= 3;
                                 @endphp
 
+
                                 @if($pivotResponse === 'pending')
-                                    <div class="flex justify-end space-x-2 mt-4">
-                                        <button wire:click="confirmResponse('declined')" @click="showModal = false"
-                                                class="px-4 py-2 bg-red-500 text-white rounded-md">
-                                            Decline
-                                        </button>
+                                     @if($limitReached)
+                                        <div class="mt-4 p-3 rounded-md bg-yellow-100 border border-yellow-300 text-yellow-800 text-sm">
+                                            This bid has already been accepted by <strong>3 suppliers</strong>.
+                                            You can no longer accept this invitation.
+                                        </div>
+                                    @else
+                                        <div class="flex justify-end space-x-2 mt-4">
+                                            <button wire:click="confirmResponse('declined')" @click="showModal = false"
+                                                    class="px-4 py-2 bg-red-500 text-white rounded-md">
+                                                Decline
+                                            </button>
 
-                                        <button wire:click="confirmResponse('accepted')" @click="showModal = false"
-                                                class="px-4 py-2 bg-green-500 text-white rounded-md">
-                                            Accept
-                                        </button>
-
-                                    </div>
+                                            <button wire:click="confirmResponse('accepted')" @click="showModal = false"
+                                                    class="px-4 py-2 bg-green-500 text-white rounded-md">
+                                                Accept
+                                            </button>
+                                        </div>
+                                    @endif
                                 @endif
 
                             </div>

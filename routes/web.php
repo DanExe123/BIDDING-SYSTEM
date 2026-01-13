@@ -18,6 +18,7 @@ use App\Livewire\BacDashboard;
 use App\Livewire\BacProcurementPlanning;
 use App\Livewire\NoticeOfAward;
 use App\Livewire\GenerateReport;
+use App\Livewire\AwardedItems;
 /// procurement module //
 use App\Livewire\BacModeOfProcurement;
 use App\Livewire\BacProcurementWorkflow;
@@ -115,6 +116,8 @@ Route::middleware(['auth', 'role:Supplier'])->group(function () {
         Route::get('/bac-procurement-workflow',BacProcurementWorkflow::class)->name('bac-procurement-workflow');
         
         Route::get('/bell', BacNotificationBell::class)->name('bac-notification-bell'); 
+
+        Route::get('/awarded-items',AwardedItems::class)->name('awarded-items');
     
     });
 

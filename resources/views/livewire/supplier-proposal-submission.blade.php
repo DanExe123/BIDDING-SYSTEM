@@ -155,13 +155,18 @@
                                             <p class="text-sm leading-relaxed text-gray-700">
                                                 Suppliers are advised to ensure that all submitted Technical and Financial Documents are 
                                                 complete, accurate, and compliant with the prescribed requirements.  
+                                                 <br>
+                                                <strong>Bid Evaluation Matrix:</strong>
+                                                Technical Evaluation – <strong>80%</strong>, Financial Evaluation – <strong>20%</strong>.
+
+                                                <br><br>
                                                 Please download and use the standard forms provided below for proper submission.
 
                                                 <span 
                                                     class="text-blue-600 font-medium cursor-pointer hover:underline"
                                                     @click="open = !open">
                                                     Download here
-                                                </span>.
+                                                </span>. 
                                             </p>
                                         </div>
 

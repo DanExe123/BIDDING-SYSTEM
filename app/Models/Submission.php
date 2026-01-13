@@ -36,4 +36,10 @@ class Submission extends Model
     public function items() { 
         return $this->hasMany(SubmissionItem::class); 
     }
+
+    public function awardedItems()
+    {
+        return $this->hasMany(AwardedItem::class, 'invitation_id', 'invitation_id');
+    }
+
 }

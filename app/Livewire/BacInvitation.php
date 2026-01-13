@@ -100,7 +100,7 @@ public $searchInv = '';  // Changed from $search
             'submissionDeadline'  => 'required|date|after_or_equal:preDate',
             'inviteScope'         => 'required|in:category,specific',
             'supplierCategoryId'  => 'required_if:inviteScope,category|nullable|exists:supplier_categories,id',
-            'selectedSuppliers' => 'required_if:inviteScope,specific|array|max:3',
+            'selectedSuppliers' => 'required_if:inviteScope,specific|array',
             'selectedSuppliers.*' => 'exists:users,id',
            // 'documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
@@ -197,8 +197,7 @@ public $searchInv = '';  // Changed from $search
             })
             ->get();
     }
-
-    
+ 
 
     // ✅ Change method name:
     public function updatedSearchInv()  // Changed from updatedSearch

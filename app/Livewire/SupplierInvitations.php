@@ -36,23 +36,22 @@ class SupplierInvitations extends Component
     }
 
     public function selectInvitation($invitationId)
-{
-    $userId = auth()->id();
-    
-    $this->selectedInvitation = Invitation::with('ppmp', 'suppliers')->find($invitationId);
-    
-    // Mark as read
-    InvitationSupplier::where('invitation_id', $invitationId)
-        ->where('supplier_id', $userId)
-        ->update(['is_read' => true]);
-    
-    // Refresh this row only
-    $invitation = $this->invitations->find($invitationId);
-    $invitation->load('suppliers');
-}
+    {
+        $userId = auth()->id();
+        
+        $this->selectedInvitation = Invitation::with('ppmp', 'suppliers')->find($invitationId);
+        
+        // Mark as read
+        InvitationSupplier::where('invitation_id', $invitationId)
+            ->where('supplier_id', $userId)
+            ->update(['is_read' => true]);
+        
+        // Refresh this row only
+        $invitation = $this->invitations->find($invitationId);
+        $invitation->load('suppliers');
+    }
 
-
-    /* 
+    /* s
     public function respondToInvitation($response)
     {
         $userId = auth()->id();
@@ -95,6 +94,21 @@ class SupplierInvitations extends Component
             return;
         }
 
+        // 🚨 FIRST-COME-FIRST-SERVE LIMIT
+        if ($this->confirmAction === 'accepted') {
+            $acceptedCount = InvitationSupplier::where('invitation_id', $this->selectedInvitation->id)
+                ->where('response', 'accepted')
+                ->count();
+
+            if ($acceptedCount >= 3) {
+                session()->flash(
+                    'message',
+                    'This invitation has already been accepted by 3 suppliers.'
+                );
+                return;
+            }
+        }
+
         InvitationSupplier::updateOrCreate(
             [
                 'invitation_id' => $this->selectedInvitation->id,
@@ -119,7 +133,6 @@ class SupplierInvitations extends Component
         $this->reset(['confirmModal', 'confirmAction', 'remarks', 'selectedInvitation']);
         $this->dispatch('close-invitation-modal');
     }
-
 
     public function confirmResponse($action)
     {
