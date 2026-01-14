@@ -83,6 +83,29 @@
                             <span class="text-red-600 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <!-- Implementing Unit (only show if Purchaser) - NEW -->
+                    <div x-data="{ selected: @entangle('implementing_unit_id'), open: false, options: @js($units) }" 
+                        class="relative w-full" x-show="$wire.account_type === 'Purchaser'">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">Implementing Unit</label>
+                        <button @click="open = !open"
+                                class="w-full bg-white border border-gray-400 rounded-md px-4 py-2 text-left shadow-sm">
+                            <span class="text-sm" :class="selected ? 'text-black' : 'text-gray-400'"
+                                x-text="options.find(u => u.id == selected)?.name || 'Select Unit'">
+                            </span>
+                        </button>
+                        <ul x-show="open" @click.away="open = false" x-transition
+                            class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                            <template x-for="unit in options" :key="unit.id">
+                                <li @click="selected = unit.id; open = false"
+                                    class="px-4 py-2 hover:bg-blue-100 cursor-pointer" x-text="unit.name">
+                                </li>
+                            </template>
+                        </ul>
+                        @error('implementing_unit_id')
+                            <span class="text-red-600 text-xs">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
