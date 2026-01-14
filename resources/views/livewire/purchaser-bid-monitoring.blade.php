@@ -52,7 +52,9 @@
                                                     class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
                                                     View
                                                 </button>
-                                                <livewire:editppmp :id="$ppmp->id" />
+                                                @if($ppmp->status !== 'approved')
+                                                    <livewire:editppmp :id="$ppmp->id" />
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

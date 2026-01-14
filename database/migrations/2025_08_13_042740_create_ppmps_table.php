@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('project_title');
             $table->string('project_type');
             $table->decimal('abc', 15, 2); // Approved Budget
-            $table->string('implementing_unit');
+            $table->foreignId('implementing_unit_id')->constrained();
             $table->text('description');
             $table->json('attachments')->nullable();
             $table->json('attachment_names')->nullable();

@@ -89,7 +89,12 @@
                             <tr class="border-b border-gray-200">
                                 <td class="w-1/3 px-4 py-2">
                                     {{ $ppmp->requester->first_name }} {{ $ppmp->requester->last_name }}
+                                    <br>
+                                    <span class="text-xs text-gray-500 block">
+                                        {{ $ppmp->requester->implementingUnit->name ?? 'N/A' }}
+                                    </span>
                                 </td>
+
                                 <td class="w-1/3 px-4 py-2 text-center">
                                     {{ $ppmp->project_title }}
                                 </td>
@@ -210,7 +215,7 @@
                                     <div>
                                         <p class="text-sm font-medium text-gray-500">Implementing Unit</p>
                                         @if($selectedPpmp)
-                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->implementing_unit }}</p>
+                                            <p class="mt-1 text-lg font-semibold text-gray-800">{{ $selectedPpmp->requester->implementingUnit->name ?? 'N/A' }}</p>
                                         @endif
                                     </div>
                                 </div>

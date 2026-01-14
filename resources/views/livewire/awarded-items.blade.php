@@ -20,200 +20,173 @@
                 <div class="bg-[#062B4A] text-center py-2 rounded-t-md">
                     <h2 class="text-lg font-semibold text-white">SKU</h2>
                 </div>
-                <div x-data="{ showModal: false }" x-on:close-modal.window="showModal = false" class="relative">
+                <div class="m-4 rounded-md overflow-hidden">
+                   
+                    <div class="flex flex-wrap items-end gap-4 mb-2">
+                        <!-- Search - PERFECT 1/2 width -->
+                        <div class="w-1/2">
+                            <input 
+                                wire:model.live.debounce.300ms="search"
+                                type="text" 
+                                placeholder="Search Ref No, SKU, Description, Purchaser, Unit, Supplier..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+                            />
+                        </div>
 
-                    <!-- Request Table -->
-                    <div class="border border-gray-300 m-4 rounded-md overflow-hidden">
-                        <table wire:poll class="min-w-full text-sm">
-                            <thead class="bg-blue-200 font-semibold border-b border-gray-300">
-                                <tr>
-                                    <th class="w-1/6 text-left px-4 py-2">Reference No</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Purpose</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Procurement Type</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Awarded at</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Status</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Awarded To</th>
-                                    <th class="w-1/6 text-center px-4 py-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($ppmps as $ppmp)
-                                    @php
-                                        $invitation = $ppmp->invitations->last();
-                                        $awardedSubmissions = $invitation?->submissions->where('status', 'awarded');
-                                    @endphp
-
-                                    @if($awardedSubmissions && $awardedSubmissions->isNotEmpty())
-                                        <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                            <td class="px-4 py-2 font-medium">
-                                                {{ $invitation->reference_no ?? 'No Ref' }}
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                {{ Str::limit($ppmp->project_title, 40) }}
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                @php $mode = $ppmp->mode_of_procurement; @endphp
-                                                <span class="
-                                                    px-2 py-1 rounded-full text-xs font-semibold
-                                                    @if($mode === 'bidding') bg-blue-100 text-blue-800
-                                                    @elseif($mode === 'quotation') bg-green-100 text-green-800
-                                                    @else bg-gray-200 text-gray-600
-                                                    @endif
-                                                ">
-                                                    {{ ucfirst($mode ?? 'Not selected') }}
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                @php
-                                                    $latestAward = $awardedSubmissions->sortByDesc('updated_at')->first();
-                                                @endphp
-                                                @if($latestAward)
-                                                    {{ $latestAward->updated_at->diffInHours() < 24 
-                                                        ? $latestAward->updated_at->diffForHumans() 
-                                                        : $latestAward->updated_at->format('n/j/Y, g:i A') }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                                    Awarded
-                                                </span>
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                {{ $awardedSubmissions->pluck('supplier.first_name')->unique()->implode(', ') }}
-                                            </td>
-                                            <td class="px-4 py-2 text-center">
-                                                <button wire:click="showAwardedSuppliers({{ $ppmp->id }})" 
-                                                        x-on:click="showModal = true"
-                                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm transition-colors">
-                                                    View 
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-4 py-12 text-center text-gray-500 bg-gray-50">
-                                            No awarded items found.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination Links -->
-                        <div class="px-4 py-2">
-                            {{ $ppmps->links() }}
+                        <!-- Status Filter -->
+                        <div class="flex items-center gap-2 min-w-[180px] flex-shrink-0">
+                            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
+                            <select wire:model.live="statusFilter" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm">
+                                <option value="">All</option>
+                                <option value="received">Received</option>
+                                <option value="not_received">Not Received</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Modal -->
-                    <div x-show="showModal" x-transition class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-                        <div class="bg-gray-100 w-full ml-24 max-w-4xl max-h-[90vh] rounded-md shadow-xl overflow-hidden" @click.away="showModal = false">
-                            
-                            <!-- Loading Spinner -->
-                            <div wire:loading.flex wire:target="showAwardedSuppliers" class="p-10 flex justify-center items-center absolute inset-0 bg-gray-100/80 z-10">
-                                <svg class="animate-spin h-8 w-8 text-gray-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                </svg>
-                                <span class="text-gray-600 font-medium">Loading awarded items...</span>
-                            </div>
+                    <table class="min-w-full bg-white border border-gray-300 rounded-lg text-sm">
+                        <thead class="bg-blue-100 sticky top-0 z-10">
+                            <tr class="text-gray-700 uppercase text-xs tracking-wide">
+                                <th class="border px-3 py-3 text-left w-24">Reference No</th>
+                                <th class="border px-3 py-3 text-left w-24">SKU</th>
+                                <th class="border px-3 py-3 text-left w-[25%]">Description / Project</th>
+                                <th class="border px-3 py-3 text-left w-32">Purchaser/Implementing Unit</th>
+                                <th class="border px-3 py-3 text-left w-32">Supplier</th>
+                                <th class="border px-3 py-3 text-center w-16">Qty</th>
+                                <th class="border px-3 py-3 text-center w-16">Unit</th>
+                                <th class="border px-3 py-3 text-center w-24">Status</th>
+                                <th class="border px-3 py-3 text-center w-24">Created at</th>
+                                <th class="border px-3 py-3 text-center w-16">Action</th>
+                            </tr>
+                        </thead>
 
-                            <!-- Modal Content -->
-                            <div wire:loading.remove wire:target="showAwardedSuppliers">
-                                <!-- Header -->
-                                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-300 bg-white">
-                                    <div>
-                                        @if($selectedPpmp)
-                                            <p class="text-sm font-medium text-gray-700">
-                                                <strong>Project:</strong> {{ $selectedPpmp->project_title }}
-                                            </p>
-                                            <p class="text-sm text-gray-600">
-                                                <strong>Requested by:</strong> {{ $selectedPpmp->requester->first_name ?? '' }} {{ $selectedPpmp->requester->last_name ?? '' }}
-                                            </p>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($awardedItems as $index => $item)
+                                @php
+                                    static $refColorMap = [];
+                                    $referenceNo = $item->ppmp->invitations->first()?->reference_no ?? 'N/A';
+                                    
+                                    if (!isset($refColorMap[$referenceNo])) {
+                                        $refColorMap[$referenceNo] = count($refColorMap) % 2 == 0 ? 'bg-white' : 'bg-blue-50';
+                                    }
+                                    
+                                    $rowColor = $refColorMap[$referenceNo];
+                                @endphp
+
+                                <tr class="hover:bg-gray-50 {{ $rowColor }}">
+                                    <td class="border px-2 py-2 text-xs font-mono truncate">
+                                        <span class="bg-gray-100 px-2 py-1 rounded text-[10px]">
+                                            {{ $referenceNo }}
+                                        </span>
+                                    </td>
+                                    <!-- SKU -->
+                                    <td class="border px-2 py-2 font-mono text-xs truncate">
+                                        {{ $item->sku ?? 'N/A' }}
+                                    </td>
+
+                                    <!-- Description / Project -->
+                                    <td class="border px-2 py-2">
+                                        <p class="font-medium text-gray-900 text-sm leading-tight line-clamp-2">
+                                            {{ $item->description }}
+                                        </p>
+                                        <p class="text-[11px] text-gray-500 truncate">
+                                            {{ $item->ppmp->project_title ?? '' }}
+                                        </p>
+                                    </td>
+
+                                    <!-- Purchaser -->
+                                    <td class="border px-2 py-2 text-sm truncate">
+                                        <p class="font-medium text-gray-900 text-sm leading-tight line-clamp-2">
+                                        {{ $item->ppmp->requester->first_name ?? '—' }} {{ $item->ppmp->requester->last_name ?? '—' }}
+                                        </p>
+                                        <p class="text-[11px] text-gray-500 truncate">
+                                            {{ $item->ppmp->requester->implementingUnit->name ?? '—' }}
+                                        </p>
+                                    </td>
+
+                                    <!-- Supplier -->
+                                    <td class="border px-2 py-2">
+                                        <span class="px-2 py-0.5 text-[11px] rounded bg-blue-100 text-blue-800 truncate block">
+                                            {{ $item->supplier->first_name ?? 'Unknown' }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Qty -->
+                                    <td class="border px-2 py-2 text-center font-semibold text-sm">
+                                        {{ $item->qty }}
+                                    </td>
+
+                                    <!-- Unit -->
+                                    <td class="border px-2 py-2 text-center uppercase text-[11px]">
+                                        {{ $item->unit }}
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td class="border px-2 py-2 text-center">
+                                        @if($item->status === 'received')
+                                            <span class="inline-block px-2 py-0.5 text-[10px] rounded-full bg-green-100 text-green-800">
+                                                Received
+                                            </span>
+                                        @else
+                                            <span class="inline-block px-2 py-0.5 text-[10px] rounded-full bg-red-100 text-red-800">
+                                                Not Received
+                                            </span>
                                         @endif
-                                    </div>
-                                    <div class="flex items-center gap-4">
-                                        <button @click="showModal = false; $wire.closeModal()" 
-                                                class="text-gray-500 hover:text-gray-700 text-xl font-bold p-1 hover:bg-gray-200 rounded-full transition-colors">
-                                            &times;
-                                        </button>
-                                    </div>
-                                </div>
+                                    </td>
 
-                                <!-- Awarded Items Table -->
-                                <div class="overflow-x-auto px-6 py-6 max-h-[60vh] overflow-y-auto">
-                                    <table class="min-w-full bg-white text-sm border border-gray-300 rounded-lg overflow-hidden">
-                                        <thead class="bg-gray-100 sticky top-0 z-10">
-                                            <tr>
-                                                <th class="border px-3 py-3 text-left font-semibold text-xs text-gray-700 uppercase tracking-wide w-24">SKU</th>
-                                                <th class="border px-3 py-3 text-left font-semibold text-xs text-gray-700 uppercase tracking-wide w-[40%]">Item Description</th>
-                                                <th class="border px-3 py-3 text-center font-semibold text-xs text-gray-700 uppercase tracking-wide w-16">QTY</th>
-                                                <th class="border px-3 py-3 text-center font-semibold text-xs text-gray-700 uppercase tracking-wide w-16">UNIT</th>
-                                                {{--<th class="border px-3 py-3 text-right font-semibold text-xs text-gray-700 uppercase tracking-wide w-32">UNIT COST</th>
-                                                <th class="border px-3 py-3 text-right font-semibold text-xs text-gray-700 uppercase tracking-wide w-32">TOTAL COST</th>--}}
-                                                <th class="border px-3 py-3 text-center font-semibold text-xs text-gray-700 uppercase tracking-wide w-[20%]">SUPPLIER</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-100">
-                                            @forelse(\App\Models\AwardedItem::with(['supplier', 'procurementItem'])->where('ppmp_id', $selectedPpmp?->id ?? 0)->get() as $item)
-                                                <tr class="hover:bg-gray-50 transition-colors">
-                                                    <td class="border px-3 py-4 font-mono text-sm bg-gray-50 w-24">{{ $item->sku ?: 'N/A' }}</td>
-                                                    <td class="border px-3 py-4 text-sm text-gray-900 w-[40%] max-w-[40%]">
-                                                        {{ Str::limit($item->description, 60) }}
-                                                    </td>
-                                                    <td class="border px-3 py-4 text-center font-semibold text-lg text-gray-900 w-16">{{ $item->qty }}</td>
-                                                    <td class="border px-3 py-4 text-center text-sm uppercase font-medium w-16">{{ $item->unit }}</td>
-                                                    {{--<td class="border px-3 py-4 text-right font-mono text-sm text-gray-900">₱{{ number_format($item->unit_cost, 2) }}</td>
-                                                    <td class="border px-3 py-4 text-right font-bold text-lg bg-green-50 text-green-900">₱{{ number_format($item->total_cost, 2) }}</td>--}}
-                                                    <td class="border px-3 py-4 text-center w-[20%]">
-                                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                                            {{ $item->supplier->first_name ?? 'Unknown' }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="5" class="border px-6 py-12 text-center text-gray-500">
-                                                        No awarded items found for this procurement.
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                        {{--@if($selectedPpmp)
-                                            @php $total = \App\Models\AwardedItem::where('ppmp_id', $selectedPpmp->id)->sum('total_cost'); @endphp
-                                            @if($total > 0)
-                                            <tfoot class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t-2 border-blue-200">
-                                                <tr>
-                                                    <td colspan="5" class="border px-3 py-4 text-right font-bold text-lg text-gray-900">GRAND TOTAL:</td>
-                                                    <td class="border px-3 py-4 text-right font-extrabold text-2xl text-green-700 bg-white rounded-tr-lg">₱{{ number_format($total, 2) }}</td>
-                                                    <td class="border px-3 py-4"></td>
-                                                </tr>
-                                            </tfoot>
-                                            @endif
-                                        @endif--}}
-                                    </table>
-                                </div>
+                                    <!-- TIMESTAMP - NEW (like your example) -->
+                                    <td class="border px-2 py-2 text-xs text-gray-500 text-center">
+                                        {{ $item->created_at->diffInHours() < 24 
+                                            ? $item->created_at->diffForHumans() 
+                                            : $item->created_at->format('n/j/Y, g:i A') }}
+                                    </td>
 
 
-                                <!-- Footer -->
-                                <div class="px-6 py-4 flex justify-between items-center border-t border-gray-300 bg-white">
-                                    <div class="text-sm text-gray-600">
-                                        <strong>Awarded Items Summary</strong> • {{ $selectedPpmp?->project_title }}
-                                    </div>
-                                    <div class="flex items-center space-x-3">
-                                        <button @click="showModal = false; $wire.closeModal()" 
-                                                class="px-6 py-2 text-sm bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors font-medium">
-                                            Close
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                    <!-- Actions -->
+                                    <td class="border px-2 py-2 text-center">
+                                        <div x-data="{ open: false }" class="relative">
+                                            <button @click="open = !open"
+                                                    class="h-7 w-7 flex items-center justify-center rounded hover:bg-gray-200">
+                                                ⋮
+                                            </button>
+
+                                            <div x-show="open"
+                                                @click.away="open = false"
+                                                x-transition
+                                                class="absolute right-0 mt-1 w-36 bg-white border rounded shadow z-50 text-left">
+                                                <button wire:click="markReceived({{ $item->id }})"
+                                                        class="block w-full px-3 py-2 text-xs hover:bg-gray-100">
+                                                    Mark Received
+                                                </button>
+                                                <button wire:click="viewItem({{ $item->id }})"
+                                                        class="block w-full px-3 py-2 text-xs hover:bg-gray-100">
+                                                    View
+                                                </button>
+                                                <button wire:click="removeItem({{ $item->id }})"
+                                                    wire:confirm="Are you sure you want to delete this item? This cannot be undone."
+                                                        class="block w-full px-3 py-2 text-xs text-red-600 hover:bg-red-50">
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="px-6 py-10 text-center text-gray-500">
+                                        No awarded items found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <div class="px-4 py-2">
+                        {{ $awardedItems->links() }}
                     </div>
                 </div>
+            </div>
+
          
 
       </main>

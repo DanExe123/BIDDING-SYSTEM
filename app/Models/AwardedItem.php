@@ -17,6 +17,7 @@ class AwardedItem extends Model
         'unit',
         'unit_cost',
         'total_cost',
+        'status',
     ];
 
     public function ppmp() { 

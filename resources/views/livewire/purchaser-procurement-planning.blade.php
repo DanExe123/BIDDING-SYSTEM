@@ -101,13 +101,17 @@
 
                                             <div>
                                                 <label class="block font-medium mb-1">Implementing Unit*</label>
-                                                <input type="text" wire:model.defer="implementing_unit"
-                                                    placeholder="Office/Department"
-                                                    class="w-full border rounded px-3 py-2" />
+                                                <input 
+                                                    type="text" 
+                                                    value="{{ auth()->user()->implementingUnit->name ?? 'N/A' }}"
+                                                    readonly 
+                                                    class="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed" 
+                                                    placeholder="Office/Department" />
                                                 @error('implementing_unit')
                                                     <span class="text-red-500">{{ $message }}</span>
                                                 @enderror
                                             </div>
+
                                         </div>
 
                                         {{-- Procurement Items --}}
@@ -322,7 +326,9 @@
                                                     class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
                                                     View
                                                 </button>
-                                                <livewire:editppmp :id="$ppmp->id" />
+                                                @if($ppmp->status !== 'approved')
+                                                    <livewire:editppmp :id="$ppmp->id" />
+                                                @endif
                                             </div>
                                         </td>
                                         

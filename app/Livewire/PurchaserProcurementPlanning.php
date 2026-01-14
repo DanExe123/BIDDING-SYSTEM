@@ -81,7 +81,6 @@ class PurchaserProcurementPlanning extends Component
             'project_title' => 'required|string|max:255',
             'project_type' => 'required|string|max:255',
             'abc' => 'required|numeric',
-            'implementing_unit' => 'required|string|max:255',
             'description' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.description' => 'required|string|max:255',
@@ -105,6 +104,7 @@ class PurchaserProcurementPlanning extends Component
     //submit request
     public function save()
     {
+        /*
         $this->validate([
             'project_title' => 'required|string|max:255',
             'project_type' => 'required|string|max:255',
@@ -118,7 +118,7 @@ class PurchaserProcurementPlanning extends Component
             'items.*.unitCost' => 'required|numeric|min:0',
             'attachments' => 'required|array',
             'attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
-        ]);
+        ]);*/
 
         //prevent over budget
         if ($this->totalBudget > 150000) {
@@ -138,7 +138,7 @@ class PurchaserProcurementPlanning extends Component
             'project_title' => $this->project_title,
             'project_type' => $this->project_type,
             'abc' => $this->abc,
-            'implementing_unit' => $this->implementing_unit,
+            'implementing_unit_id' => auth()->user()->implementing_unit_id,
             'description' => $this->description,
             'attachments' => $storedPaths,
             'attachment_names' => $originalNames,
@@ -163,7 +163,7 @@ class PurchaserProcurementPlanning extends Component
 
         session()->flash('message', 'PPMP created successfully.');
 
-        $this->reset(['project_title','project_type','abc','implementing_unit','description','attachments','items']);
+        $this->reset(['project_title','project_type','abc','description','attachments','items']);
     }
     
     public function render()

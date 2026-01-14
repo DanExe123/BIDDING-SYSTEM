@@ -44,7 +44,7 @@
                             <p class="text-md text-gray-600">
                                 <strong>Requested by:</strong> 
                                 <span class="underline decoration-gray-400 underline-offset-4 font-medium">
-                                    {{ $invitation->ppmp->requester->first_name }} {{ $invitation->ppmp->requester->last_name }} 
+                                    {{ $invitation->ppmp->requester->first_name }} {{ $invitation->ppmp->requester->last_name }} ({{ $invitation->ppmp->requester->implementingUnit->name ?? 'N/A' }})
                                 </span>
                             </p>
                             <div class="inline-block text-sm bg-blue-100 text-gray-800 px-6 py-2 rounded-md mb-2">
@@ -109,7 +109,7 @@
                                 <tr class="bg-gray-200">
                                     <th class="px-2 py-1 text-left">Supplier</th>
                                     <th class="px-2 py-1 text-left">Response</th>
-                                    <th class="px-2 py-1 text-left">Feedbacl/Remarks</th>
+                                    <th class="px-2 py-1 text-left">Feedback/Remarks</th>
                                     <th class="px-2 py-1 text-left">Responded At</th>
                                 </tr>
                             </thead>

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('unit');
             $table->decimal('unit_cost', 12, 2);
             $table->decimal('total_cost', 12, 2);
+            $table->enum('status', ['received', 'not_received'])->default('not_received');
 
             $table->timestamps();
         });

@@ -15,7 +15,7 @@ class Ppmp extends Model
         'project_title',
         'project_type',
         'abc',
-        'implementing_unit',
+        'implementing_unit_id',
         'description',
         'attachments', 
         'attachment_names',
@@ -27,6 +27,11 @@ class Ppmp extends Model
     public function items()
     {
         return $this->hasMany(ProcurementItem::class, 'ppmp_id');
+    }
+
+    public function implementingUnit()
+    {
+        return $this->belongsTo(ImplementingUnit::class);
     }
 
     public function requester()

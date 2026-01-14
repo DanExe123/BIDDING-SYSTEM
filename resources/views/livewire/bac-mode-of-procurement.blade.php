@@ -91,6 +91,10 @@
                                     <tr class="border-b border-gray-200">
                                         <td class="px-4 py-2">
                                             {{ $ppmp->requester->first_name }} {{ $ppmp->requester->last_name }}
+                                            <br>
+                                            <span class="text-xs text-gray-500 block">
+                                                {{ $ppmp->requester->implementingUnit->name ?? 'N/A' }}
+                                            </span>
                                         </td>
                                         <td class="px-4 py-2 text-center">
                                             {{ $ppmp->project_title }}

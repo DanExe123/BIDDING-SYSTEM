@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'supplier_category_id',
+        'implementing_unit_id', 
         'business_permit',
         'account_status',
         'bpl_file_name',
@@ -69,6 +70,11 @@ class User extends Authenticatable
     public function supplierCategory()
     {
         return $this->belongsTo(SupplierCategory::class, 'supplier_category_id');
+    }
+
+    public function implementingUnit()
+    {
+        return $this->belongsTo(ImplementingUnit::class, 'implementing_unit_id');
     }
 
     public function bidInvitations()

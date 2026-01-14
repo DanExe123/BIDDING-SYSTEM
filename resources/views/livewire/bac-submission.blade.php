@@ -146,7 +146,7 @@
                         <p class="text-md text-gray-600">
                             <strong>Requested by:</strong>
                             <span class="underline decoration-gray-400 underline-offset-4 font-medium">
-                                {{ $selectedPpmp->requester->first_name }} {{ $selectedPpmp->requester->last_name }}
+                                {{ $selectedPpmp->requester->first_name }} {{ $selectedPpmp->requester->last_name }} ({{ $selectedPpmp->requester->implementingUnit->name ?? 'N/A' }})
                             </span>
                         </p>
 
