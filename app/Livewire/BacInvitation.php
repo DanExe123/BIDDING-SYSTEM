@@ -50,7 +50,7 @@ public $searchInv = '';  // Changed from $search
 
         $this->title = $this->selectedPpmp->project_title;
         $this->approvedBudget = $this->selectedPpmp->abc;
-        $this->sourceOfFunds = $this->selectedPpmp->implementing_unit;
+       // $this->sourceOfFunds = $this->selectedPpmp->implementing_unit;
 
 
          $projectType = $this->selectedPpmp->project_type; // "Construction", "Goods", etc.
@@ -95,7 +95,7 @@ public $searchInv = '';  // Changed from $search
             'title'               => 'required|string|max:255',
             'referenceNo'         => 'required|string|max:255|unique:invitations,reference_no',
             'approvedBudget'      => 'required|numeric|min:0',
-            'sourceOfFunds'       => 'required|string|max:255',
+           // 'sourceOfFunds'       => 'required|string|max:255',
             'preDate'             => 'required|date',
             'submissionDeadline'  => 'required|date|after_or_equal:preDate',
             'inviteScope'         => 'required|in:category,specific',
@@ -125,7 +125,7 @@ public $searchInv = '';  // Changed from $search
             'title'               => $this->title,
             'reference_no'        => $this->referenceNo,
             'approved_budget'     => $this->approvedBudget,
-            'source_of_funds'     => $this->sourceOfFunds,
+           // 'source_of_funds'     => $this->sourceOfFunds,
             'pre_date'            => $this->preDate,
             'submission_deadline' => $this->submissionDeadline,
           //  'documents'           => json_encode($paths), // store paths array

@@ -62,7 +62,7 @@ class SuperadminCreateAccount extends Component
         ]);
 
         // Redirect to user management page
-        return redirect()->route('superadmin-user-management')->with('success', 'Account created successfully!');
+        return redirect()->route('superadmin-user-management')->with('message', 'Account created successfully!');
     }
 
     public function mount()

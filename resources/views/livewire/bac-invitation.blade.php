@@ -193,10 +193,11 @@
                             <input type="text" wire:model="approvedBudget" class="w-full border rounded px-3 py-2" readonly />
                             @error('approvedBudget') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                         </div>
-                        <div>
+                        
+                        <div>{{--
                             <label class="block font-medium mb-1">Source of Funds*</label>
                             <input type="text" wire:model="sourceOfFunds" class="w-full border rounded px-3 py-2" readonly />
-                            @error('sourceOfFunds') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
+                            @error('sourceOfFunds') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror--}}
                         </div>
                         <div>
                             <label class="block font-medium mb-1">Start Date*</label>
