@@ -450,11 +450,10 @@
                                 <input type="number" wire:model="technical_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
                                 @error('technical_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
-
+                            <!-- Remove financial_score input - auto-calculated now -->
                             <div class="mb-4">
-                                <label class="block text-sm font-medium">Financial Score</label>
-                                <input type="number" wire:model="financial_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
-                                @error('financial_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                <label class="block text-sm font-medium">Financial Score <span class="text-xs text-gray-400">(Auto-calculated)</span></label>
+                                <input type="number" wire:model="financial_score" step="0.01"  readonly class="w-full border bg-gray-100 rounded px-3 py-2">
                             </div>
 
                             <div class="mb-4 flex items-center justify-between" x-data="{ showTotal: false, loadingTotal: false }">

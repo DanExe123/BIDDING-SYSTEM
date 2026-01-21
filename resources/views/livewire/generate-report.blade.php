@@ -40,6 +40,57 @@
       </div>
       @endif
 
+      @if($ppmp->mode_of_procurement === 'bidding')
+        <table class="min-w-full mt-8 mb-4 border border-gray-300 bg-white text-sm rounded-md overflow-hidden">
+            <thead class="bg-[#062B4A] text-white">
+                <tr>
+                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
+                        Bidder / Proposer
+                    </th>
+                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
+                        Weighted Technical Score
+                    </th>
+                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
+                        Weighted Financial Cost Score
+                    </th>
+                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
+                        Combined Score
+                    </th>
+                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
+                        Rank
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200">
+                @foreach ($scoreMatrix as $row)
+                    <tr class="hover:bg-gray-50">
+                        <td class="border px-4 py-2">
+                            {{ $row['bidder'] }}
+                        </td>
+
+                        <td class="border px-4 py-2">
+                            {{ number_format($row['tech_weighted'], 2) }}
+                        </td>
+
+                        <td class="border px-4 py-2">
+                            {{ number_format($row['fin_weighted'], 2) }}
+                        </td>
+
+                        <td class="border px-4 py-2 font-semibold text-gray-900">
+                            {{ number_format($row['combined'], 2) }}
+                        </td>
+
+                        <td class="border px-4 py-2 font-medium">
+                            {{ $row['rank'] }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+      @endif
+
+
       {{-- Summary Section --}}
       <div class="w-full mt-8 space-y-4 text-base text-gray-800">
         @forelse($submissions as $submission)

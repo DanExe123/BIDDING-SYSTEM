@@ -93,6 +93,41 @@ class GenerateReport extends Component
         return $this->winner;
     }
 
+    private function buildScoreMatrix()
+{
+    $rows = collect();
+
+    foreach ($this->submissions as $submission) {
+        if ($submission->status === 'rejected') {
+            continue;
+        }
+
+        $tech = floatval($submission->technical_score ?? 0);
+        $fin  = floatval($submission->financial_score ?? 0);
+
+        $weightedTech = round($tech * 0.80, 2);
+        $weightedFin  = round($fin * 0.20, 2);
+        $combined     = round($weightedTech + $weightedFin, 2);
+
+        $rows->push([
+            'bidder'        => $submission->supplier->first_name ?? 'N/A',
+            'tech_weighted' => $weightedTech,
+            'fin_weighted'  => $weightedFin,
+            'combined'      => $combined,
+        ]);
+    }
+
+    // Rank by combined score (highest wins)
+    return $rows
+        ->sortByDesc('combined')
+        ->values()
+        ->map(function ($row, $index) {
+            $row['rank'] = '#' . ($index + 1);
+            return $row;
+        });
+}
+
+
     public function render()
     {
         // keep ppmp fresh (in case)
@@ -106,6 +141,7 @@ class GenerateReport extends Component
 
         return view('livewire.generate-report', [
             'submissions' => $this->submissions,
+            'scoreMatrix' => $this->buildScoreMatrix(),
             'ppmp'        => $this->ppmp,
             'winner'      => $this->winner,
             'awardedSubmission' => $this->awardedSubmission,

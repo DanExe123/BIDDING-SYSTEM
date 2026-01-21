@@ -85,23 +85,66 @@ class BacSubmission extends Component
         }
     }
 
+
+    /* 
     private function calculateTotalScore()
     {
         $tech = floatval($this->technical_score ?? 0);
         $fin  = floatval($this->financial_score ?? 0);
 
-        $this->total_score = ($tech * 0.7) + ($fin * 0.3);
+        $this->total_score = ($tech * 0.8) + ($fin * 0.2);
+    }*/
+
+    private function calculateTotalScore()
+    {
+        $tech = floatval($this->technical_score ?? 0);
+        $fin  = floatval($this->financial_score ?? 0);
+
+        // ✅ FINANCIAL SCORE: Lower bid = higher score (based on lowest bid)
+        $lowestBid = $this->getLowestBidAmount();
+        if ($lowestBid > 0 && $this->evaluationSubmission) {
+            $bidAmount = $this->evaluationSubmission->bid_amount;
+            $this->financial_score = 100 - (($bidAmount - $lowestBid) / $lowestBid * 20); // Max 20% penalty
+            $this->financial_score = max(0, min(100, $this->financial_score)); // Clamp 0-100
+        }
+
+        $this->total_score = ($tech * 0.8) + ($this->financial_score * 0.2);
+    }
+
+    private function getLowestBidAmount()
+    {
+        if (!$this->selectedPpmp || !$this->evaluationSubmission) return 0;
+
+        $lowest = $this->submissions->where('id', '!=', $this->evaluationSubmission->id)
+            ->min('bid_amount') ?? $this->evaluationSubmission->bid_amount;
+
+        return floatval($lowest);
     }
 
 
+    public function updatedTechnicalScore()
+    {
+        if ($this->evaluationSubmission) {
+            $this->calculateTotalScore();
+        }
+    }
+
+    public function updatedFinancialScore()
+    {
+        if ($this->evaluationSubmission) {
+            $this->calculateTotalScore();
+        }
+    }
+
     public function saveEvaluation()
     {
-        $this->validate([
-            'technical_score' => 'required|numeric|min:0|max:100',
-            'financial_score' => 'required|numeric|min:0|max:100',
+         $this->validate([
+        'technical_score' => 'required|numeric|min:0|max:100',
+        // ✅ GIS: Financial auto-calculated - NO validation needed
         ]);
 
-        $this->total_score = ($this->technical_score * 0.8) + ($this->financial_score * 0.2);
+        // ✅ Calculate once here (GIS logic)
+        $this->calculateTotalScore();
 
         $this->evaluationSubmission->update([
             'technical_score' => $this->technical_score,
