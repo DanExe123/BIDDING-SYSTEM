@@ -100,12 +100,17 @@ class BacSubmission extends Component
         $tech = floatval($this->technical_score ?? 0);
         $fin  = floatval($this->financial_score ?? 0);
 
-        // ✅ FINANCIAL SCORE: Lower bid = higher score (based on lowest bid)
+        // FINANCIAL SCORE (IMAGE FORMULA)
         $lowestBid = $this->getLowestBidAmount();
+
         if ($lowestBid > 0 && $this->evaluationSubmission) {
             $bidAmount = $this->evaluationSubmission->bid_amount;
-            $this->financial_score = 100 - (($bidAmount - $lowestBid) / $lowestBid * 20); // Max 20% penalty
-            $this->financial_score = max(0, min(100, $this->financial_score)); // Clamp 0-100
+
+            // (lowest bid / bidder bid) × 100
+            $comparativeScore = ($lowestBid / $bidAmount) * 100;
+
+            // weighted financial score (20%)
+            $this->financial_score = $comparativeScore;
         }
 
         $this->total_score = ($tech * 0.8) + ($this->financial_score * 0.2);
