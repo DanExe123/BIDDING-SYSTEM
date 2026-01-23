@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\SupplierCategory;
+use App\Helpers\LogActivity;
 
 class SuperadminSuppliercategory extends Component
 {
@@ -61,6 +62,10 @@ class SuperadminSuppliercategory extends Component
             'project_type' => $this->project_type,
         ]);
 
+        LogActivity::add(
+            "created supplier category '{$this->name}'"
+        );
+
         session()->flash('message', 'Supplier Category Created.');
         $this->closeModal();
     }
@@ -86,6 +91,10 @@ class SuperadminSuppliercategory extends Component
             'name' => $this->name
         ]);
 
+        LogActivity::add(
+            "updated supplier category '{$this->name}'"
+        );
+
         session()->flash('message', 'Supplier Category Updated.');
         $this->closeModal();
     }
@@ -93,6 +102,9 @@ class SuperadminSuppliercategory extends Component
     public function delete($id)
     {
         SupplierCategory::findOrFail($id)->delete();
+        LogActivity::add(
+            "deleted supplier category '{$category->name}'"
+        );
         session()->flash('message', 'Supplier Category Deleted.');
     }
 }

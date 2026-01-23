@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\User;
 use App\Models\SupplierCategory;
 use App\Models\ImplementingUnit;
+use App\Helpers\LogActivity;
 use Spatie\Permission\Models\Role;
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
@@ -54,6 +55,9 @@ class SuperadminCreateAccount extends Component
         // Assign role (convert spaces back to underscores for DB storage)
         $user->assignRole($roleName);
 
+        LogActivity::add(
+            "created a new {$this->account_type} account for '{$this->first_name}' ({$this->email})"
+        );
 
         // Reset form fields
         $this->reset([

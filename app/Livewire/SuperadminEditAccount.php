@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\User;
 use App\Models\SupplierCategory;
+use App\Helpers\LogActivity;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
@@ -67,6 +68,10 @@ class SuperadminEditAccount extends Component
 
         // Sync role using Spatie
         $this->user->syncRoles([str_replace(' ', '_', $this->account_type)]);
+
+        LogActivity::add(
+        "updated user account '{$this->user->first_name}' ({$this->user->email}) — " 
+        );
 
         session()->flash('success', 'User updated successfully.');
 
