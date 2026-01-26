@@ -118,13 +118,13 @@ class BacSubmission extends Component
 
     private function getLowestBidAmount()
     {
-        if (!$this->selectedPpmp || !$this->evaluationSubmission) return 0;
+        if (!$this->selectedPpmp || $this->submissions->isEmpty()) {
+            return 0;
+        }
 
-        $lowest = $this->submissions->where('id', '!=', $this->evaluationSubmission->id)
-            ->min('bid_amount') ?? $this->evaluationSubmission->bid_amount;
-
-        return floatval($lowest);
+        return (float) $this->submissions->min('bid_amount');
     }
+
 
 
     public function updatedTechnicalScore()
