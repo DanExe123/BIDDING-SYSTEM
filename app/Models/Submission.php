@@ -25,6 +25,12 @@ class Submission extends Model
         'technical_proposal_original_name',
         'financial_proposal_original_name',
         'company_profile_original_name',
+
+        'tech_effectiveness',
+    'tech_methodology',
+    'tech_team',
+    'tech_sustainability',
+    'weighted_technical_score',
     ];
 
     public function invitation() { 

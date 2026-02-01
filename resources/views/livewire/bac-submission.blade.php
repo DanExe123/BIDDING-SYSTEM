@@ -165,38 +165,51 @@
                                 {{ \Carbon\Carbon::parse($selectedPpmp->invitations->last()->submission_deadline)->format('F d, Y') }}
                             </p>
                         </div>
-
+                        
                         {{-- Always show the table --}}
-                        <h3 class="font-bold mb-2">Requested Items</h3>
-                        <table class="min-w-full border border-gray-300 text-sm">
-                            <thead class="bg-[#EFE8A5]">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">Description</th>
-                                    <th class="px-4 py-2 text-left">Quantity</th>
-                                    <th class="px-4 py-2 text-left">Unit</th>
-                                    <th class="px-4 py-2 text-left">Estimated Unit Cost</th>
-                                    <th class="px-4 py-2 text-left">Estimated Total Cost</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($selectedPpmp->items as $item)
-                                    <tr>
-                                        <td class="px-4 py-2 ">{{ $item->description }}</td>
-                                        <td class="px-4 py-2 ">{{ $item->qty }}</td>
-                                        <td class="px-4 py-2 ">{{ $item->unit }}</td>
-                                        <td class="px-4 py-2 ">₱{{ number_format($item->unit_cost, 2) }}</td>
-                                        <td class="px-4 py-2 ">₱{{ number_format($item->total_cost, 2) }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <div x-data="{ showItems: false }" class="mb-2">
+                            <!-- Toggle Button -->
+                            <button 
+                                @click="showItems = !showItems" 
+                                class="mb-2 text-indigo-600 font-semibold hover:underline">
+                                <span x-text="showItems ? 'Hide Requested Items' : 'Show Requested Items'"></span>
+                            </button>
+
+
+                            <!-- Table (hidden by default) -->
+                            <div x-show="showItems" x-transition class="overflow-auto">
+                                <h3 class="font-bold mb-2">Requested Items</h3>
+                                <table class="min-w-full border border-gray-300 text-sm">
+                                    <thead class="bg-[#EFE8A5]">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left">Description</th>
+                                            <th class="px-4 py-2 text-left">Quantity</th>
+                                            <th class="px-4 py-2 text-left">Unit</th>
+                                            <th class="px-4 py-2 text-left">Estimated Unit Cost</th>
+                                            <th class="px-4 py-2 text-left">Estimated Total Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($selectedPpmp->items as $item)
+                                            <tr>
+                                                <td class="px-4 py-2">{{ $item->description }}</td>
+                                                <td class="px-4 py-2">{{ $item->qty }}</td>
+                                                <td class="px-4 py-2">{{ $item->unit }}</td>
+                                                <td class="px-4 py-2">₱{{ number_format($item->unit_cost, 2) }}</td>
+                                                <td class="px-4 py-2">₱{{ number_format($item->total_cost, 2) }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
                     </div>
                 @endif
 
                 <h2 class="text-lg font-semibold">Supplier Submissions</h2>
 
-                <div x-data="{ showDocsModal: false, showEvalModal: false}" class="relative" x-cloak>
+                <div x-data="{ showDocsModal: false, showEvalModal: false, showTechModal: false}" class="relative" x-cloak>
                     <table class="min-w-full text-sm border">
                         <thead class="bg-gray-200">
                             <tr>
@@ -254,13 +267,37 @@
 
                                     {{-- Show only if bidding --}}
                                     @if(optional($selectedPpmp)->mode_of_procurement === 'bidding')
-                                        <td class="px-4 py-2 text-center">
-                                            {{ $submission->technical_score !== null 
-                                                ? (fmod($submission->technical_score, 1) == 0 
-                                                    ? intval($submission->technical_score) 
-                                                    : rtrim(rtrim(number_format($submission->technical_score, 2), '0'), '.')) . '/100' 
-                                                : '-' }}
-                                        </td>
+                                       <td class="px-4 py-2 text-center">
+    {{-- Display Technical Score --}}
+    @php
+        $score = $submission->technical_score ?? $submission->weighted_technical_score;
+        $isWeighted = $submission->technical_score === null && $submission->weighted_technical_score !== null;
+    @endphp
+
+    @if($score !== null)
+        @php
+            $formattedScore = fmod($score, 1) == 0 
+                                ? intval($score) 
+                                : rtrim(rtrim(number_format($score, 2), '0'), '.');
+        @endphp
+
+        @if($score > 100 || $isWeighted)
+            {{ $formattedScore }} 
+            <span class="text-xs italic text-gray-500">Wgt Score</span>
+        @else
+            {{ $formattedScore }}/100
+        @endif
+    @else
+        {{-- Show button only if both scores are null --}}
+        <button
+            wire:click="evaluateSubmission({{ $submission->id }})"
+            @click="showTechModal = true"
+            class="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            Evaluate Technical
+        </button>
+    @endif
+</td>
+
                                         <td class="px-4 py-2 text-center">
                                             {{ $submission->financial_score !== null 
                                                 ? (fmod($submission->financial_score, 1) == 0 
@@ -444,15 +481,23 @@
 
                             <h2 class="text-lg font-semibold mb-4">Evaluate {{ $evaluationSubmission->supplier->first_name ?? 'Supplier' }}</h2>
 
-                            <label class="block text-sm font-medium">Ensure the Technical and Financial Proposals are evaluated using the 100/100 scoring standard.</label>
+                            <button type="button" wire:click="generateTechnicalScoreButton"
+                                class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                                    Generate Scores
+                            </button>
+    
                             <div class="mb-4 mt-2">
                                 <label class="block text-sm font-medium">Technical Score</label>
-                                <input type="number" wire:model="technical_score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2">
-                                @error('technical_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                <label class="block text-xs italic text-gray-500">Weighted Score/Highest Weighted Score * 100</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" wire:model="technical_score" step="0.01"  readonly class="w-full border bg-gray-100 rounded px-3 py-2">
+                                </div>
                             </div>
+
                             <!-- Remove financial_score input - auto-calculated now -->
                             <div class="mb-4">
-                                <label class="block text-sm font-medium">Financial Score <span class="text-xs text-gray-400">(Auto-calculated)</span></label>
+                                <label class="block text-sm font-medium">Financial Score </label>
+                                <label class="block text-xs italic text-gray-500">Lowest Bid Amount/Bid Amount * 100</label>
                                 <input type="number" wire:model="financial_score" step="0.01"  readonly class="w-full border bg-gray-100 rounded px-3 py-2">
                             </div>
 
@@ -467,7 +512,11 @@
                                             loadingTotal = false;
                                         }, 500)
                                     " 
-                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                    :disabled="!{{ $technical_score ?? '0' }} || !{{ $financial_score ?? '0' }}"
+                                    :class="(!{{ $technical_score ?? '0' }} || !{{ $financial_score ?? '0' }}) 
+                                            ? 'bg-gray-400 cursor-not-allowed' 
+                                            : 'bg-blue-600 hover:bg-blue-700'"
+                                    class="px-4 py-2 text-white rounded"
                                 >
                                     Generate Total Score
                                 </button>
@@ -527,6 +576,107 @@
                         </div>
                         @endif
                     </div>
+
+                    <!-- Technical Evaluation Modal -->
+                    <div x-show="showTechModal"
+                        x-transition
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                        x-cloak
+                        @close-tech-modal.window="showTechModal = false">
+
+                        @if($evaluationSubmission)
+                        <div class="bg-white w-[95%] md:w-[450px] rounded-lg shadow-lg p-6"
+                            @click.away="showTechModal = false">
+
+                            <h2 class="text-lg font-semibold mb-4">
+                                Technical Evaluation – {{ $evaluationSubmission->supplier->first_name }}
+                            </h2>
+
+                            <p class="text-sm text-gray-600 mb-3">
+                                Rate each criterion from <strong>0 to 5</strong>.
+                            </p>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span>Effectiveness (50%)</span>
+                                    <select wire:model="tech_effectiveness" class="border rounded px-2 py-1">
+                                        <option value="">—</option>
+                                        @for($i=0;$i<=5;$i++)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    @error('tech_effectiveness')
+                                        <div class="text-xs text-red-500 mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span>Methodology (25%)</span>
+                                    <select wire:model="tech_methodology" class="border rounded px-2 py-1">
+                                        <option value="">—</option>
+                                        @for($i=0;$i<=5;$i++)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    @error('tech_methodology')
+                                        <div class="text-xs text-red-500 mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span>Team Quality (15%)</span>
+                                    <select wire:model="tech_team" class="border rounded px-2 py-1">
+                                        <option value="">—</option>
+                                        @for($i=0;$i<=5;$i++)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    @error('tech_team')
+                                        <div class="text-xs text-red-500 mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <span>Sustainability (10%)</span>
+                                    <select wire:model="tech_sustainability" class="border rounded px-2 py-1">
+                                        <option value="">—</option>
+                                        @for($i=0;$i<=5;$i++)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    @error('tech_sustainability')
+                                        <div class="text-xs text-red-500 mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="mt-5 space-y-2">
+                                <button
+                                    wire:click="saveRawTechnicalScores"
+                                    class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                    Save Raw Technical Scores
+                                </button>
+
+                                <button
+                                    wire:click="generateTechnicalScore"
+                                    class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    Generate Technical Score
+                                </button>
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium">Weighted Technical Score</label>
+                                <input type="text"
+                                    wire:model="weighted_technical_score"
+                                    readonly
+                                    class="w-full border rounded px-3 py-2 bg-gray-100">
+                            </div>
+
+                        </div>
+                        @endif
+                    </div>
+
+
                 </div>
             </div>
                 

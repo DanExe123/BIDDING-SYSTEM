@@ -41,54 +41,61 @@
       @endif
 
       @if($ppmp->mode_of_procurement === 'bidding')
-        <table class="min-w-full mt-8 mb-4 border border-gray-300 bg-white text-sm rounded-md overflow-hidden">
-            <thead class="bg-[#062B4A] text-white">
-                <tr>
-                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
-                        Bidder / Proposer
-                    </th>
-                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
-                        Weighted Technical Score
-                    </th>
-                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
-                        Weighted Financial Cost Score
-                    </th>
-                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
-                        Combined Score
-                    </th>
-                    <th class="border border-blue-700 px-4 py-3 text-left font-semibold">
-                        Rank
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody class="divide-y divide-gray-200">
-                @foreach ($scoreMatrix as $row)
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-4 py-2">
-                            {{ $row['bidder'] }}
-                        </td>
-
-                        <td class="border px-4 py-2">
-                            {{ number_format($row['tech_weighted'], 2) }}
-                        </td>
-
-                        <td class="border px-4 py-2">
-                            {{ number_format($row['fin_weighted'], 2) }}
-                        </td>
-
-                        <td class="border px-4 py-2 font-semibold text-gray-900">
-                            {{ number_format($row['combined'], 2) }}
-                        </td>
-
-                        <td class="border px-4 py-2 font-medium">
-                            {{ $row['rank'] }}
-                        </td>
+            <!-- Existing Score Table -->
+            <table class="min-w-full mt-8 mb-4 border border-gray-300 bg-white text-sm rounded-md overflow-hidden">
+                <thead class="bg-[#062B4A] text-white">
+                    <tr>
+                        <th class="border px-4 py-3 text-left font-semibold">Bidder / Proposer</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Weighted Technical Score</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Weighted Financial Cost Score</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Combined Score</th>
+                        <th class="border px-4 py-3 text-left font-semibold">Rank</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-      @endif
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @foreach ($scoreMatrix as $row)
+                        <tr class="hover:bg-gray-50">
+                            <td class="border px-4 py-2">{{ $row['bidder'] }}</td>
+                            <td class="border px-4 py-2">{{ number_format($row['tech_weighted'], 2) }}</td>
+                            <td class="border px-4 py-2">{{ number_format($row['fin_weighted'], 2) }}</td>
+                            <td class="border px-4 py-2 font-semibold text-gray-900">{{ number_format($row['combined'], 2) }}</td>
+                            <td class="border px-4 py-2 font-medium">{{ $row['rank'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <!-- New Technical Score Matrix Table -->
+            <h3 class="text-sm font-semibold mt-6 mb-2">Technical Score Matrix</h3>
+            <table class="min-w-full mb-6 border border-gray-300 bg-white text-sm rounded-md overflow-hidden">
+                <thead class="bg-[#062B4A] text-white">
+                    <tr>
+                        <th class="border px-4 py-2 text-left font-semibold">Bidder / Proposer</th>
+                        <th class="border px-4 py-2 text-left font-semibold">Total Evaluated Technical Score</th>
+                        <th class="border px-4 py-2 text-left font-semibold">Comparative Technical Score</th>
+                        <th class="border px-4 py-2 text-left font-semibold">Rank</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @php
+                        // find the highest weighted technical score
+                        $maxWeightedTech = $submissions->max(fn($s) => $s->weighted_technical_score ?? 0) ?: 1;
+                        $rank = 1;
+                    @endphp
+                    @foreach ($submissions->sortByDesc(fn($s) => $s->weighted_technical_score) as $s)
+                        <tr class="hover:bg-gray-50">
+                            <td class="border px-4 py-2">{{ $s->supplier->first_name ?? 'N/A' }}</td>
+                            <td class="border px-4 py-2">{{ $s->weighted_technical_score ?? 0 }}</td>
+                            <td class="border px-4 py-2">
+                                {{ round(($s->weighted_technical_score ?? 0) / $maxWeightedTech * 100, 2) }}
+                            </td>
+                            <td class="border px-4 py-2 font-medium">#{{ $rank++ }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
 
 
       {{-- Summary Section --}}

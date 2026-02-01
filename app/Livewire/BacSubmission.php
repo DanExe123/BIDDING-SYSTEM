@@ -18,7 +18,12 @@ class BacSubmission extends Component
 
     //evaluation scoring
     public $evaluationSubmission = null;
-    public $technical_score, $financial_score, $total_score;
+    public $technical_score, $financial_score, $total_score, $weighted_technical_score;
+
+    public $tech_effectiveness = null;
+    public $tech_methodology = null;
+    public $tech_team = null;
+    public $tech_sustainability = null;
 
     protected $paginationTheme = 'tailwind'; 
 
@@ -73,9 +78,17 @@ class BacSubmission extends Component
         $submission = Submission::findOrFail($submissionId);
 
         $this->evaluationSubmission = $submission;
+
+        $this->tech_effectiveness   = $submission->tech_effectiveness;
+        $this->tech_methodology     = $submission->tech_methodology;
+        $this->tech_team            = $submission->tech_team;
+        $this->tech_sustainability  = $submission->tech_sustainability;
+        $this->weighted_technical_score = $submission->weighted_technical_score;
+
         $this->technical_score = $submission->technical_score;
         $this->financial_score = $submission->financial_score;
         $this->total_score     = $submission->total_score;
+
     }
 
     public function updated($propertyName)
@@ -85,6 +98,43 @@ class BacSubmission extends Component
         }
     }
 
+    public function generateTechnicalScore()
+    {
+        $this->validate([
+            'tech_effectiveness'  => 'required|integer|min:0|max:5',
+            'tech_methodology'    => 'required|integer|min:0|max:5',
+            'tech_team'           => 'required|integer|min:0|max:5',
+            'tech_sustainability' => 'required|integer|min:0|max:5',
+        ]);
+
+        // FIGURE IX — Initial Technical Score (WEIGHTED, RAW)
+        $this->weighted_technical_score =
+            ($this->tech_effectiveness  * 50) +
+            ($this->tech_methodology    * 25) +
+            ($this->tech_team           * 15) +
+            ($this->tech_sustainability * 10);
+
+        $this->calculateTotalScore();
+    }
+
+    public function generateTechnicalScoreButton()
+    {
+        if (!$this->evaluationSubmission) return;
+
+        // Ensure weighted_technical_score exists
+        $this->generateTechnicalScore(); // calculates weighted_technical_score
+
+        // Get the highest weighted score among all submissions for this PPMP
+        $highestWeighted = $this->submissions->max('weighted_technical_score') ?? 1;
+
+        // Technical Score formula
+        $this->technical_score = ($this->weighted_technical_score / $highestWeighted) * 100;
+
+        // Make sure it doesn't exceed 100
+        $this->technical_score = min($this->technical_score, 100);
+
+        $this->calculateTotalScore();
+    }
 
     /* 
     private function calculateTotalScore()
@@ -125,13 +175,43 @@ class BacSubmission extends Component
         return (float) $this->submissions->min('bid_amount');
     }
 
-
-
     public function updatedTechnicalScore()
     {
         if ($this->evaluationSubmission) {
             $this->calculateTotalScore();
         }
+    }
+
+
+    public function saveRawTechnicalScores()
+    {
+        $this->validate([
+            'tech_effectiveness'  => 'required|integer|min:0|max:5',
+            'tech_methodology'    => 'required|integer|min:0|max:5',
+            'tech_team'           => 'required|integer|min:0|max:5',
+            'tech_sustainability' => 'required|integer|min:0|max:5',
+        ]);
+
+        if (!$this->evaluationSubmission) {
+            return;
+        }
+
+        // JUST ADD. NOTHING ELSE.
+        $rawTechnicalScore =
+            ($this->tech_effectiveness  * 50) +
+            ($this->tech_methodology    * 25) +
+            ($this->tech_team           * 15) +
+            ($this->tech_sustainability * 10);
+
+        $this->evaluationSubmission->update([
+            'tech_effectiveness'  => $this->tech_effectiveness,
+            'tech_methodology'    => $this->tech_methodology,
+            'tech_team'           => $this->tech_team,
+            'tech_sustainability' => $this->tech_sustainability,
+            'weighted_technical_score'     => $rawTechnicalScore,
+        ]);
+
+        session()->flash('message', 'Raw technical score saved.');
     }
 
     public function updatedFinancialScore()

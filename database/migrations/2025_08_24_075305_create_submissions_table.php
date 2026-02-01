@@ -29,6 +29,12 @@ return new class extends Migration
             $table->string('financial_proposal_original_name')->nullable();
             $table->string('company_profile_original_name')->nullable();
 
+            $table->unsignedTinyInteger('tech_effectiveness')->nullable();   // 0–5
+            $table->unsignedTinyInteger('tech_methodology')->nullable();     // 0–5
+            $table->unsignedTinyInteger('tech_team')->nullable();            // 0–5
+            $table->unsignedTinyInteger('tech_sustainability')->nullable();  // 0–5
+            $table->decimal('weighted_technical_score', 5, 2)->nullable();
+
             // Common
             $table->text('remarks')->nullable();
             $table->integer('delivery_days')->nullable();
